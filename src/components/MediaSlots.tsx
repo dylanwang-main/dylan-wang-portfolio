@@ -112,7 +112,11 @@ export function AnimatedTile({ index = 0, aspect = "4/3" }: { index?: number; as
   const bgY = useTransform(scrollYProgress, [0, 1], [-14, 14]);
   const Card = CARDS[index % CARDS.length];
   return (
-    <div ref={ref} className="relative overflow-hidden rounded-lg" style={{ aspectRatio: aspect, background: TONES[index % TONES.length] }}>
+    <div
+      ref={ref}
+      className="relative overflow-hidden rounded-lg aspect-[4/3] md:[aspect-ratio:var(--ar)]"
+      style={{ ["--ar" as string]: aspect.replace("/", " / "), background: TONES[index % TONES.length] }}
+    >
       <motion.div className="absolute -inset-[8%]" style={{ y: bgY }}>
         <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 70% 22%, rgba(255,240,225,0.24), transparent 55%)" }} />
         <div className="absolute inset-0 mix-blend-soft-light opacity-60" style={{ backgroundImage: GRAIN }} />

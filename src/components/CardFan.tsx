@@ -34,9 +34,12 @@ export default function CardFan({ cards }: { cards: FanCard[] }) {
           <FanItem key={c.label} card={c} i={i} p={p} />
         ))}
       </div>
-      <div className="md:hidden grid grid-cols-1 gap-6">
+      {/* phones: the fanned-out row as a swipe strip (no stacking) */}
+      <div className="md:hidden -mx-6 sm:-mx-10 px-6 sm:px-10 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-3 [scrollbar-width:none]">
         {cards.map((c) => (
-          <PlaceholderImage key={c.label} label={c.label} recommendedSize={c.recommendedSize} aspectRatio={c.aspectRatio ?? "9/14"} />
+          <div key={c.label} className="w-[64%] shrink-0 snap-center shadow-[0_14px_36px_rgba(31,27,22,0.18)] bg-[var(--bg-cream)]">
+            <PlaceholderImage label={c.label} recommendedSize={c.recommendedSize} aspectRatio={c.aspectRatio ?? "9/14"} />
+          </div>
         ))}
       </div>
     </>
