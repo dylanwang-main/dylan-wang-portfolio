@@ -65,7 +65,7 @@ export default function App() {
               <div aria-hidden="true" style={{ height: `${(INTRO_VH + 1 + SCENE_DWELL_VH) * 100}vh`, marginTop: "-100svh" }} />
 
               {/* Page B: normal flow, directly below A, with torn edge attached to top overlapping A */}
-              <SectionContentWrapper ref={workContentRef} seed={101}>
+              <SectionContentWrapper ref={workContentRef} seed={101} folio="I · Work">
                 <div className="w-full px-6 sm:px-10 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 max-w-[1400px] pt-[clamp(8rem,16vw,16rem)] pb-[clamp(14rem,18vw,18rem)]">
                   <div>
                     {WORK_PROJECTS.map((project, idx) => (
@@ -101,7 +101,7 @@ export default function App() {
               <div aria-hidden="true" style={{ height: `${SCENE_DWELL_VH * 100}vh` }} />
 
               {/* Page B: normal flow, directly below A, with torn edge attached to top overlapping A */}
-              <SectionContentWrapper ref={contentContentRef} seed={202}>
+              <SectionContentWrapper ref={contentContentRef} seed={202} folio="II · Content">
                 <div className="w-full px-6 sm:px-10 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 max-w-[1400px] pt-[clamp(8rem,16vw,16rem)] pb-[clamp(14rem,18vw,18rem)]">
                   {/* Featured Content Project Overview */}
                   <FeatureBlock project={CONTENT_PROJECT} index={0} />
@@ -153,7 +153,7 @@ export default function App() {
               <div aria-hidden="true" style={{ height: `${SCENE_DWELL_VH * 100}vh` }} />
 
               {/* Page B: normal flow, directly below A, with torn edge attached to top overlapping A */}
-              <SectionContentWrapper ref={aboutContentRef} seed={302}>
+              <SectionContentWrapper ref={aboutContentRef} seed={302} folio="III · About">
                 <AboutSection />
               </SectionContentWrapper>
             </section>
@@ -178,7 +178,7 @@ export default function App() {
               <div aria-hidden="true" style={{ height: `${SCENE_DWELL_VH * 100}vh` }} />
 
               {/* Page B: normal flow, directly below A, with torn edge attached to top overlapping A */}
-              <SectionContentWrapper ref={contactContentRef} seed={402}>
+              <SectionContentWrapper ref={contactContentRef} seed={402} folio="IV · Contact">
                 <ContactSection />
               </SectionContentWrapper>
             </section>

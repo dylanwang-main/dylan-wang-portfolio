@@ -1,12 +1,15 @@
 import { forwardRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import PaperEdge from "./PaperEdge";
+import PaperDecor from "./PaperDecor";
 
 interface SectionContentWrapperProps {
   children: React.ReactNode;
   className?: string;
   id?: string;
   seed?: number;
+  /** Small folio line under the tear, e.g. "I · Work" */
+  folio?: string;
 }
 
 /**
@@ -19,7 +22,7 @@ const SectionContentWrapper = forwardRef<
   HTMLDivElement,
   SectionContentWrapperProps
 >(function SectionContentWrapper(
-  { children, className = "", id, seed = 101 },
+  { children, className = "", id, seed = 101, folio },
   ref
 ) {
   const { scrollYProgress: p } = useScroll({
@@ -48,6 +51,8 @@ const SectionContentWrapper = forwardRef<
         rim="255,255,255"
         shadow="rgba(0,0,0,0.5)"
       />
+
+      <PaperDecor folio={folio} />
 
       <motion.div
         style={prefersReducedMotion ? undefined : { y: contentY }}
