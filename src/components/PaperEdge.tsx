@@ -1,17 +1,24 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Torn paper edge, with a slow burn running along the tear.
+ * A living torn-paper edge.
  *
- * The main canvas is transparent ABOVE the ragged line (so the scene behind shows
- * through) and filled with `fill` BELOW it (so it merges into the page that sits
- * directly under the canvas). A second, transparent canvas on top animates an ember
- * line: a hot front sweeps along the tear leaving a dimmer glowing trail, with the odd
- * spark lifting off. It is only an illusion of burning (the paper never changes), it
- * only runs while the edge is on screen, and it stays still for reduced motion.
+ * The main canvas is transparent ABOVE the ragged line (so the scene behind shows through)
+ * and filled with `fill` BELOW it (so it merges into the page directly under the canvas).
+ * Nothing about it is frozen:
+ *  - the tear line itself keeps moving: slow waves drift sideways and breathe, scrolling
+ *    pushes them along, and a fast fine "boil" makes the fibres shimmer
+ *  - the rim is a band of varying width (not a constant stroke), so it looks fibrous
+ *  - pixel flakes lift off the edge and fade as they rise; char / dust specks twinkle
+ *    just inside the paper
+ *  - a second transparent canvas carries the ember line (two hot fronts travelling along
+ *    the tear) and the odd spark
+ * It only runs while the edge is on screen, and holds a single still frame for reduced motion.
  */
 
 const EDGE_HEIGHT = 220;
+const FLAKE_RISE = 48;
+const CHAR_DEPTH = 24;
 
 function mulberry32(a: number) {
   return () => {
@@ -34,7 +41,7 @@ interface PaperEdgeProps {
   height?: number;
   /** Is the paper itself light (cream) or dark? Lets the nav read contrast from the real pixels. */
   paper?: "light" | "dark";
-  /** Animate the ember along the tear. */
+  /** Animate the edge and the ember along the tear. */
   burn?: boolean;
 }
 
@@ -42,6 +49,22 @@ type Spark = { x: number; y: number; vx: number; vy: number; age: number; life: 
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const mix = (a: number, b: number, t: number) => a + (b - a) * t;
+
+const hash = (n: number) => {
+  const s = Math.sin(n * 127.1) * 43758.5453;
+  return s - Math.floor(s);
+};
+/** Smooth 2D value noise, 0..1 */
+function vn(x: number, y: number) {
+  const xi = Math.floor(x);
+  const yi = Math.floor(y);
+  const xf = x - xi;
+  const yf = y - yi;
+  const u = xf * xf * (3 - 2 * xf);
+  const v = yf * yf * (3 - 2 * yf);
+  const h = (a: number, b: number) => hash(a * 57 + b * 131 + 17);
+  return mix(mix(h(xi, yi), h(xi + 1, yi), u), mix(h(xi, yi + 1), h(xi + 1, yi + 1), u), v);
+}
 
 /** Ember colour for a heat value 0..1: dull red, orange, then pale yellow at the hot front. */
 function heatColor(i: number) {
@@ -60,6 +83,15 @@ function heatColor(i: number) {
   }
   return `rgba(${r | 0},${g | 0},${b | 0},${a.toFixed(3)})`;
 }
+
+/** Slow waves down to fine tear. v = drift speed (px/s, sign = direction), b = breathing rate. */
+const OCT = [
+  { a: 40, f: 0.0035, v: 9, b: 0.21 },
+  { a: 22, f: 0.011, v: -14, b: 0.33 },
+  { a: 10, f: 0.03, v: 22, b: 0.47 },
+  { a: 5, f: 0.09, v: -35, b: 0.61 },
+  { a: 2, f: 0.25, v: 60, b: 0.83 },
+];
 
 export default function PaperEdge({
   seed,
@@ -84,21 +116,141 @@ export default function PaperEdge({
     let W = 0;
     let dpr = 1;
     let ys: number[] = [];
-    let path: Path2D | null = null;
+    const H = height;
+    const base = H * 0.55;
     const sparks: Spark[] = [];
     const period = 9000 + (seed % 5) * 1300;
     const phase = (seed * 0.6180339) % 1;
+    const charRGB = paper === "light" ? "70,42,28" : rim;
+
+    type Fibre = { x: number; len: number; dx: number; ph: number; w: number; bucket: number };
+    type Flake = { x: number; d0: number; v: number; ph: number; w: number; sz: number; a: number };
+    type Char = { x: number; d: number; ph: number; w: number; sz: number; a: number };
+    let ph: number[] = [];
+    let fibres: Fibre[] = [];
+    let flakes: Flake[] = [];
+    let chars: Char[] = [];
+
+    /** The tear line at time t (ms). */
+    const compute = (t: number) => {
+      const T = animate ? t / 1000 : 0;
+      const S = animate ? window.scrollY : 0;
+      for (let x = 0; x <= W; x++) {
+        let y = base;
+        for (let i = 0; i < OCT.length; i++) {
+          const o = OCT[i];
+          // waves drift on their own, and scrolling pushes them along
+          const sh = T * o.v + S * o.v * 0.12;
+          const breath = 0.88 + 0.12 * Math.sin(T * o.b + ph[i]);
+          y +=
+            o.a *
+            breath *
+            Math.sin((x + sh) * o.f + ph[i]) *
+            (0.6 + 0.4 * Math.sin((x + sh) * o.f * 0.37 + ph[i] * 1.7 + T * 0.09 * (i + 1)));
+        }
+        // slow morph + fast "boil" so the ragged fibres keep shimmering
+        y +=
+          (vn(x * 0.06 + seed, T * 0.9) - 0.5) * 10 +
+          (vn(x * 0.22 + seed * 3.1, T * 6) - 0.5) * 4.4 +
+          (vn(x * 0.9 + seed * 1.7, T * 10 + 50) - 0.5) * 2.4;
+        ys[x] = y;
+      }
+    };
+
+    const paintMain = (t: number) => {
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      if (!ctx || !W) return;
+      const T = animate ? t / 1000 : 0;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+
+      const bodyP = new Path2D();
+      const edgeP = new Path2D();
+      bodyP.moveTo(0, H + 2);
+      edgeP.moveTo(0, ys[0]);
+      for (let x = 0; x <= W; x++) {
+        bodyP.lineTo(x, ys[x]);
+        edgeP.lineTo(x, ys[x]);
+      }
+      bodyP.lineTo(W, H + 2);
+      bodyP.closePath();
+
+      // 1. paper body (solid all the way to the bottom row)
+      ctx.fillStyle = fill;
+      ctx.fill(bodyP);
+
+      // 2. rim: soft haze, then a band whose width wanders along the tear
+      ctx.save();
+      ctx.clip(bodyP);
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = `rgba(${rim},0.5)`;
+      ctx.lineWidth = 16;
+      ctx.stroke(edgeP);
+
+      const rimP = new Path2D();
+      rimP.moveTo(0, ys[0]);
+      for (let x = 1; x <= W; x++) rimP.lineTo(x, ys[x]);
+      for (let x = W; x >= 0; x--) {
+        const w = 3.2 + 6.5 * vn(x * 0.08 + seed, T * 1.6) + 2 * vn(x * 0.5 + seed * 2, T * 7);
+        rimP.lineTo(x, ys[x] + w);
+      }
+      rimP.closePath();
+      ctx.fillStyle = `rgba(${rim},0.96)`;
+      ctx.fill(rimP);
+
+      // 3. char / dust specks just inside the paper, twinkling in and out
+      ctx.fillStyle = `rgb(${charRGB})`;
+      for (const c of chars) {
+        const al = c.a * (1 - c.d / CHAR_DEPTH) * (0.5 + 0.5 * Math.sin(T * c.w + c.ph));
+        if (al < 0.03) continue;
+        ctx.globalAlpha = al;
+        ctx.fillRect(c.x | 0, (ys[c.x | 0] + 5 + c.d) | 0, c.sz, c.sz);
+      }
+      ctx.globalAlpha = 1;
+      ctx.restore();
+
+      // 4. loose fibres sticking out above the tear, swaying
+      ctx.lineWidth = 0.7;
+      const alphas = [0.3, 0.5, 0.75];
+      for (let b = 0; b < 3; b++) {
+        ctx.strokeStyle = `rgba(${rim},${alphas[b]})`;
+        ctx.beginPath();
+        for (const f of fibres) {
+          if (f.bucket !== b) continue;
+          const y = ys[f.x | 0];
+          const len = f.len * (0.55 + 0.45 * Math.sin(T * f.w + f.ph));
+          const dx = f.dx * (0.6 + 0.4 * Math.cos(T * f.w * 0.7 + f.ph));
+          ctx.moveTo(f.x, y + 1);
+          ctx.lineTo(f.x + dx, y - len);
+        }
+        ctx.stroke();
+      }
+
+      // 5. flakes of paper lifting off the tear and fading as they rise (pixel-snapped)
+      ctx.fillStyle = `rgb(${rim})`;
+      for (const f of flakes) {
+        const d = (f.d0 + T * f.v) % FLAKE_RISE;
+        const al = f.a * Math.pow(1 - d / FLAKE_RISE, 1.3) * (0.5 + 0.5 * Math.sin(T * f.w + f.ph));
+        if (al < 0.03) continue;
+        ctx.globalAlpha = al;
+        ctx.fillRect(f.x | 0, (ys[f.x | 0] - d - 1) | 0, f.sz, f.sz);
+      }
+      ctx.globalAlpha = 1;
+    };
 
     const paintFx = (t: number, dt: number) => {
       const ctx = fx.getContext("2d");
-      if (!ctx || !path || !W) return;
+      if (!ctx || !W) return;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, W, height);
+      ctx.clearRect(0, 0, W, H);
+
+      const path = new Path2D();
+      path.moveTo(0, ys[0] - 1);
+      for (let x = 1; x <= W; x++) path.lineTo(x, ys[x] - 1);
 
       // two burn fronts at different speeds, so the line never looks looped
       const f1 = ((t / period + phase) % 1) * W * 1.4 - W * 0.2;
       const f2 = ((t / (period * 1.7) + phase * 1.7 + 0.35) % 1) * W * 1.4 - W * 0.2;
-
       const front = (x: number, f: number) =>
         x > f ? Math.exp(-(((x - f) / 55) ** 2)) : Math.exp(-(f - x) / (W * 0.2));
 
@@ -162,98 +314,54 @@ export default function PaperEdge({
       }
     };
 
+    const draw = (t: number, dt: number) => {
+      compute(t);
+      paintMain(t);
+      if (burn) paintFx(t, dt);
+    };
+
     const build = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      dpr = Math.min(window.devicePixelRatio || 1, animate ? 1.5 : 2);
       W = Math.ceil(canvas.parentElement?.clientWidth || window.innerWidth);
-      const H = height;
 
-      canvas.width = W * dpr;
-      canvas.height = H * dpr;
-      canvas.style.width = "100%";
-      canvas.style.height = `${H}px`;
-      fx.width = W * dpr;
-      fx.height = H * dpr;
-      fx.style.width = "100%";
-      fx.style.height = `${H}px`;
-
-      const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      if (!ctx) return;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      ctx.clearRect(0, 0, W, H);
+      for (const c of [canvas, fx]) {
+        c.width = W * dpr;
+        c.height = H * dpr;
+        c.style.width = "100%";
+        c.style.height = `${H}px`;
+      }
 
       const rnd = mulberry32(seed);
-      // amplitude (px) and frequency of each noise octave: slow waves down to fine tear
-      const oct = [
-        { a: 40, f: 0.0035 },
-        { a: 22, f: 0.011 },
-        { a: 10, f: 0.03 },
-        { a: 5, f: 0.09 },
-        { a: 2, f: 0.25 },
-      ];
-      const ph = oct.map(() => rnd() * 1000);
-      const base = H * 0.55;
-      ys = [];
-      for (let x = 0; x <= W; x++) {
-        let y = base;
-        oct.forEach((o, i) => {
-          y +=
-            o.a *
-            Math.sin(x * o.f + ph[i]) *
-            (0.6 + 0.4 * Math.sin(x * o.f * 0.37 + ph[i] * 1.7));
-        });
-        ys.push(y + (rnd() - 0.5) * 2);
-      }
+      ph = OCT.map(() => rnd() * 1000);
+      ys = new Array(W + 1).fill(base);
 
-      const body = () => {
-        ctx.beginPath();
-        ctx.moveTo(0, H + 2);
-        for (let x = 0; x <= W; x++) ctx.lineTo(x, ys[x]);
-        ctx.lineTo(W, H + 2);
-        ctx.closePath();
-      };
+      fibres = Array.from({ length: Math.round(W * 1.3) }, () => ({
+        x: rnd() * W,
+        len: 2 + rnd() * 10,
+        dx: (rnd() - 0.5) * 5,
+        ph: rnd() * 6.28,
+        w: 0.8 + rnd() * 2.2,
+        bucket: Math.min(2, Math.floor(rnd() * 3)),
+      }));
+      flakes = Array.from({ length: Math.round(W * 1.7) }, () => ({
+        x: rnd() * W,
+        d0: rnd() * FLAKE_RISE,
+        v: 5 + rnd() * 14,
+        ph: rnd() * 6.28,
+        w: 1 + rnd() * 2.5,
+        sz: rnd() < 0.5 ? 1 : rnd() < 0.7 ? 2 : rnd() < 0.9 ? 3 : 4,
+        a: 0.55 + rnd() * 0.45,
+      }));
+      chars = Array.from({ length: Math.round(W * 1.1) }, () => ({
+        x: rnd() * W,
+        d: rnd() * CHAR_DEPTH,
+        ph: rnd() * 6.28,
+        w: 0.8 + rnd() * 2.4,
+        sz: rnd() < 0.6 ? 1 : rnd() < 0.85 ? 2 : 3,
+        a: 0.35 + rnd() * 0.45,
+      }));
 
-      // 1. paper body (solid all the way to the bottom row)
-      body();
-      ctx.fillStyle = fill;
-      ctx.fill();
-
-      // 2. fibrous rim, drawn inside the paper along the tear
-      ctx.save();
-      body();
-      ctx.clip();
-      ctx.beginPath();
-      ctx.moveTo(0, ys[0]);
-      for (let x = 1; x <= W; x++) ctx.lineTo(x, ys[x]);
-      ctx.lineJoin = "round";
-      ctx.strokeStyle = `rgba(${rim},0.55)`;
-      ctx.lineWidth = 16;
-      ctx.stroke();
-      ctx.strokeStyle = `rgba(${rim},0.95)`;
-      ctx.lineWidth = 6;
-      ctx.stroke();
-      ctx.restore();
-
-      // 3. loose fibers sticking out above the tear
-      ctx.lineWidth = 0.7;
-      for (let i = 0; i < W * 3; i++) {
-        const x = Math.floor(rnd() * W);
-        const y = ys[x];
-        const len = 2 + rnd() * 9;
-        const dx = (rnd() - 0.5) * 5;
-        ctx.strokeStyle = `rgba(${rim},${0.25 + rnd() * 0.5})`;
-        ctx.beginPath();
-        ctx.moveTo(x, y + 1);
-        ctx.lineTo(x + dx, y - len);
-        ctx.stroke();
-      }
-
-      // ember path rides the tear line
-      const p = new Path2D();
-      p.moveTo(0, ys[0] - 1);
-      for (let x = 1; x <= W; x++) p.lineTo(x, ys[x] - 1);
-      path = p;
-
-      if (burn) paintFx(performance.now(), 16);
+      draw(performance.now(), 16);
     };
 
     build();
@@ -267,7 +375,7 @@ export default function PaperEdge({
       const dt = now - last;
       if (dt < 33) return;
       last = now;
-      paintFx(now, Math.min(dt, 100));
+      draw(now, Math.min(dt, 100));
     };
     const start = () => {
       if (running || !animate) return;
@@ -300,7 +408,7 @@ export default function PaperEdge({
       io.disconnect();
       ro.disconnect();
     };
-  }, [seed, fill, rim, height, burn]);
+  }, [seed, fill, rim, height, burn, paper]);
 
   // bottom edge of the canvases sits 2px inside the page below (no hairline seam)
   const pos = {
