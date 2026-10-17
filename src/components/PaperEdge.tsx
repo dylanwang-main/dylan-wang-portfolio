@@ -7,8 +7,7 @@ import { useEffect, useRef } from "react";
  * and filled with `fill` BELOW it (so it merges into the page directly under the canvas).
  * Nothing about it is frozen:
  *  - the tear line flows like a calm ocean: a few wide travelling swells roll sideways at
- *    steady speeds (no fine jitter, no scroll coupling), with a see-through ghost sheet on
- *    its own slower swells behind them
+ *    at different steady speeds (no fine jitter, no scroll coupling)
  *  - the rim is a band of varying width (not a constant stroke), so it looks fibrous
  *  - pixel flakes lift off the edge and fade as they rise; char / dust specks twinkle
  *    just inside the paper
@@ -97,15 +96,6 @@ const SWELLS = [
   { a: 11, len: 430, v: 72 }, // medium swell, faster, slides across the primary
   { a: 13, len: 1350, v: 18 }, // very wide, slow roll so the overall shape keeps changing
 ];
-/** Softer second layer: a ghost sheet of paper just behind the tear, on its own slower swells. */
-const GHOST = [
-  { a: 15, len: 900, v: 30 },
-  { a: 8, len: 520, v: 41 },
-];
-/** How far above the main tear the ghost layer rides on average, and how see-through it is. */
-const GHOST_LIFT = 18;
-const GHOST_ALPHA = 0.17;
-
 /** One travelling wave with slightly rounded crests and flatter troughs, like a real swell. */
 const swell = (x: number, t: number, a: number, len: number, v: number, p: number) => {
   const th = ((x - v * t) / len) * Math.PI * 2 + p;
@@ -148,8 +138,6 @@ export default function PaperEdge({
     type Flake = { x: number; d0: number; v: number; ph: number; w: number; sz: number; a: number };
     type Char = { x: number; d: number; ph: number; w: number; sz: number; a: number };
     let ph: number[] = [];
-    let gph: number[] = [];
-    let ys2: number[] = [];
     let fibres: Fibre[] = [];
     let flakes: Flake[] = [];
     let chars: Char[] = [];
@@ -172,13 +160,6 @@ export default function PaperEdge({
           (vn((x - u2) * 0.22 + seed * 3.1, 9.1) - 0.5) * 4.4 +
           (vn(x * 0.9 + seed * 1.7, 21.3) - 0.5) * 2.2;
         ys[x] = y;
-
-        let g = base - GHOST_LIFT;
-        for (let i = 0; i < GHOST.length; i++) {
-          const s = GHOST[i];
-          g += swell(x, tt, s.a, s.len, s.v, gph[i]);
-        }
-        ys2[x] = g + (vn((x - u2) * 0.05 + seed * 5.3, 14.9) - 0.5) * 6;
       }
     };
 
@@ -189,27 +170,6 @@ export default function PaperEdge({
       const tt = animate ? t / 1000 : 0;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, W, H);
-
-      // 0. softer second layer: a see-through ghost sheet behind the tear, on its own swells.
-      // Kept under alpha 128 so the nav contrast sampler (which reads this canvas) ignores it.
-      const ghostP = new Path2D();
-      const ghostEdge = new Path2D();
-      ghostP.moveTo(0, H + 2);
-      ghostEdge.moveTo(0, ys2[0]);
-      for (let x = 0; x <= W; x++) {
-        ghostP.lineTo(x, ys2[x]);
-        ghostEdge.lineTo(x, ys2[x]);
-      }
-      ghostP.lineTo(W, H + 2);
-      ghostP.closePath();
-      ctx.fillStyle = fill;
-      ctx.globalAlpha = GHOST_ALPHA;
-      ctx.fill(ghostP);
-      ctx.globalAlpha = 0.22;
-      ctx.strokeStyle = `rgb(${rim})`;
-      ctx.lineWidth = 1.2;
-      ctx.stroke(ghostEdge);
-      ctx.globalAlpha = 1;
 
       const bodyP = new Path2D();
       const edgeP = new Path2D();
@@ -406,9 +366,7 @@ export default function PaperEdge({
 
       const rnd = mulberry32(seed);
       ph = SWELLS.map(() => rnd() * 6.2832);
-      gph = GHOST.map(() => rnd() * 6.2832);
       ys = new Array(W + 1).fill(base);
-      ys2 = new Array(W + 1).fill(base - GHOST_LIFT);
 
       fibres = Array.from({ length: Math.round(W * 1.3) }, () => ({
         x: rnd() * W,
