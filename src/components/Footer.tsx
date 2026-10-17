@@ -26,9 +26,12 @@ export default function Footer() {
 
       <div className="relative max-w-[1400px]">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 text-[13px] text-[#C0B4A4]">
-          <p className="max-w-sm leading-relaxed">
-            Incoming data science student at UC San Diego, and a content creator.
-          </p>
+          <div className="max-w-sm leading-relaxed">
+            <p>Incoming data science student at UC San Diego, and a content creator.</p>
+            <p className="mt-3 text-[12px] text-[#8A7B6A]">
+              Designed and directed by me, built with Claude Code. I work daily with ChatGPT, Claude and Claude Code.
+            </p>
+          </div>
           <nav className="flex flex-wrap items-center gap-x-6 gap-y-2" aria-label="Footer">
             {NAVIGATION_ITEMS.map((item) => (
               <button

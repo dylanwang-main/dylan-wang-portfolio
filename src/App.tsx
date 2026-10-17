@@ -80,32 +80,6 @@ export default function App() {
                       />
                     ))}
                   </div>
-
-                  <GroupTitle title="Built with AI" />
-
-                  <SubBlock
-                    label="In practice"
-                    headline="AI turned 30+ schools of data into answers."
-                    linkLabel="See the internship"
-                    href="#work"
-                  >
-                    <PromptBar
-                      prompt="Which programs moved assessment results the most?"
-                      chips={["Power BI", "Assessment data", "30+ schools"]}
-                      caption="Illustrative prompt · no student data"
-                    />
-                  </SubBlock>
-
-                  <SubBlock label="This site" headline="Directed by me, built and shipped with AI.">
-                    <TileGrid
-                      aspect="16/10"
-                      tiles={[
-                        { title: "Direct", note: "Claude Code, my specs and feedback" },
-                        { title: "Build", note: "React, TypeScript, Tailwind" },
-                        { title: "Ship", note: "GitHub, then Google AI Studio" },
-                      ]}
-                    />
-                  </SubBlock>
                 </div>
               </SectionContentWrapper>
             </section>
