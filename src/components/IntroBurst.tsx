@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import SectionOpener from "./SectionOpener";
 import BlackHole from "./BlackHole";
@@ -77,18 +77,30 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
   const [reduced, setReduced] = useState(false);
   const [ringSize, setRingSize] = useState(2400);
   const stars = useMemo(() => makeStars(220), []);
+  const rootRef = useRef<HTMLDivElement>(null);
+  // exact size of the pinned stage (the reveal wrapper needs real pixels)
+  const [vp, setVp] = useState({ w: 1280, h: 800 });
+  const vpRef = useRef(vp);
+  vpRef.current = vp;
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
     setReduced(mq.matches);
     const onMq = (e: MediaQueryListEvent) => setReduced(e.matches);
     mq.addEventListener("change", onMq);
-    const onResize = () => setRingSize(maxRadius() * 2);
+    const onResize = () => {
+      setRingSize(maxRadius() * 2);
+      const el = rootRef.current;
+      if (el) setVp({ w: el.clientWidth, h: el.clientHeight });
+    };
     onResize();
     window.addEventListener("resize", onResize);
+    const ro = new ResizeObserver(onResize);
+    if (rootRef.current) ro.observe(rootRef.current);
     return () => {
       mq.removeEventListener("change", onMq);
       window.removeEventListener("resize", onResize);
+      ro.disconnect();
     };
   }, []);
 
@@ -114,9 +126,18 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
   const bhOpacity = useTransform(p, (v) => seg(v, 0.02, 0.1) * (1 - seg(v, 0.55, 0.8)));
 
   // WORK scene revealed through the circle
-  const clipPath = useTransform(radius, (r) =>
-    r >= maxRadius() - 1 ? "none" : `circle(${r.toFixed(1)}px at ${OX}% ${OY}%)`
-  );
+  // The reveal circle is an overflow-hidden, round-cornered box that grows from the hole, with the
+  // Work scene counter-translated inside it. (A huge animated clip-path circle over GPU-composited
+  // children left a stray rectangle of the scene showing outside the circle on some GPUs.)
+  const full = (r: number) => r >= maxRadius() - 1;
+  const wrapX = useTransform(radius, (r) => (full(r) ? 0 : (OX / 100) * vpRef.current.w - r));
+  const wrapY = useTransform(radius, (r) => (full(r) ? 0 : (OY / 100) * vpRef.current.h - r));
+  const wrapW = useTransform(radius, (r) => (full(r) ? vpRef.current.w : Math.max(0, r * 2)));
+  const wrapH = useTransform(radius, (r) => (full(r) ? vpRef.current.h : Math.max(0, r * 2)));
+  const wrapMask = useTransform(radius, r => full(r) ? "none" : "radial-gradient(circle closest-side, #000 99.6%, transparent 100%)");
+  const wrapBR = useTransform(radius, (r) => (full(r) ? "0%" : "50%"));
+  const innerX = useTransform(wrapX, (x) => -x);
+  const innerY = useTransform(wrapY, (y) => -y);
   const workTransform = useTransform(p, (v) => {
     const s = 1.55 - 0.55 * easeOut(seg(v, 0.24, 1));
     return `scale(${s.toFixed(4)})`;
@@ -141,7 +162,7 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
   const origin = `${OX}% ${OY}%`;
 
   return (
-    <div className="sticky top-0 w-full h-[100svh] z-10 overflow-hidden bg-[#161310]">
+    <div ref={rootRef} className="sticky top-0 w-full h-[100svh] z-10 overflow-hidden bg-[#161310]">
       {/* HERO (underneath) */}
       <motion.div
         className="absolute inset-0 will-change-transform"
@@ -167,11 +188,30 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
 
       {/* WORK scene, revealed by the expanding circle */}
       <motion.div
-        className="absolute inset-0"
-        style={reduced ? { opacity: rmWorkOpacity } : { clipPath, WebkitClipPath: clipPath }}
+        className={reduced ? "absolute inset-0" : "absolute overflow-hidden"}
+        style={
+          reduced
+            ? { opacity: rmWorkOpacity }
+            : {
+                left: 0,
+                top: 0,
+                x: wrapX,
+                y: wrapY,
+                width: wrapW,
+                height: wrapH,
+                borderRadius: wrapBR,
+                // belt and braces: some GPUs leak promoted children past a rounded overflow clip
+                WebkitMaskImage: wrapMask,
+                maskImage: wrapMask,
+              }
+        }
       >
         <motion.div
-          className="absolute inset-0 will-change-transform"
+          className="absolute"
+          style={reduced ? { inset: 0 } : { left: 0, top: 0, width: vp.w, height: vp.h, x: innerX, y: innerY }}
+        >
+        <motion.div
+          className="absolute inset-0"
           style={reduced ? undefined : { transform: workTransform, transformOrigin: origin }}
         >
           <SectionOpener scene={workScene} nextPageRef={nextPageRef} buildProgress={workBuild} />
@@ -191,6 +231,7 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
             }}
           />
         )}
+        </motion.div>
       </motion.div>
 
       {!reduced && (
