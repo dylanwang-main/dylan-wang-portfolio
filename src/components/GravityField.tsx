@@ -81,7 +81,6 @@ export default function GravityField({
         const u = clamp01(pull * q.w);
         if (u >= 0.992) continue;
         const [x1, y1] = pos(q, u, cx, cy);
-        const [x0, y0] = pos(q, Math.max(0, u - 0.045), cx, cy);
         const near = 1 - Math.min(1, Math.hypot(x1 - cx, y1 - cy) / 420);
         const a = fade * (0.3 + 0.7 * near);
         ctx.strokeStyle =
@@ -89,9 +88,14 @@ export default function GravityField({
             ? `rgba(255,${(170 + 60 * near) | 0},110,${a.toFixed(3)})`
             : `rgba(255,${(236 - 40 * near) | 0},${(222 - 90 * near) | 0},${a.toFixed(3)})`;
         ctx.lineWidth = 0.8 + near * 1.8;
+        // trail follows the spiral, so it curves like a real infall path
         ctx.beginPath();
-        ctx.moveTo(x0, y0);
-        ctx.lineTo(x1, y1);
+        const TRAIL = 6;
+        for (let k = TRAIL; k >= 0; k--) {
+          const [tx, ty] = pos(q, Math.max(0, u - (0.06 * k) / TRAIL), cx, cy);
+          if (k === TRAIL) ctx.moveTo(tx, ty);
+          else ctx.lineTo(tx, ty);
+        }
         ctx.stroke();
       }
     };

@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform, useMotionValue, MotionValue } from "mo
 import { SceneData, SceneLayer, RESUME_LINK } from "../data/portfolio";
 import PaperEdge from "./PaperEdge";
 import SceneShowcase from "./SceneShowcase";
+import { SuckCtx, SuckText, SuckUnit } from "./SuckText";
 
 const SCENE_TINT: Record<string, string> = {
   work: "#2f4f7a",
@@ -18,6 +19,8 @@ interface SectionOpenerProps {
   nextPageRef?: React.RefObject<HTMLElement | null>;
   /** 0 to 1 "build-in" progress for the showcase. Defaults to this scene's own entry progress. */
   buildProgress?: MotionValue<number>;
+  /** Hero only: pieces of text fall into the black hole as this progress advances */
+  suck?: SuckCtx;
 }
 
 /**
@@ -282,6 +285,7 @@ export default function SectionOpener({
   edgeSeed,
   nextPageRef,
   buildProgress,
+  suck,
 }: SectionOpenerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -339,6 +343,18 @@ export default function SectionOpener({
   const headingScale = useTransform(p, [0, 1], [1, 0.94]);
   const headingOpacity = useTransform(p, [0, 1], [1, 0.35]);
 
+  // Hero backdrop: the whole painted background winds up and shrinks toward the hole
+  const suckP = suck?.p ?? defaultP;
+  const bgSwirl = useTransform(suckP, (v) => {
+    const k = Math.pow(Math.min(1, Math.max(0, (v - 0.1) / 0.52)), 2.2);
+    return `rotate(${(-70 * k).toFixed(2)}deg) scale(${(1 - 0.6 * k).toFixed(4)})`;
+  });
+  const bgFade = useTransform(suckP, (v) => {
+    const t = Math.min(1, Math.max(0, (v - 0.12) / 0.38));
+    return 1 - 0.88 * t * t * (3 - 2 * t);
+  });
+  const S = suck && !prefersReducedMotion ? suck : null;
+
   const scrollToId = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
@@ -368,18 +384,24 @@ export default function SectionOpener({
         }`}
       >
         {/* Parallax Layers: Background (0 to -6vh), Midground (0 to -14vh), Foreground (0 to -30vh) */}
-        {scene.layers.map((layer, index) => {
-          const layerY = index === 0 ? bgY : index === 1 ? midY : fgY;
-          return (
-            <LayerElement
-              key={index}
-              layer={layer}
-              layerY={layerY}
-              prefersReducedMotion={prefersReducedMotion}
-              zIndex={index * 10}
-            />
-          );
-        })}
+        <motion.div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none"
+          style={S ? { transform: bgSwirl, opacity: bgFade, transformOrigin: `${S.ox}% ${S.oy}%` } : undefined}
+        >
+          {scene.layers.map((layer, index) => {
+            const layerY = index === 0 ? bgY : index === 1 ? midY : fgY;
+            return (
+              <LayerElement
+                key={index}
+                layer={layer}
+                layerY={layerY}
+                prefersReducedMotion={prefersReducedMotion}
+                zIndex={index * 10}
+              />
+            );
+          })}
+        </motion.div>
 
         {/* A dims: black overlay from 0 to 0.45 opacity */}
         <motion.div
@@ -399,10 +421,10 @@ export default function SectionOpener({
           }`}
         >
           <span className="font-editorial-sans tracking-widest uppercase text-[11px]">
-            {scene.kicker}
+            {S ? <SuckText ctx={S} text={scene.kicker ?? ""} seed={1} /> : scene.kicker}
           </span>
           <span className="font-editorial-sans tracking-widest uppercase text-[11px]">
-            {scene.subtitle}
+            {S ? <SuckText ctx={S} text={scene.subtitle ?? ""} seed={50} /> : scene.subtitle}
           </span>
         </motion.div>
 
@@ -420,11 +442,12 @@ export default function SectionOpener({
           className="w-full flex flex-col items-center select-none will-change-transform z-30"
         >
           <h1
+            aria-label={scene.heading}
             className={`font-editorial-serif text-[clamp(4.2rem,12vw,10.5rem)] font-normal tracking-[-0.035em] leading-[0.88] mb-6 text-balance ${
               isDark ? "text-[#F4EFE6]" : "text-[var(--text-ink)]"
             }`}
           >
-            {scene.heading}
+            {S ? <SuckText ctx={S} text={scene.heading} by="letter" seed={100} /> : scene.heading}
           </h1>
 
           <p
@@ -433,11 +456,12 @@ export default function SectionOpener({
                 "--swash-color": isDark ? "#E88080" : "#6B2D2D",
               } as React.CSSProperties
             }
-            className={`font-editorial-serif italic text-[clamp(1.4rem,2.4vw,2.4rem)] swash-grand max-w-2xl text-balance leading-relaxed ${
+            aria-label={scene.tagline}
+            className={`font-editorial-serif italic text-[clamp(1.4rem,2.4vw,2.4rem)] ${S ? "" : "swash-grand"} max-w-2xl text-balance leading-relaxed ${
               isDark ? "text-[#D5C9B8]" : "text-[var(--taupe-subtle)]"
             }`}
           >
-            {scene.tagline}
+            {S ? <SuckText ctx={S} text={scene.tagline} swash seed={200} /> : scene.tagline}
           </p>
 
           <motion.div
@@ -446,16 +470,27 @@ export default function SectionOpener({
             transition={{ duration: 0.8, delay: 0.4 }}
             className="mt-8 flex items-center gap-3"
           >
-            <span
-              className={`text-xs tracking-widest uppercase px-3 py-1.5 rounded-none border ${
-                isDark
-                  ? "border-white/20 text-[#A89A8A]"
-                  : "border-[var(--border-hairline)] text-[var(--taupe-subtle)]"
-              }`}
-              title="Resume coming soon"
-            >
-              {RESUME_LINK.label} (coming soon)
-            </span>
+            {(() => {
+              const chip = (
+                <span
+                  className={`text-xs tracking-widest uppercase px-3 py-1.5 rounded-none border ${
+                    isDark
+                      ? "border-white/20 text-[#A89A8A]"
+                      : "border-[var(--border-hairline)] text-[var(--taupe-subtle)]"
+                  }`}
+                  title="Resume coming soon"
+                >
+                  {RESUME_LINK.label} (coming soon)
+                </span>
+              );
+              return S ? (
+                <SuckUnit ctx={S} seed={300}>
+                  {chip}
+                </SuckUnit>
+              ) : (
+                chip
+              );
+            })()}
           </motion.div>
         </motion.div>
 
@@ -476,13 +511,28 @@ export default function SectionOpener({
             }`}
           >
             <span className="text-[10px] uppercase tracking-widest">
-              Scroll to begin · Roman I through IV
+              {S ? (
+                <SuckText ctx={S} text="Scroll to begin · Roman I through IV" seed={400} />
+              ) : (
+                "Scroll to begin · Roman I through IV"
+              )}
             </span>
-            <div
-              className={`w-[1px] h-6 transition-all duration-300 group-hover:h-9 ${
-                isDark ? "bg-[#E88080]" : "bg-[var(--accent-oxblood)]"
-              }`}
-            />
+            {(() => {
+              const line = (
+                <div
+                  className={`w-[1px] h-6 transition-all duration-300 group-hover:h-9 ${
+                    isDark ? "bg-[#E88080]" : "bg-[var(--accent-oxblood)]"
+                  }`}
+                />
+              );
+              return S ? (
+                <SuckUnit ctx={S} seed={500}>
+                  {line}
+                </SuckUnit>
+              ) : (
+                line
+              );
+            })()}
           </button>
         </motion.div>
       </div>

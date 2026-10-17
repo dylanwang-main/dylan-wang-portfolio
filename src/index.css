@@ -73,6 +73,14 @@ body {
   color: var(--swash-color, var(--accent-oxblood));
 }
 
+.swash-letter {
+  font-style: italic;
+  font-family: var(--font-serif);
+  font-size: 2em;
+  padding-right: 0.05em;
+  color: var(--swash-color, var(--accent-oxblood));
+}
+
 /* Ambient float animation for hero monogram seal */
 @keyframes ambientFloat {
   0%, 100% {

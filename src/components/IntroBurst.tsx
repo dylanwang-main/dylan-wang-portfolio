@@ -100,18 +100,10 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
   // Radius of the expanding circle, in px
   const radius = useTransform(p, (v) => easeInOut(seg(v, 0.24, 0.86)) * maxRadius());
 
-  // HERO: spirals into the black hole (rotates and shrinks toward the burst point)
-  const heroTransform = useTransform(p, (v) => {
-    const k = easeIn(seg(v, 0.1, 0.62));
-    const pre = 1 + 0.05 * seg(v, 0, 0.1);
-    const sc = pre * (1 - 0.985 * k);
-    return `rotate(${(-260 * k).toFixed(2)}deg) scale(${sc.toFixed(4)})`;
-  });
-  const heroOpacity = useTransform(p, (v) => 1 - seg(v, 0.5, 0.66));
-  const heroFilter = useTransform(p, (v) => {
-    const k = easeIn(seg(v, 0.1, 0.62));
-    return `brightness(${(1 + 0.6 * k).toFixed(3)}) blur(${(6 * k).toFixed(2)}px)`;
-  });
+  // HERO: every word and letter is pulled in on its own spiral (see SuckText); the backdrop winds up too.
+  // The container itself never transforms, so each piece can measure where it sits.
+  const suck = useMemo(() => (reduced ? undefined : { p, ox: OX, oy: OY }), [reduced, p]);
+  const heroOpacity = useTransform(p, (v) => 1 - seg(v, 0.56, 0.68));
   const heroVisibility = useTransform(p, (v) => (v >= 0.7 ? "hidden" : "visible"));
 
   // BLACK HOLE: forms at the burst point, grows, then the reveal circle swallows it
@@ -157,15 +149,12 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
           reduced
             ? { opacity: rmHeroOpacity }
             : {
-                transform: heroTransform,
-                transformOrigin: origin,
                 opacity: heroOpacity,
-                filter: heroFilter,
                 visibility: heroVisibility,
               }
         }
       >
-        <SectionOpener scene={{ ...heroScene, id: "hero-scene" }} isHero />
+        <SectionOpener scene={{ ...heroScene, id: "hero-scene" }} isHero suck={suck} />
       </motion.div>
 
       {/* stars and dust pulled in, then the black hole itself */}
