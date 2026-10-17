@@ -23,6 +23,9 @@ const TAUPE = "#8A7B6A";
 
 type V = MotionValue<number>;
 
+/** Look a project up by id, so reordering the list never changes which window shows which title. */
+const projectTitle = (id: string) => WORK_PROJECTS.find((p) => p.id === id)?.title ?? "";
+
 function useRange(v: V, a: number, b: number) {
   return useTransform(v, [a, b], [0, 1], { clamp: true });
 }
@@ -61,7 +64,7 @@ export function WorkMain({ build }: { build: V }) {
   const code = useRange(build, 0.3, 0.95);
   const cells = Array.from({ length: 48 }, (_, i) => 0.12 + ((i * 37) % 11) / 14);
   return (
-    <Win title={WORK_PROJECTS[0].title}>
+    <Win title={projectTitle("ds3-park-smart")}>
       <div className="absolute inset-0 flex gap-4 p-4">
         <div className="hidden md:flex flex-col gap-3 w-[12%] pt-1">
           {[70, 52, 84, 46, 62, 38].map((w, i) => (
@@ -103,6 +106,49 @@ export function WorkMain({ build }: { build: V }) {
   );
 }
 
+/* ---------- Data Assessment Intern: dashboard wireframe (no numbers, no student data) ---------- */
+export function DashboardMain({ build }: { build: V }) {
+  const tiles = useRange(build, 0.05, 0.45);
+  const tilesY = useTransform(tiles, [0, 1], [18, 0]);
+  const bars = useRange(build, 0.2, 0.85);
+  const ring = useRange(build, 0.35, 0.95);
+  const ringA = useTransform(ring, (v) => v * 0.62);
+  const ringB = useTransform(ring, (v) => v * 0.22);
+  const heights = [46, 72, 58, 88, 64, 78, 52, 92, 68, 80, 60, 74];
+  return (
+    <Win title={projectTitle("tusd-data-assessment")}>
+      <div className="absolute inset-0 flex flex-col gap-4 p-4">
+        <motion.div className="grid grid-cols-3 gap-3 shrink-0" style={{ opacity: tiles, y: tilesY }}>
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="rounded-md p-3 flex flex-col gap-2.5" style={{ background: "rgba(244,239,230,0.06)", border: `1px solid ${LINE}` }}>
+              <span className="block h-1.5 w-1/2 rounded-full" style={{ background: CREAM, opacity: 0.3 }} />
+              <span className="block h-3 w-2/3 rounded-full" style={{ background: i === 1 ? ROSE : CREAM, opacity: i === 1 ? 0.85 : 0.55 }} />
+            </div>
+          ))}
+        </motion.div>
+        <div className="flex-1 min-h-0 flex gap-5">
+          <div className="flex-1 min-w-0 flex items-end gap-2 pb-1" style={{ borderBottom: `1px solid ${LINE}` }}>
+            {heights.map((h, i) => (
+              <motion.div
+                key={i}
+                className="flex-1 rounded-t-[3px]"
+                style={{ height: `${h}%`, background: i % 4 === 3 ? ROSE : CREAM, opacity: i % 4 === 3 ? 0.9 : 0.4, scaleY: bars, transformOrigin: "50% 100%" }}
+              />
+            ))}
+          </div>
+          <div className="hidden md:flex w-[28%] items-center justify-center">
+            <svg viewBox="0 0 100 100" className="w-full max-h-full">
+              <circle cx="50" cy="50" r="34" fill="none" stroke={LINE} strokeWidth="10" />
+              <motion.circle cx="50" cy="50" r="34" fill="none" stroke={ROSE} strokeWidth="10" strokeLinecap="butt" transform="rotate(-90 50 50)" style={{ pathLength: ringA }} />
+              <motion.circle cx="50" cy="50" r="34" fill="none" stroke={CREAM} strokeOpacity="0.5" strokeWidth="10" strokeLinecap="butt" transform="rotate(130 50 50)" style={{ pathLength: ringB }} />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </Win>
+  );
+}
+
 export function WorkSide() {
   return (
     <div className="w-full h-full rounded-xl overflow-hidden flex flex-col" style={{ background: CREAM, boxShadow: "var(--win-shadow, 0 30px 90px rgba(0,0,0,0.6))" }}>
@@ -118,7 +164,7 @@ export function WorkSide() {
       <div className="grid grid-cols-3 gap-2 px-3 pb-3">
         {[0, 1, 2].map((i) => <div key={i} className="aspect-[4/3] rounded" style={{ background: "#8A7B6A", opacity: 0.35 + i * 0.12 }} />)}
       </div>
-      <div className="px-3 pb-2 text-[10px] tracking-[0.18em] uppercase" style={{ color: "#6B2D2D" }}>{WORK_PROJECTS[1].title}</div>
+      <div className="px-3 pb-2 text-[10px] tracking-[0.18em] uppercase" style={{ color: "#6B2D2D" }}>{projectTitle("n10-dance-studios")}</div>
     </div>
   );
 }
@@ -129,7 +175,7 @@ export function SiteMain({ build }: { build: V }) {
   const cards = useRange(build, 0.3, 0.9);
   const cardsY = useTransform(cards, [0, 1], [24, 0]);
   return (
-    <Win title={WORK_PROJECTS[1].title}>
+    <Win title={projectTitle("n10-dance-studios")}>
       <div className="absolute inset-0 flex flex-col">
         <div className="flex items-center justify-between px-5 h-11 shrink-0" style={{ borderBottom: `1px solid ${LINE}` }}>
           <span className="block w-16 h-2.5 rounded-full" style={{ background: CREAM, opacity: 0.8 }} />
@@ -283,7 +329,10 @@ const LAYOUTS: Record<string, Layout> = {
   work: {
     Main: WorkMain,
     Side: WorkSide,
-    chips: Array.from(new Set(WORK_PROJECTS.flatMap((p) => p.tools))),
+    // software only (skills like "Data Analysis" stay on the project card, not in the margin chips)
+    chips: Array.from(new Set(WORK_PROJECTS.flatMap((p) => p.tools))).filter(
+      (t) => t !== "Data Analysis" && t !== "Data Visualization"
+    ),
     mainClass: "h-[42vh] md:h-[48vh] md:w-[min(62vw,1100px)]",
   },
   content: {
@@ -390,7 +439,7 @@ export default function SceneShowcase({
       )}
 
       {/* floating labels, each at its own depth */}
-      {chips.slice(0, 8).map((c, i, all) => (
+      {chips.slice(0, 9).map((c, i, all) => (
         <Chip key={c} label={c} index={i} total={all.length} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} />
       ))}
     </div>

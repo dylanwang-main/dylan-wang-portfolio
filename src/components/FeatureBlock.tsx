@@ -3,6 +3,7 @@ import { motion, MotionValue, useScroll } from "motion/react";
 import ProofStage from "./ProofStage";
 import { ProjectData } from "../data/portfolio";
 import {
+  DashboardMain,
   WorkMain,
   WorkSide,
   SiteMain,
@@ -23,6 +24,7 @@ type Proof = {
 
 /** Which demo window proves each project. Wireframes only: no invented numbers. */
 const PROOFS: Record<string, Proof> = {
+  "tusd-data-assessment": { Main: DashboardMain },
   "ds3-park-smart": { Main: WorkMain },
   "n10-dance-studios": { Main: SiteMain, Side: WorkSide },
   "personal-brand": { Main: ContentMain, Side: ContentSide },
@@ -66,8 +68,13 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
     </div>
   );
 
+  const meta = project.meta ? (
+    <p className="mt-3 text-[12px] uppercase tracking-[0.16em] text-[var(--taupe-subtle)]">{project.meta}</p>
+  ) : null;
+  const hasSlots = !!project.slots && project.slots.length > 0;
+
   return (
-    <article className="relative border-b border-[var(--border-hairline)] last:border-b-0">
+    <article className={`relative border-b border-[var(--border-hairline)] last:border-b-0 ${hasSlots ? "" : "pb-[clamp(3rem,6vw,5rem)]"}`}>
       {/* Pinned: the screen holds still while the demo builds with scroll (Shopify's sticky chapters) */}
       <div ref={wrapRef} style={pinned ? { height: "250svh" } : undefined} className="relative">
         <div
@@ -86,9 +93,12 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
             {label}
             {pinned ? (
               <div className="mt-4 grid grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] gap-10 items-end">
-                <h3 className="statement-title font-editorial-serif italic text-[clamp(2.6rem,5vw,5.4rem)] leading-[0.98] tracking-[-0.02em] text-[var(--text-ink)] text-balance">
-                  {project.title}
-                </h3>
+                <div>
+                  <h3 className="statement-title font-editorial-serif italic text-[clamp(2.6rem,5vw,5.4rem)] leading-[0.98] tracking-[-0.02em] text-[var(--text-ink)] text-balance">
+                    {project.title}
+                  </h3>
+                  {meta}
+                </div>
                 <p className="text-[clamp(1.1rem,1.5vw,1.5rem)] leading-[1.3] tracking-[-0.01em] text-[var(--text-ink)] pb-2">
                   {project.description}
                 </p>
@@ -98,6 +108,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
                 <h3 className="statement-title font-editorial-serif italic text-[clamp(3.2rem,7.6vw,8rem)] leading-[0.98] tracking-[-0.02em] text-[var(--text-ink)] mt-6 max-w-[14ch] text-balance">
                   {project.title}
                 </h3>
+                {meta}
                 <div className="mt-10 grid grid-cols-1 lg:grid-cols-[200px_minmax(0,680px)] gap-4 lg:gap-14 items-start">
                   <span className="text-[16px] font-semibold text-[var(--text-ink)]">Overview</span>
                   <p className="text-[clamp(1.35rem,2.1vw,2rem)] leading-[1.28] tracking-[-0.01em] text-[var(--text-ink)]">

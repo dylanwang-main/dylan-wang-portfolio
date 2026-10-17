@@ -269,6 +269,8 @@ export interface ProjectData {
   category: string;
   year: string;
   description: string;
+  /** Optional one-line context under the title (organization, type, place, dates) */
+  meta?: string;
   tools: string[];
   slots?: { label: string; prompt: string }[];
   imagePlaceholder: {
@@ -279,6 +281,21 @@ export interface ProjectData {
 }
 
 export const WORK_PROJECTS: ProjectData[] = [
+  {
+    id: "tusd-data-assessment",
+    title: "Data Assessment Intern",
+    category: "Data Analysis",
+    year: "Jun to Jul 2025",
+    description:
+      "Built Power BI dashboards and conducted data analysis, leveraging AI to analyze student assessment and program data across 30+ district schools.",
+    meta: "Tustin Unified School District · Internship · Jun to Jul 2025",
+    tools: ["Power BI", "Data Analysis", "Data Visualization"],
+    imagePlaceholder: {
+      label: "DASHBOARD: Power BI assessment overview (no student data)",
+      aspectRatio: "16/10",
+      recommendedSize: "1600 × 1000",
+    },
+  },
   {
     id: "ds3-park-smart",
     title: "DS3 Park Smart",
