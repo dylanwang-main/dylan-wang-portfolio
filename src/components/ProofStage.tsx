@@ -38,7 +38,7 @@ function ToolCard({
   const scale = useTransform(build, [s0, s0 + 0.1, s0 + 0.2], [0.55, 1.08, 1]);
   const opacity = useTransform(build, [s0, s0 + 0.1], [0, 1]);
   return (
-    <motion.div className="absolute z-20 hidden xl:block" style={{ left: `${l}%`, top: `${t}%`, y, scale, opacity }}>
+    <motion.div className="absolute z-20 hidden lg:block" style={{ left: `${l}%`, top: `${t}%`, y, scale, opacity }}>
       <div className="animate-ambient-float" style={{ animationDelay: `${delay}s` }}>
         <div
           className="px-5 py-3 rounded-xl text-[15px] text-[var(--text-ink)] whitespace-nowrap"
@@ -127,6 +127,14 @@ export default function ProofStage({
           <Side />
         </motion.div>
       )}
+      {/* small screens: same skills as a simple row of pills under the window */}
+      <div className="lg:hidden absolute left-0 right-0 -bottom-16 flex flex-wrap gap-2">
+        {cards.map((c) => (
+          <span key={c} className="px-3.5 py-1.5 rounded-lg text-[13px] text-[var(--text-ink)] bg-[#FBF8F2] border border-[rgba(31,27,22,0.1)] shadow-[0_6px_18px_rgba(31,27,22,0.1)]">
+            {c}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
