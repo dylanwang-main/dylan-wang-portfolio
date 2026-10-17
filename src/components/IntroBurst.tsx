@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
+import GoldenFrame from "./GoldenFrame";
 import SectionOpener from "./SectionOpener";
 import BlackHole from "./BlackHole";
 import GravityField from "./GravityField";
@@ -210,6 +211,7 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
         }
       >
         <SectionOpener scene={{ ...heroScene, id: "hero-scene" }} isHero suck={suck} />
+        <GoldenFrame p={p} reduced={!!reduced} />
       </motion.div>
 
       {/* stars and dust pulled in, then the black hole itself */}
