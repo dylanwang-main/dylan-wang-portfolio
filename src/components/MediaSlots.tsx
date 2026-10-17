@@ -1,4 +1,5 @@
-import { motion } from "motion/react";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "motion/react";
 
 const TONES = [
   "linear-gradient(135deg,#6B2D2D 0%,#1b1612 100%)",
@@ -13,7 +14,125 @@ export interface Tile {
   note?: string;
 }
 
-/** 2- or 3-column textured tiles; each tile is a slot for a real image later. */
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+const CARD = { background: "#FBF8F2", boxShadow: "0 18px 50px rgba(0,0,0,0.35)" };
+const skel = "rounded-full bg-[#1F1B16]/12";
+
+/** Mini UI wireframes that play when the tile scrolls into view (no invented data). */
+function BarsCard() {
+  const hs = [42, 72, 56, 88, 64];
+  return (
+    <div className="p-[7%] h-full">
+      <div className="flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-[var(--accent-oxblood)]" />
+        <span className={`${skel} h-2 w-1/3`} />
+      </div>
+      <div className="mt-[6%] h-[58%] flex items-end gap-[5%] border-b border-[#1F1B16]/15">
+        {hs.map((h, i) => (
+          <motion.span
+            key={i}
+            className="flex-1 rounded-t-sm bg-[var(--accent-oxblood)]/80"
+            style={{ height: `${h}%`, originY: 1 }}
+            initial={{ scaleY: 0 }}
+            whileInView={{ scaleY: 1 }}
+            viewport={{ once: true, amount: 0.6 }}
+            transition={{ duration: 0.9, delay: 0.3 + i * 0.09, ease: EASE }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PromptCard() {
+  return (
+    <div className="relative h-full p-[7%]">
+      <div className="flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-[#d9a273]" />
+        <span className={`${skel} h-2 w-1/4`} />
+      </div>
+      <div className={`${skel} h-2 w-2/3 mt-[8%]`} />
+      <div className={`${skel} h-2 w-1/2 mt-[3%]`} />
+      <div
+        className="absolute left-[-4%] right-[-4%] top-[44%] rounded-full bg-white px-[5%] py-[3.5%] flex items-center gap-3"
+        style={{ boxShadow: "0 0 0 1px rgba(107,45,45,0.12), 0 10px 40px rgba(190,90,110,0.4)" }}
+      >
+        <span className="w-3 h-3 rounded-full bg-[var(--accent-oxblood)] shrink-0" />
+        <div className="flex-1 overflow-hidden">
+          <motion.span
+            className="block h-2 rounded-full bg-[#1F1B16]/35"
+            initial={{ width: "0%" }}
+            whileInView={{ width: "88%" }}
+            viewport={{ once: true, amount: 0.6 }}
+            transition={{ duration: 1.6, delay: 0.5, ease: "easeOut" }}
+          />
+        </div>
+        <motion.span
+          className="w-5 h-5 rounded-full bg-[var(--accent-oxblood)] shrink-0"
+          initial={{ scale: 1 }}
+          whileInView={{ scale: [1, 1.35, 1] }}
+          viewport={{ once: true, amount: 0.6 }}
+          transition={{ duration: 0.6, delay: 2.1 }}
+        />
+      </div>
+    </div>
+  );
+}
+
+function ListCard() {
+  return (
+    <div className="p-[7%] h-full space-y-[5%]">
+      {[0, 1, 2, 3].map((i) => (
+        <motion.div
+          key={i}
+          className="flex items-center gap-3"
+          initial={{ opacity: 0, x: -16 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, amount: 0.6 }}
+          transition={{ duration: 0.7, delay: 0.3 + i * 0.14, ease: EASE }}
+        >
+          <span className={`w-3 h-3 rounded-full shrink-0 ${i === 1 ? "bg-[var(--accent-oxblood)]" : "bg-[#1F1B16]/20"}`} />
+          <span className={`${skel} h-2`} style={{ width: `${[70, 55, 80, 45][i]}%` }} />
+        </motion.div>
+      ))}
+    </div>
+  );
+}
+
+const CARDS = [BarsCard, PromptCard, ListCard];
+
+/**
+ * Shopify-style tile: textured backdrop, a UI card that rises in, drifts with scroll,
+ * and animates its own contents. Swap the card for a real image later.
+ */
+export function AnimatedTile({ index = 0, aspect = "4/3" }: { index?: number; aspect?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], [26, -26]);
+  const bgY = useTransform(scrollYProgress, [0, 1], [-14, 14]);
+  const Card = CARDS[index % CARDS.length];
+  return (
+    <div ref={ref} className="relative overflow-hidden rounded-lg" style={{ aspectRatio: aspect, background: TONES[index % TONES.length] }}>
+      <motion.div className="absolute -inset-[8%]" style={{ y: bgY }}>
+        <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 70% 22%, rgba(255,240,225,0.24), transparent 55%)" }} />
+        <div className="absolute inset-0 mix-blend-soft-light opacity-60" style={{ backgroundImage: GRAIN }} />
+      </motion.div>
+      <motion.div
+        className="absolute left-[9%] right-[9%] top-[13%] bottom-[-10%] rounded-xl overflow-hidden"
+        style={{ ...CARD, y }}
+        initial={{ opacity: 0, scale: 0.94 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ duration: 0.9, ease: EASE }}
+      >
+        <Card />
+      </motion.div>
+      <span className="absolute left-4 top-3 text-[10px] tracking-[0.22em] uppercase text-[#F4EFE6]/55">Image slot</span>
+    </div>
+  );
+}
+
+/** 2- or 3-column animated tiles; each tile is a slot for a real image later. */
 export function TileGrid({ tiles, aspect = "4/5" }: { tiles: Tile[]; aspect?: string }) {
   const cols = tiles.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3";
   return (
@@ -24,22 +143,9 @@ export function TileGrid({ tiles, aspect = "4/5" }: { tiles: Tile[]; aspect?: st
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.8, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="group"
+          transition={{ duration: 0.8, delay: i * 0.1, ease: EASE }}
         >
-          <div
-            className="relative overflow-hidden rounded-lg"
-            style={{ background: TONES[i % TONES.length], aspectRatio: aspect }}
-          >
-            <div
-              className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-105"
-              style={{ background: "radial-gradient(circle at 70% 22%, rgba(255,240,225,0.24), transparent 55%)" }}
-            />
-            <div className="absolute inset-0 mix-blend-soft-light opacity-60" style={{ backgroundImage: GRAIN }} />
-            <span className="absolute left-4 bottom-3 text-[10px] tracking-[0.22em] uppercase text-[#F4EFE6]/60">
-              Image slot
-            </span>
-          </div>
+          <AnimatedTile index={i} aspect={aspect} />
           <span className="block mt-4 text-[15px] font-semibold text-[var(--text-ink)]">{t.title}</span>
           {t.note && (
             <span className="block mt-1 font-mono text-[13px] italic text-[var(--accent-oxblood)]">{t.note}</span>

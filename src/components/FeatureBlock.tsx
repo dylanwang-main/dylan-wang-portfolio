@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, MotionValue, useScroll } from "motion/react";
 import ProofStage from "./ProofStage";
+import { AnimatedTile } from "./MediaSlots";
 import { ProjectData } from "../data/portfolio";
 import {
   DashboardMain,
@@ -29,12 +30,6 @@ const PROOFS: Record<string, Proof> = {
   "n10-dance-studios": { Main: SiteMain, Side: WorkSide },
   "personal-brand": { Main: ContentMain, Side: ContentSide },
 };
-
-const TILES = [
-  "linear-gradient(135deg,#6B2D2D 0%,#1b1612 100%)",
-  "linear-gradient(135deg,#3a2a20 0%,#8a6a5a 100%)",
-  "linear-gradient(135deg,#2b3a4a 0%,#161310 100%)",
-];
 
 /** Pin the demo on tall, wide screens; fall back to normal flow elsewhere. */
 function usePinned() {
@@ -158,16 +153,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
               transition={{ duration: 0.8, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
               className="group"
             >
-              <div
-                className="relative aspect-[4/3] overflow-hidden rounded-lg"
-                style={{ background: TILES[i % TILES.length] }}
-              >
-                <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-105"
-                  style={{ background: "radial-gradient(circle at 70% 25%, rgba(255,240,225,0.22), transparent 55%)" }} />
-                <span className="absolute left-4 bottom-3 text-[10px] tracking-[0.22em] uppercase text-[#F4EFE6]/60">
-                  Image slot
-                </span>
-              </div>
+              <AnimatedTile index={i} aspect="4/3" />
               <span className="block mt-4 text-[15px] font-semibold text-[var(--text-ink)]">
                 {slot.label}
               </span>
