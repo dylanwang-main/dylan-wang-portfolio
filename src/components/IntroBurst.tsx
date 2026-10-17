@@ -38,25 +38,60 @@ function mulberry32(a: number) {
   };
 }
 
-/** One background-image string with ~220 pin-prick stars. Cheap: a single element. */
-function makeStars(count: number) {
-  const rnd = mulberry32(77);
-  const parts: string[] = [];
-  for (let i = 0; i < count; i++) {
-    const x = (rnd() * 100).toFixed(2);
-    const y = (rnd() * 100).toFixed(2);
-    const r = (0.6 + rnd() * 1.6).toFixed(2);
-    const a = (0.35 + rnd() * 0.65).toFixed(2);
-    parts.push(
-      `radial-gradient(circle at ${x}% ${y}%, rgba(255,246,232,${a}) 0, rgba(255,246,232,${a}) ${r}px, transparent ${(+r + 1.2).toFixed(2)}px)`
-    );
-  }
-  // soft dust clouds
-  parts.push(
-    "radial-gradient(ellipse at 28% 62%, rgba(120,90,70,0.22) 0, transparent 38%)",
-    "radial-gradient(ellipse at 66% 30%, rgba(90,80,110,0.18) 0, transparent 42%)"
-  );
-  return parts.join(",");
+/**
+ * ~220 pin-prick stars and two soft dust clouds, painted ONCE onto a canvas.
+ * (This used to be 222 stacked CSS radial-gradients, which the browser had to re-draw in full
+ * every time the layer moved or faded, the main cost during the reveal.) The canvas is drawn at
+ * 1.6x because the layer is scaled up by that much, so stars stay crisp.
+ */
+function StarCanvas({ w, h }: { w: number; h: number }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const c = ref.current;
+    if (!c || !w || !h) return;
+    const k = 1.6 * Math.min(window.devicePixelRatio || 1, 1.5);
+    c.width = Math.round(w * k);
+    c.height = Math.round(h * k);
+    const g = c.getContext("2d");
+    if (!g) return;
+    const W = c.width;
+    const H = c.height;
+    g.clearRect(0, 0, W, H);
+
+    // dust clouds underneath: elliptical, sized like CSS "ellipse farthest-corner"
+    const dust = (fx: number, fy: number, rgb: string, alpha: number, stop: number) => {
+      const rx = Math.max(fx, 1 - fx) * W * Math.SQRT2 * stop;
+      const ry = Math.max(fy, 1 - fy) * H * Math.SQRT2 * stop;
+      g.save();
+      g.translate(fx * W, fy * H);
+      g.scale(rx, ry);
+      const grad = g.createRadialGradient(0, 0, 0, 0, 0, 1);
+      grad.addColorStop(0, `rgba(${rgb},${alpha})`);
+      grad.addColorStop(1, `rgba(${rgb},0)`);
+      g.fillStyle = grad;
+      g.fillRect(-1, -1, 2, 2);
+      g.restore();
+    };
+    dust(0.28, 0.62, "120,90,70", 0.22, 0.38);
+    dust(0.66, 0.3, "90,80,110", 0.18, 0.42);
+
+    // stars: same sequence as before (x, y, radius, brightness per star)
+    const rnd = mulberry32(77);
+    for (let i = 0; i < 220; i++) {
+      const x = rnd() * W;
+      const y = rnd() * H;
+      const r = (0.6 + rnd() * 1.6) * k;
+      const a = 0.35 + rnd() * 0.65;
+      const edge = r + 1.2 * k;
+      const grad = g.createRadialGradient(x, y, 0, x, y, edge);
+      grad.addColorStop(0, `rgba(255,246,232,${a.toFixed(2)})`);
+      grad.addColorStop(r / edge, `rgba(255,246,232,${a.toFixed(2)})`);
+      grad.addColorStop(1, "rgba(255,246,232,0)");
+      g.fillStyle = grad;
+      g.fillRect(x - edge, y - edge, edge * 2, edge * 2);
+    }
+  }, [w, h]);
+  return <canvas ref={ref} aria-hidden="true" className="absolute inset-0 w-full h-full" />;
 }
 
 interface IntroBurstProps {
@@ -76,7 +111,6 @@ interface IntroBurstProps {
 export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroBurstProps) {
   const [reduced, setReduced] = useState(false);
   const [ringSize, setRingSize] = useState(2400);
-  const stars = useMemo(() => makeStars(220), []);
   const rootRef = useRef<HTMLDivElement>(null);
   // exact size of the pinned stage (the reveal wrapper needs real pixels)
   const [vp, setVp] = useState({ w: 1280, h: 800 });
@@ -206,12 +240,16 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
               }
         }
       >
+        {/* These two layers move every frame during the reveal. Promoting them to their own GPU
+            layers means a move is just a re-position; without it the browser repaints the whole
+            Work scene (blurred shadows, film grain, 200+ star gradients) on every frame. The
+            circular mask on the wrapper above keeps them clipped to the circle. */}
         <motion.div
-          className="absolute"
+          className={reduced ? "absolute" : "absolute will-change-transform"}
           style={reduced ? { inset: 0 } : { left: 0, top: 0, width: vp.w, height: vp.h, x: innerX, y: innerY }}
         >
         <motion.div
-          className="absolute inset-0"
+          className={reduced ? "absolute inset-0" : "absolute inset-0 will-change-transform"}
           style={reduced ? undefined : { transform: workTransform, transformOrigin: origin }}
         >
           <SectionOpener scene={workScene} nextPageRef={nextPageRef} buildProgress={workBuild} />
@@ -225,11 +263,13 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
             style={{
               opacity: starOpacity,
               transform: starTransform,
+              willChange: "transform, opacity",
               backgroundColor: "#07060a",
-              backgroundImage: stars,
               zIndex: 60,
             }}
-          />
+          >
+            <StarCanvas w={vp.w} h={vp.h} />
+          </motion.div>
         )}
         </motion.div>
       </motion.div>

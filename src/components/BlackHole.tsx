@@ -195,7 +195,9 @@ function HoleCanvas({
     // The hole starts tiny and grows with scroll, so render only as many pixels as are visible:
     // scale 0.2 costs about 4% of the pixels of scale 1. Steps of 0.1 avoid resizing every frame.
     const size = () => {
-      const f = Math.ceil(Math.min(1, Math.max(0.2, scale.get())) * 10) / 10;
+      // as the hole fades out behind the reveal circle it is mostly covered, so let it go soft too
+      const fade = Math.max(0.45, opacity.get());
+      const f = Math.ceil(Math.min(1, fade, Math.max(0.2, scale.get())) * 10) / 10;
       const k = DPR * quality * f;
       const w = Math.round(canvas.clientWidth * k);
       const h = Math.round(canvas.clientHeight * k);
