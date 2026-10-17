@@ -1,0 +1,46 @@
+import { ReactNode } from "react";
+import { motion } from "motion/react";
+import { ArrowUpRight } from "lucide-react";
+
+interface SubBlockProps {
+  label: string;
+  headline: string;
+  /** Italic swash first letter (uses the same style as section statements) */
+  swash?: boolean;
+  linkLabel?: string;
+  href?: string;
+  /** Media slot: CardFan, TileGrid, PromptBar, or anything */
+  children?: ReactNode;
+}
+
+/** Shopify-style sub-block: small label, big serif headline, pill link, media slot. */
+export default function SubBlock({ label, headline, swash = true, linkLabel, href = "#", children }: SubBlockProps) {
+  return (
+    <article className="py-[clamp(4rem,9vw,8rem)] border-t border-[var(--border-hairline)] first:border-t-0">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.25 }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+        className="max-w-[900px]"
+      >
+        <span className="text-[12px] uppercase tracking-[0.22em] text-[var(--taupe-subtle)] font-medium">{label}</span>
+        <h3
+          className={`${swash ? "statement-title " : ""}font-editorial-serif italic text-[clamp(2.4rem,5vw,5rem)] leading-[1] tracking-[-0.02em] text-[var(--text-ink)] mt-4 text-balance`}
+        >
+          {headline}
+        </h3>
+        {linkLabel && (
+          <a
+            href={href}
+            className="mt-6 inline-flex items-center gap-2 rounded-full border border-[var(--text-ink)]/70 px-5 py-2 text-[13px] font-medium text-[var(--text-ink)] hover:bg-[var(--text-ink)] hover:text-[var(--bg-cream)] transition-colors"
+          >
+            {linkLabel}
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </a>
+        )}
+      </motion.div>
+      {children && <div className="mt-[clamp(2.5rem,5vw,4.5rem)]">{children}</div>}
+    </article>
+  );
+}

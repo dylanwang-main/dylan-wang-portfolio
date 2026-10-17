@@ -5,6 +5,9 @@ import SectionOpener from "./components/SectionOpener";
 import IntroBurst, { INTRO_VH, SCENE_DWELL_VH } from "./components/IntroBurst";
 import FeatureBlock from "./components/FeatureBlock";
 import CardFan from "./components/CardFan";
+import SubBlock from "./components/SubBlock";
+import GroupTitle from "./components/GroupTitle";
+import { TileGrid, PromptBar } from "./components/MediaSlots";
 import AboutSection from "./components/AboutSection";
 import ContactSection from "./components/ContactSection";
 import Footer from "./components/Footer";
@@ -106,21 +109,13 @@ export default function App() {
                   {/* Featured Content Project Overview */}
                   <FeatureBlock project={CONTENT_PROJECT} index={0} />
 
-                  {/* Editorial Content Frame Showcase: cards fan out from a stack */}
-                  <div className="mt-[var(--space-xl)] pt-[var(--space-xl)] border-t border-[var(--border-hairline)]">
-                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
-                      <div>
-                        <span className="text-xs uppercase tracking-widest text-[var(--taupe-subtle)] font-medium">
-                          Content Creation
-                        </span>
-                        <h4 className="font-editorial-serif text-2xl sm:text-3xl font-medium text-[var(--text-ink)] mt-1">
-                          Media & Workflow Placeholders
-                        </h4>
-                      </div>
-                      <span className="text-xs text-[var(--taupe-subtle)]">
-                        Swap with production stills or video embeds
-                      </span>
-                    </div>
+                  <GroupTitle kicker="Content" title="Stories, shaped" />
+
+                  <SubBlock
+                    label="Short-form"
+                    headline="Hooks that earn the next second."
+                    linkLabel="See the breakdown"
+                  >
                     <CardFan
                       cards={[
                         { label: "STILL: short-form video concept & hook", recommendedSize: "9:16 vertical / 1080 × 1920" },
@@ -128,7 +123,24 @@ export default function App() {
                         { label: "METRIC / STORYBOARD: audience insight deck", recommendedSize: "4:5 editorial / 1080 × 1350" },
                       ]}
                     />
-                  </div>
+                  </SubBlock>
+
+                  <SubBlock label="Process" headline="From raw footage to a clean cut." linkLabel="How I edit">
+                    <TileGrid
+                      tiles={[
+                        { title: "Plan", note: "[Add: storyboard still]" },
+                        { title: "Shoot", note: "[Add: behind the scenes]" },
+                        { title: "Edit", note: "[Add: timeline frame]" },
+                      ]}
+                    />
+                  </SubBlock>
+
+                  <SubBlock label="Workflow" headline="Ask better questions of the data." linkLabel="See the tools">
+                    <PromptBar
+                      prompt="Which hooks held viewers past 3 seconds?"
+                      chips={["Retention", "Audience", "Posting time"]}
+                    />
+                  </SubBlock>
                 </div>
               </SectionContentWrapper>
             </section>
