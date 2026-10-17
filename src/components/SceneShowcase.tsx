@@ -253,24 +253,24 @@ const LAYOUTS: Record<string, Layout> = {
     Main: WorkMain,
     Side: WorkSide,
     chips: Array.from(new Set(WORK_PROJECTS.flatMap((p) => p.tools))),
-    mainClass: "h-[42vh] md:h-[52vh] md:w-[min(60vw,1060px)]",
+    mainClass: "h-[42vh] md:h-[48vh] md:w-[min(62vw,1100px)]",
   },
   content: {
     Main: ContentMain,
     Side: ContentSide,
     chips: CONTENT_PROJECT.tools,
-    mainClass: "h-[42vh] md:h-[52vh] md:w-[min(60vw,1060px)]",
+    mainClass: "h-[42vh] md:h-[48vh] md:w-[min(62vw,1100px)]",
   },
   about: {
     Main: AboutMain,
     Side: AboutSide,
     chips: ["Data Science", "Content Creator", "UC San Diego"],
-    mainClass: "h-[44vh] md:h-[58vh] md:w-[min(46vw,640px)]",
+    mainClass: "h-[44vh] md:h-[56vh] md:w-[min(46vw,640px)]",
   },
   contact: {
     Main: ContactMain,
     chips: SOCIAL_LINKS.map((s) => s.platform),
-    mainClass: "h-[40vh] md:h-[46vh] md:w-[min(52vw,860px)]",
+    mainClass: "h-[40vh] md:h-[44vh] md:w-[min(52vw,860px)]",
   },
 };
 
@@ -323,7 +323,7 @@ export default function SceneShowcase({
   return (
     <div aria-hidden="true" className="absolute inset-0 overflow-hidden pointer-events-none select-none" style={{ zIndex: 22 }}>
       {/* hero window */}
-      <div className="absolute left-0 right-0 md:left-[190px] md:pr-[9vw] bottom-[-8vh] flex justify-center px-4 md:px-0" style={{ perspective: 1600 }}>
+      <div className="absolute left-0 right-0 md:left-[190px] md:pr-[9vw] bottom-[-10vh] flex justify-center px-4 md:px-0" style={{ perspective: 1600 }}>
         <motion.div
           className={`w-full ${mainClass}`}
           style={still ?? { y: mainY, rotateX: mainRot, scale: mainScale, transformOrigin: "50% 100%" }}

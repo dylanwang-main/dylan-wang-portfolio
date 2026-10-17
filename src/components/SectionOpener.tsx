@@ -570,7 +570,7 @@ export default function SectionOpener({
                 opacity: headingOpacity,
               }
         }
-        className="my-auto md:-translate-y-[10vh] w-full max-w-7xl flex flex-col items-center relative z-30 will-change-transform"
+        className="my-auto md:-translate-y-[14vh] w-full max-w-7xl flex flex-col items-center relative z-30 will-change-transform"
       >
         {/* Roman Numeral Kicker */}
         {scene.numeral && (
