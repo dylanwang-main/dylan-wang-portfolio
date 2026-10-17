@@ -6,7 +6,6 @@ import IntroBurst, { INTRO_VH, SCENE_DWELL_VH } from "./components/IntroBurst";
 import FeatureBlock from "./components/FeatureBlock";
 import CardFan from "./components/CardFan";
 import SubBlock from "./components/SubBlock";
-import GroupTitle from "./components/GroupTitle";
 import { TileGrid, PromptBar } from "./components/MediaSlots";
 import AboutSection from "./components/AboutSection";
 import ContactSection from "./components/ContactSection";
@@ -108,8 +107,6 @@ export default function App() {
                 <div className="w-full px-6 sm:px-10 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 max-w-[1400px] pt-[clamp(8rem,16vw,16rem)] pb-[clamp(14rem,18vw,18rem)]">
                   {/* Featured Content Project Overview */}
                   <FeatureBlock project={CONTENT_PROJECT} index={0} />
-
-                  <GroupTitle title="Stories, shaped" />
 
                   <SubBlock
                     label="Short-form"

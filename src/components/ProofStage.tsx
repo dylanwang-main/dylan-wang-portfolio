@@ -1,33 +1,44 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, MotionValue } from "motion/react";
 
-// left %, top %, scroll drift in px, float delay
+// left %, top %, scroll drift in px, float delay. Ordered so the first few spread around the window.
 const CARD_SLOTS: Array<[number, number, number, number]> = [
-  [-3, 6, 170, 0],
-  [80, 2, 240, 1.4],
-  [-6, 50, 120, 0.7],
-  [83, 44, 200, 2.1],
-  [3, 86, 260, 1.1],
-  [74, 88, 150, 2.8],
+  [-2, 8, 170, 0],
+  [82, 42, 240, 1.4],
+  [26, 90, 120, 0.7],
+  [84, 0, 200, 2.1],
+  [-5, 58, 260, 1.1],
+  [64, 92, 150, 2.8],
+  [42, -4, 140, 0.4],
+  [90, 76, 210, 1.8],
+  [10, 30, 180, 2.4],
 ];
 
 function ToolCard({
   label,
   slot,
   depth,
+  build,
+  index,
   glow,
   driftScale = 1,
 }: {
   label: string;
   slot: (typeof CARD_SLOTS)[number];
   depth: MotionValue<number>;
+  build: MotionValue<number>;
+  index: number;
   glow: boolean;
   driftScale?: number;
 }) {
   const [l, t, drift, delay] = slot;
   const y = useTransform(depth, [0, 1], [drift * 0.6 * driftScale, -drift * 0.6 * driftScale]);
+  // pop-up: each card springs in (slight overshoot) one after another as the window builds
+  const s0 = Math.min(0.2 + index * 0.13, 0.78);
+  const scale = useTransform(build, [s0, s0 + 0.1, s0 + 0.2], [0.55, 1.08, 1]);
+  const opacity = useTransform(build, [s0, s0 + 0.1], [0, 1]);
   return (
-    <motion.div className="absolute z-20 hidden xl:block" style={{ left: `${l}%`, top: `${t}%`, y }}>
+    <motion.div className="absolute z-20 hidden xl:block" style={{ left: `${l}%`, top: `${t}%`, y, scale, opacity }}>
       <div className="animate-ambient-float" style={{ animationDelay: `${delay}s` }}>
         <div
           className="px-5 py-3 rounded-xl text-[15px] text-[var(--text-ink)] whitespace-nowrap"
@@ -93,7 +104,7 @@ export default function ProofStage({
   return (
     <div ref={stageRef} className={`relative ${heightClass} ${className}`}>
       {cards.slice(0, CARD_SLOTS.length).map((label, i) => (
-        <ToolCard key={label} label={label} slot={CARD_SLOTS[i]} depth={depth} glow={i === 1} driftScale={progress ? 0.3 : 1} />
+        <ToolCard key={label} label={label} slot={CARD_SLOTS[i]} depth={depth} build={build} index={i} glow={i === 1} driftScale={progress ? 0.3 : 1} />
       ))}
 
       <motion.div
