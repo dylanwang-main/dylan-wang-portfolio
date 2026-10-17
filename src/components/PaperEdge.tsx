@@ -86,13 +86,17 @@ function heatColor(i: number) {
   return `rgba(${r | 0},${g | 0},${b | 0},${a.toFixed(3)})`;
 }
 
-/** Slow waves down to fine tear. v = drift speed (px/s, sign = direction), b = breathing rate. */
+/**
+ * Slow waves down to fine tear. w = drift in radians per second (sign = direction), b = breathing rate.
+ * Drift is an angle, not a distance, so fine octaves never race: the big shape rolls like a swell
+ * while the small tear detail holds nearly still. That is what reads as smooth instead of flickery.
+ */
 const OCT = [
-  { a: 40, f: 0.0035, v: 9, b: 0.21 },
-  { a: 22, f: 0.011, v: -14, b: 0.33 },
-  { a: 10, f: 0.03, v: 22, b: 0.47 },
-  { a: 5, f: 0.09, v: -35, b: 0.61 },
-  { a: 2, f: 0.25, v: 60, b: 0.83 },
+  { a: 40, f: 0.0035, w: 0.11, b: 0.07 },
+  { a: 22, f: 0.011, w: -0.15, b: 0.09 },
+  { a: 10, f: 0.03, w: 0.12, b: 0.11 },
+  { a: 5, f: 0.09, w: -0.08, b: 0.08 },
+  { a: 2, f: 0.25, w: 0.05, b: 0.06 },
 ];
 
 export default function PaperEdge({
@@ -106,11 +110,13 @@ export default function PaperEdge({
 }: PaperEdgeProps) {
   const ref = useRef<HTMLCanvasElement>(null);
   const fxRef = useRef<HTMLCanvasElement>(null);
+  const shRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = ref.current;
     const fx = fxRef.current;
-    if (!canvas || !fx) return;
+    const sh = shRef.current;
+    if (!canvas || !fx || !sh) return;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const animate = burn && !reduced;
@@ -135,26 +141,25 @@ export default function PaperEdge({
 
     /** The tear line at time t (ms). */
     const compute = (t: number) => {
-      const T = animate ? (t / 1000) * SLOW : 0;
-      const S = animate ? window.scrollY : 0;
+      const tt = animate ? t / 1000 : 0;
+      const T = tt * SLOW;
       for (let x = 0; x <= W; x++) {
         let y = base;
         for (let i = 0; i < OCT.length; i++) {
           const o = OCT[i];
-          // waves drift on their own, and scrolling pushes them along
-          const sh = T * o.v + S * o.v * 0.08;
-          const breath = 0.88 + 0.12 * Math.sin(T * o.b + ph[i]);
+          const A = tt * o.w;
+          const breath = 0.9 + 0.1 * Math.sin(tt * o.b + ph[i]);
           y +=
             o.a *
             breath *
-            Math.sin((x + sh) * o.f + ph[i]) *
-            (0.6 + 0.4 * Math.sin((x + sh) * o.f * 0.37 + ph[i] * 1.7 + T * 0.09 * (i + 1)));
+            Math.sin(x * o.f + ph[i] + A) *
+            (0.6 + 0.4 * Math.sin(x * o.f * 0.37 + ph[i] * 1.7 - A * 0.6));
         }
-        // slow morph + fast "boil" so the ragged fibres keep shimmering
+        // gentle morph of the ragged detail: smooth value noise sliding through time
         y +=
           (vn(x * 0.06 + seed, T * 0.9) - 0.5) * 10 +
-          (vn(x * 0.22 + seed * 3.1, T * 6) - 0.5) * 4.4 +
-          (vn(x * 0.9 + seed * 1.7, T * 10 + 50) - 0.5) * 2.4;
+          (vn(x * 0.22 + seed * 3.1, T * 0.7) - 0.5) * 4.4 +
+          (vn(x * 0.9 + seed * 1.7, T * 0.5 + 50) - 0.5) * 2.2;
         ys[x] = y;
       }
     };
@@ -193,7 +198,7 @@ export default function PaperEdge({
       rimP.moveTo(0, ys[0]);
       for (let x = 1; x <= W; x++) rimP.lineTo(x, ys[x]);
       for (let x = W; x >= 0; x--) {
-        const w = 3.2 + 6.5 * vn(x * 0.08 + seed, T * 1.6) + 2 * vn(x * 0.5 + seed * 2, T * 7);
+        const w = 3.2 + 6.5 * vn(x * 0.08 + seed, T * 0.8) + 2 * vn(x * 0.5 + seed * 2, T * 0.9);
         rimP.lineTo(x, ys[x] + w);
       }
       rimP.closePath();
@@ -203,7 +208,7 @@ export default function PaperEdge({
       // 3. char / dust specks just inside the paper, twinkling in and out
       ctx.fillStyle = `rgb(${charRGB})`;
       for (const c of chars) {
-        const al = c.a * (1 - c.d / CHAR_DEPTH) * (0.5 + 0.5 * Math.sin(T * c.w + c.ph));
+        const al = c.a * (1 - c.d / CHAR_DEPTH) * (0.7 + 0.3 * Math.sin(T * c.w + c.ph));
         if (al < 0.03) continue;
         ctx.globalAlpha = al;
         ctx.fillRect(c.x | 0, (ys[c.x | 0] + 5 + c.d) | 0, c.sz, c.sz);
@@ -232,7 +237,7 @@ export default function PaperEdge({
       ctx.fillStyle = `rgb(${rim})`;
       for (const f of flakes) {
         const d = (f.d0 + T * f.v) % FLAKE_RISE;
-        const al = f.a * Math.pow(1 - d / FLAKE_RISE, 1.3) * (0.5 + 0.5 * Math.sin(T * f.w + f.ph));
+        const al = f.a * Math.pow(1 - d / FLAKE_RISE, 1.3);
         if (al < 0.03) continue;
         ctx.globalAlpha = al;
         ctx.fillRect(f.x | 0, (ys[f.x | 0] - d - 1) | 0, f.sz, f.sz);
@@ -317,10 +322,29 @@ export default function PaperEdge({
       }
     };
 
+    // The shadow is a tiny silhouette, blurred by CSS, redrawn only every few frames: the edge
+    // moves slowly, so nobody can tell, and the GPU isn't re-blurring a huge canvas every frame.
+    const SC = 4;
+    const paintShadow = () => {
+      const ctx = sh.getContext("2d");
+      if (!ctx || !W) return;
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, sh.width, sh.height);
+      ctx.fillStyle = shadow;
+      ctx.beginPath();
+      ctx.moveTo(0, sh.height + 1);
+      for (let x = 0; x <= W; x += SC) ctx.lineTo(x / SC, (ys[x] - 10) / SC);
+      ctx.lineTo(sh.width, sh.height + 1);
+      ctx.closePath();
+      ctx.fill();
+    };
+
+    let frame = 0;
     const draw = (t: number, dt: number) => {
       compute(t);
       paintMain(t);
       if (burn) paintFx(t, dt);
+      if (frame++ % 8 === 0) paintShadow();
     };
 
     const build = () => {
@@ -333,6 +357,11 @@ export default function PaperEdge({
         c.style.width = "100%";
         c.style.height = `${H}px`;
       }
+      sh.width = Math.ceil(W / SC);
+      sh.height = Math.ceil(H / SC);
+      sh.style.width = "100%";
+      sh.style.height = `${H}px`;
+      frame = 0;
 
       const rnd = mulberry32(seed);
       ph = OCT.map(() => rnd() * 1000);
@@ -343,13 +372,13 @@ export default function PaperEdge({
         len: 2 + rnd() * 10,
         dx: (rnd() - 0.5) * 5,
         ph: rnd() * 6.28,
-        w: 0.8 + rnd() * 2.2,
+        w: 0.25 + rnd() * 0.6,
         bucket: Math.min(2, Math.floor(rnd() * 3)),
       }));
       flakes = Array.from({ length: Math.round(W * 1.7) }, () => ({
         x: rnd() * W,
         d0: rnd() * FLAKE_RISE,
-        v: 5 + rnd() * 14,
+        v: 2.5 + rnd() * 6,
         ph: rnd() * 6.28,
         w: 1 + rnd() * 2.5,
         sz: rnd() < 0.5 ? 1 : rnd() < 0.7 ? 2 : rnd() < 0.9 ? 3 : 4,
@@ -359,7 +388,7 @@ export default function PaperEdge({
         x: rnd() * W,
         d: rnd() * CHAR_DEPTH,
         ph: rnd() * 6.28,
-        w: 0.8 + rnd() * 2.4,
+        w: 0.3 + rnd() * 0.8,
         sz: rnd() < 0.6 ? 1 : rnd() < 0.85 ? 2 : 3,
         a: 0.35 + rnd() * 0.45,
       }));
@@ -373,8 +402,8 @@ export default function PaperEdge({
     let raf = 0;
     let last = 0;
     let running = false;
-    // adaptive: stay at ~60fps while drawing is cheap, fall back to ~30fps on slower machines
-    let minDt = 15;
+    // ~30fps is plenty for slow motion and keeps the main thread free for smooth scrolling; slower machines drop to ~15fps
+    let minDt = 32;
     let avg = 4;
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
@@ -385,7 +414,7 @@ export default function PaperEdge({
       draw(now, Math.min(dt, 100));
       avg = avg * 0.9 + (performance.now() - t0) * 0.1;
       (window as unknown as { __edgeMs?: number }).__edgeMs = avg;
-      minDt = avg > 9 ? 33 : avg < 6 ? 15 : minDt;
+      minDt = avg > 12 ? 66 : avg < 8 ? 32 : minDt;
     };
     const start = () => {
       if (running || !animate) return;
@@ -431,11 +460,17 @@ export default function PaperEdge({
   return (
     <>
       <canvas
+        ref={shRef}
+        aria-hidden="true"
+        className="pointer-events-none select-none absolute left-0 w-full"
+        style={{ ...pos, filter: "blur(11px)", zIndex: 4 }}
+      />
+      <canvas
         ref={ref}
         aria-hidden="true"
         data-edge-paper={paper}
         className="pointer-events-none select-none absolute left-0 w-full"
-        style={{ ...pos, filter: `drop-shadow(0 -10px 22px ${shadow})`, zIndex: 5 }}
+        style={{ ...pos, zIndex: 5 }}
       />
       <canvas
         ref={fxRef}
