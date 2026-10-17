@@ -2,12 +2,15 @@ import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValue, MotionValue } from "motion/react";
 import { SceneData, SceneLayer, RESUME_LINK } from "../data/portfolio";
 import PaperEdge from "./PaperEdge";
+import SceneShowcase from "./SceneShowcase";
 
 interface SectionOpenerProps {
   scene: SceneData;
   isHero?: boolean;
   edgeSeed?: number;
   nextPageRef?: React.RefObject<HTMLElement | null>;
+  /** 0 to 1 "build-in" progress for the showcase. Defaults to this scene's own entry progress. */
+  buildProgress?: MotionValue<number>;
 }
 
 /**
@@ -271,6 +274,7 @@ export default function SectionOpener({
   isHero = false,
   edgeSeed,
   nextPageRef,
+  buildProgress,
 }: SectionOpenerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -542,6 +546,14 @@ export default function SectionOpener({
         aria-hidden="true"
       />
 
+      {/* Showcase: windows that build in and drift at different depths */}
+      <SceneShowcase
+        kind={scene.id}
+        build={buildProgress ?? entryP}
+        exit={p}
+        reduced={prefersReducedMotion}
+      />
+
       {/* Top spacer */}
       <div className="w-full pt-8 md:pt-4 max-w-5xl relative z-30" />
 
@@ -558,7 +570,7 @@ export default function SectionOpener({
                 opacity: headingOpacity,
               }
         }
-        className="my-auto w-full max-w-7xl flex flex-col items-center relative z-30 will-change-transform"
+        className="my-auto md:-translate-y-[10vh] w-full max-w-7xl flex flex-col items-center relative z-30 will-change-transform"
       >
         {/* Roman Numeral Kicker */}
         {scene.numeral && (
@@ -597,6 +609,7 @@ export default function SectionOpener({
           style={
             {
               "--swash-color": isDark ? "#E88080" : "#6B2D2D",
+              textShadow: "0 2px 28px rgba(0,0,0,0.75)",
             } as React.CSSProperties
           }
           className={`font-editorial-serif italic text-[clamp(1.35rem,2.2vw,2.25rem)] swash-grand max-w-[70vw] lg:max-w-[70%] w-fit mx-auto leading-relaxed text-balance ${
@@ -610,7 +623,7 @@ export default function SectionOpener({
       {/* Bottom Downward Indicator */}
       <motion.div
         style={prefersReducedMotion ? undefined : { opacity: headingOpacity }}
-        className={`w-full flex flex-col items-center text-center pb-6 md:pb-8 relative z-30 ${
+        className={`hidden w-full flex-col items-center text-center pb-6 md:pb-8 relative z-30 ${
           isDark ? "text-[#C0B4A4]" : "text-[var(--taupe-subtle)]"
         }`}
       >

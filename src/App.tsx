@@ -2,7 +2,7 @@ import { useRef } from "react";
 import LenisProvider from "./components/LenisProvider";
 import Navigation from "./components/Navigation";
 import SectionOpener from "./components/SectionOpener";
-import IntroBurst, { INTRO_VH } from "./components/IntroBurst";
+import IntroBurst, { INTRO_VH, SCENE_DWELL_VH } from "./components/IntroBurst";
 import FeatureBlock from "./components/FeatureBlock";
 import PlaceholderImage from "./components/PlaceholderImage";
 import AboutSection from "./components/AboutSection";
@@ -63,7 +63,7 @@ export default function App() {
               />
 
               {/* Scroll runway the intro plays across (transparent; the pinned stage stays on screen) */}
-              <div aria-hidden="true" style={{ height: `${(INTRO_VH + 1) * 100}vh`, marginTop: "-100svh" }} />
+              <div aria-hidden="true" style={{ height: `${(INTRO_VH + 1 + SCENE_DWELL_VH) * 100}vh`, marginTop: "-100svh" }} />
 
               {/* Page B: normal flow, directly below A, with torn edge attached to top overlapping A */}
               <SectionContentWrapper ref={workContentRef} seed={101}>
@@ -97,6 +97,9 @@ export default function App() {
                   nextPageRef={contentContentRef}
                 />
               </div>
+
+              {/* Dwell: scene stays pinned and composed for a beat (scroll-scrubbed, never slowed) */}
+              <div aria-hidden="true" style={{ height: `${SCENE_DWELL_VH * 100}vh` }} />
 
               {/* Page B: normal flow, directly below A, with torn edge attached to top overlapping A */}
               <SectionContentWrapper ref={contentContentRef} seed={202}>
@@ -164,6 +167,9 @@ export default function App() {
                 />
               </div>
 
+              {/* Dwell: scene stays pinned and composed for a beat (scroll-scrubbed, never slowed) */}
+              <div aria-hidden="true" style={{ height: `${SCENE_DWELL_VH * 100}vh` }} />
+
               {/* Page B: normal flow, directly below A, with torn edge attached to top overlapping A */}
               <SectionContentWrapper ref={aboutContentRef} seed={302}>
                 <AboutSection />
@@ -185,6 +191,9 @@ export default function App() {
                   nextPageRef={contactContentRef}
                 />
               </div>
+
+              {/* Dwell: scene stays pinned and composed for a beat (scroll-scrubbed, never slowed) */}
+              <div aria-hidden="true" style={{ height: `${SCENE_DWELL_VH * 100}vh` }} />
 
               {/* Page B: normal flow, directly below A, with torn edge attached to top overlapping A */}
               <SectionContentWrapper ref={contactContentRef} seed={402}>

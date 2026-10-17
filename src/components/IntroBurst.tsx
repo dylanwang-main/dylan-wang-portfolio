@@ -6,6 +6,9 @@ import { SceneData } from "../data/portfolio";
 /** How many viewport heights of scroll the pinned intro lasts. */
 export const INTRO_VH = 2.5;
 
+/** Extra scroll (in viewport heights) each scene stays composed before the next page rises over it. */
+export const SCENE_DWELL_VH = 0.6;
+
 /** The "big bang" origin, in % of the viewport (where the figures' fingers would meet). */
 const OX = 50;
 const OY = 46;
@@ -131,6 +134,9 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
   });
   const ringOpacity = useTransform(p, (v) => seg(v, 0.24, 0.3) * (1 - seg(v, 0.8, 0.95)));
 
+  // Showcase windows build in while the circle settles
+  const workBuild = useTransform(p, [0.4, 1], [0, 1], { clamp: true });
+
   // Reduced motion: plain crossfade, nothing zooms or expands
   const rmWorkOpacity = useTransform(p, (v) => seg(v, 0.3, 0.7));
   const rmHeroOpacity = useTransform(p, (v) => 1 - seg(v, 0.3, 0.7));
@@ -166,7 +172,7 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
           className="absolute inset-0 will-change-transform"
           style={reduced ? undefined : { transform: workTransform, transformOrigin: origin }}
         >
-          <SectionOpener scene={workScene} nextPageRef={nextPageRef} />
+          <SectionOpener scene={workScene} nextPageRef={nextPageRef} buildProgress={workBuild} />
         </motion.div>
 
         {/* starfield + darkness that burns off as the scene settles */}
