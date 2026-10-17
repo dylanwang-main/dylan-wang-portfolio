@@ -390,6 +390,7 @@ export default function SectionOpener({
           style={S ? { transform: bgSwirl, opacity: bgFade, transformOrigin: `${S.ox}% ${S.oy}%` } : undefined}
         >
           {scene.layers.map((layer, index) => {
+            if (layer.motifId === "vignette-grain") return null;
             const layerY = index === 0 ? bgY : index === 1 ? midY : fgY;
             return (
               <LayerElement
@@ -402,6 +403,20 @@ export default function SectionOpener({
             );
           })}
         </motion.div>
+
+        {/* Film grain + vignette stay out of the swirl: an SVG filter inside a rotating, shrinking
+            layer gets rasterised as a hard rectangle (the "box" behind the hole) */}
+        {scene.layers.map((layer, index) =>
+          layer.motifId === "vignette-grain" ? (
+            <LayerElement
+              key={`g${index}`}
+              layer={layer}
+              layerY={fgY}
+              prefersReducedMotion={prefersReducedMotion}
+              zIndex={index * 10}
+            />
+          ) : null
+        )}
 
         {/* A dims: black overlay from 0 to 0.45 opacity */}
         <motion.div
