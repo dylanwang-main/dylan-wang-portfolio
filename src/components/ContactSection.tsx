@@ -26,7 +26,7 @@ export default function ContactSection() {
   };
 
   return (
-    <section className="py-[clamp(6rem,12vw,11rem)] px-6 sm:px-10 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 max-w-[1400px] w-full">
+    <section className="pt-[clamp(6rem,12vw,11rem)] pb-[clamp(14rem,18vw,18rem)] px-6 sm:px-10 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 max-w-[1400px] w-full">
       {/* STATEMENT */}
       <motion.div
         initial={{ opacity: 0, y: 40 }}

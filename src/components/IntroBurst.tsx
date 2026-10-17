@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import SectionOpener from "./SectionOpener";
+import BlackHole from "./BlackHole";
+import GravityField from "./GravityField";
 import { SceneData } from "../data/portfolio";
 
 /** How many viewport heights of scroll the pinned intro lasts. */
@@ -16,6 +18,7 @@ const OY = 46;
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const seg = (v: number, a: number, b: number) => clamp01((v - a) / (b - a));
 const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
+const easeIn = (t: number) => Math.pow(t, 2.2);
 const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
 
 function maxRadius() {
@@ -97,25 +100,26 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
   // Radius of the expanding circle, in px
   const radius = useTransform(p, (v) => easeInOut(seg(v, 0.24, 0.86)) * maxRadius());
 
-  // HERO
+  // HERO: spirals into the black hole (rotates and shrinks toward the burst point)
   const heroTransform = useTransform(p, (v) => {
-    const s = 1 + 0.1 * seg(v, 0, 0.3) + 1.1 * Math.pow(seg(v, 0.3, 1), 2);
-    return `scale(${s})`;
+    const k = easeIn(seg(v, 0.1, 0.62));
+    const pre = 1 + 0.05 * seg(v, 0, 0.1);
+    const sc = pre * (1 - 0.985 * k);
+    return `rotate(${(-260 * k).toFixed(2)}deg) scale(${sc.toFixed(4)})`;
   });
-  const heroOpacity = useTransform(p, (v) => 1 - seg(v, 0.3, 0.8));
+  const heroOpacity = useTransform(p, (v) => 1 - seg(v, 0.5, 0.66));
   const heroFilter = useTransform(p, (v) => {
-    const bright = 1 + 0.55 * seg(v, 0.05, 0.3) - 0.85 * seg(v, 0.3, 0.8);
-    const blur = 7 * seg(v, 0.3, 0.9);
-    return `brightness(${bright.toFixed(3)}) blur(${blur.toFixed(2)}px)`;
+    const k = easeIn(seg(v, 0.1, 0.62));
+    return `brightness(${(1 + 0.6 * k).toFixed(3)}) blur(${(6 * k).toFixed(2)}px)`;
   });
-  const heroVisibility = useTransform(p, (v) => (v >= 1 ? "hidden" : "visible"));
+  const heroVisibility = useTransform(p, (v) => (v >= 0.7 ? "hidden" : "visible"));
 
-  // FLASH at the burst point
-  const flashOpacity = useTransform(p, (v) => seg(v, 0.03, 0.2) * (1 - seg(v, 0.24, 0.4)));
-  const flashTransform = useTransform(p, (v) => {
-    const s = 0.25 + 1.6 * easeOut(seg(v, 0.03, 0.24)) + 5 * seg(v, 0.24, 0.4);
-    return `translate(-50%, -50%) scale(${s.toFixed(3)})`;
-  });
+  // BLACK HOLE: forms at the burst point, grows, then the reveal circle swallows it
+  const bhScale = useTransform(
+    p,
+    (v) => (0.08 + 0.92 * easeOut(seg(v, 0.02, 0.2))) * (1 + 0.7 * seg(v, 0.3, 0.7))
+  );
+  const bhOpacity = useTransform(p, (v) => seg(v, 0.02, 0.1) * (1 - seg(v, 0.55, 0.8)));
 
   // WORK scene revealed through the circle
   const clipPath = useTransform(radius, (r) =>
@@ -126,6 +130,7 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
     return `scale(${s.toFixed(4)})`;
   });
   const starOpacity = useTransform(p, (v) => 1 - seg(v, 0.55, 0.96));
+  const starTransform = useTransform(p, (v) => `rotate(${(-50 * (1 - seg(v, 0.24, 0.9))).toFixed(2)}deg) scale(1.6)`);
 
   // Glowing rim that rides the circle edge: fixed-size ring, scaled to match the radius
   const ringTransform = useTransform(radius, (r) => {
@@ -163,6 +168,14 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
         <SectionOpener scene={{ ...heroScene, id: "hero-scene" }} isHero />
       </motion.div>
 
+      {/* stars and dust pulled in, then the black hole itself */}
+      {!reduced && (
+        <>
+          <GravityField p={p} ox={OX} oy={OY} />
+          <BlackHole x={OX} y={OY} scale={bhScale} opacity={bhOpacity} />
+        </>
+      )}
+
       {/* WORK scene, revealed by the expanding circle */}
       <motion.div
         className="absolute inset-0"
@@ -182,6 +195,7 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
             className="absolute inset-0 pointer-events-none"
             style={{
               opacity: starOpacity,
+              transform: starTransform,
               backgroundColor: "#07060a",
               backgroundImage: stars,
               zIndex: 60,
@@ -207,23 +221,6 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
               background:
                 "radial-gradient(circle closest-side, transparent 93%, rgba(255,236,214,0.0) 94%, rgba(255,236,214,0.55) 99%, rgba(255,255,255,0.0) 100%)",
               zIndex: 70,
-            }}
-          />
-          {/* flash at the burst point */}
-          <motion.div
-            aria-hidden="true"
-            className="absolute pointer-events-none will-change-transform"
-            style={{
-              left: `${OX}%`,
-              top: `${OY}%`,
-              width: 160,
-              height: 160,
-              borderRadius: "50%",
-              opacity: flashOpacity,
-              transform: flashTransform,
-              background:
-                "radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(255,240,220,0.85) 22%, rgba(255,220,190,0.25) 55%, transparent 72%)",
-              zIndex: 80,
             }}
           />
         </>

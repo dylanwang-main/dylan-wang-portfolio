@@ -101,3 +101,5 @@ body {
   color: var(--accent-oxblood);
   padding-right: 0.02em;
 }
+
+@keyframes bh-spin { to { transform: rotate(360deg); } }

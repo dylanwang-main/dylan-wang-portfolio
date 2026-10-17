@@ -66,7 +66,7 @@ export default function App() {
 
               {/* Page B: normal flow, directly below A, with torn edge attached to top overlapping A */}
               <SectionContentWrapper ref={workContentRef} seed={101}>
-                <div className="w-full px-6 sm:px-10 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 max-w-[1400px] py-[clamp(8rem,16vw,16rem)]">
+                <div className="w-full px-6 sm:px-10 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 max-w-[1400px] pt-[clamp(8rem,16vw,16rem)] pb-[clamp(14rem,18vw,18rem)]">
                   <div>
                     {WORK_PROJECTS.map((project, idx) => (
                       <FeatureBlock
@@ -102,7 +102,7 @@ export default function App() {
 
               {/* Page B: normal flow, directly below A, with torn edge attached to top overlapping A */}
               <SectionContentWrapper ref={contentContentRef} seed={202}>
-                <div className="w-full px-6 sm:px-10 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 max-w-[1400px] py-[clamp(8rem,16vw,16rem)]">
+                <div className="w-full px-6 sm:px-10 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 max-w-[1400px] pt-[clamp(8rem,16vw,16rem)] pb-[clamp(14rem,18vw,18rem)]">
                   {/* Featured Content Project Overview */}
                   <FeatureBlock project={CONTENT_PROJECT} index={0} />
 

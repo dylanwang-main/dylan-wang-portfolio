@@ -72,8 +72,20 @@ export default function Navigation() {
       for (const [id, el] of Object.entries(elRefs.current)) {
         if (!el) continue;
         const r = el.getBoundingClientRect();
-        const d = darkAt(r.left + r.width / 2, r.top + r.height / 2);
-        if (d !== null) {
+        const cy = r.top + r.height / 2;
+        // sample left, middle and right of the label: the torn line slopes across it
+        let dark = 0;
+        let seen = 0;
+        for (const fx of [0.08, 0.5, 0.92]) {
+          const d = darkAt(r.left + r.width * fx, cy);
+          if (d !== null) {
+            seen++;
+            if (d) dark++;
+          }
+        }
+        if (seen) {
+          // text is light-on-dark only when the whole label sits on dark; any cream under it needs dark text
+          const d = dark === seen;
           next[id] = d;
           key += `${id}${d ? 1 : 0}`;
         }
