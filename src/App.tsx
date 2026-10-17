@@ -109,7 +109,7 @@ export default function App() {
                   {/* Featured Content Project Overview */}
                   <FeatureBlock project={CONTENT_PROJECT} index={0} />
 
-                  <GroupTitle kicker="Content" title="Stories, shaped" />
+                  <GroupTitle title="Stories, shaped" />
 
                   <SubBlock
                     label="Short-form"

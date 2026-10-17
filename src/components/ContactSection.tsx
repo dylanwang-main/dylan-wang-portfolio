@@ -34,13 +34,7 @@ export default function ContactSection() {
         viewport={{ once: true, amount: 0.25 }}
         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className="flex items-center gap-3 text-[12px] uppercase tracking-[0.22em] text-[var(--taupe-subtle)] font-medium">
-          <span>04</span>
-          <span aria-hidden="true" className="block w-8 h-px bg-[var(--taupe-subtle)]/50" />
-          <span>Contact</span>
-        </div>
-
-        <h3 className="statement-title font-editorial-serif italic text-[clamp(3.2rem,7.6vw,8rem)] leading-[0.98] tracking-[-0.02em] text-[var(--text-ink)] mt-6 max-w-[14ch] text-balance">
+        <h3 className="statement-title font-editorial-serif italic text-[clamp(3.2rem,7.6vw,8rem)] leading-[0.98] tracking-[-0.02em] text-[var(--text-ink)] max-w-[14ch] text-balance">
           Let’s start a conversation.
         </h3>
 

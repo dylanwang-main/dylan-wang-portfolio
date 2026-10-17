@@ -435,8 +435,9 @@ export default function SectionOpener({
             isDark ? "text-[#C0B4A4]" : "text-[var(--taupe-subtle)]"
           }`}
         >
+          {/* Sections already show their name as the big heading, so only the hero keeps a kicker */}
           <span className="font-editorial-sans tracking-widest uppercase text-[11px]">
-            {S ? <SuckText ctx={S} text={scene.kicker ?? ""} seed={1} /> : scene.kicker}
+            {scene.numeral ? null : S ? <SuckText ctx={S} text={scene.kicker ?? ""} seed={1} /> : scene.kicker}
           </span>
           <span className="font-editorial-sans tracking-widest uppercase text-[11px]">
             {S ? <SuckText ctx={S} text={scene.subtitle ?? ""} seed={50} /> : scene.subtitle}
@@ -658,29 +659,6 @@ export default function SectionOpener({
         }
         className="my-auto md:-translate-y-[14vh] w-full max-w-7xl flex flex-col items-center relative z-30 will-change-transform"
       >
-        {/* Roman Numeral Kicker */}
-        {scene.numeral && (
-          <div className="flex items-center gap-3 mb-4">
-            <div
-              className={`w-8 h-[1px] ${
-                isDark ? "bg-[#E88080]" : "bg-[var(--accent-oxblood)]"
-              }`}
-            />
-            <span
-              className={`font-editorial-serif text-sm md:text-base tracking-[0.25em] uppercase font-semibold ${
-                isDark ? "text-[#E88080]" : "text-[var(--accent-oxblood)]"
-              }`}
-            >
-              {scene.numeral} · {scene.heading}
-            </span>
-            <div
-              className={`w-8 h-[1px] ${
-                isDark ? "bg-[#E88080]" : "bg-[var(--accent-oxblood)]"
-              }`}
-            />
-          </div>
-        )}
-
         {/* Section Heading: Largest & Widest element in scene, clamp(8rem, 20vw, 22rem) */}
         <h2
           className={`font-display text-[clamp(5.5rem,15vw,17rem)] font-semibold tracking-[-0.055em] leading-[0.9] select-none text-center mb-4 drop-shadow-xs ${

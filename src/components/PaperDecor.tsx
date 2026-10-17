@@ -80,7 +80,7 @@ function Rings({ className, flip = false }: { className: string; flip?: boolean 
   );
 }
 
-export default function PaperDecor({ folio }: { folio?: string }) {
+export default function PaperDecor(_: { folio?: string }) {
   const [grain, setGrain] = useState("");
   useEffect(() => {
     setGrain(makeGrain());
@@ -119,14 +119,6 @@ export default function PaperDecor({ folio }: { folio?: string }) {
           style={{ backgroundImage: `repeating-linear-gradient(to bottom, rgba(${INK},0.3) 0 1px, transparent 1px 60px)` }}
         />
       </div>
-
-      {/* folio, tucked under the tear */}
-      {folio && (
-        <div className="absolute top-[64px] right-8 lg:right-14 flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] text-[var(--taupe-subtle)]/80">
-          <span className="block w-10 h-px bg-[var(--taupe-subtle)]/40" />
-          <span>{folio}</span>
-        </div>
-      )}
     </div>
   );
 }
