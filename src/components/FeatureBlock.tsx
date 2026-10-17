@@ -27,6 +27,12 @@ const PROOFS: Record<string, Proof> = {
   "personal-brand": { Main: ContentMain, Side: ContentSide },
 };
 
+const TILES = [
+  "linear-gradient(135deg,#6B2D2D 0%,#1b1612 100%)",
+  "linear-gradient(135deg,#3a2a20 0%,#8a6a5a 100%)",
+  "linear-gradient(135deg,#2b3a4a 0%,#161310 100%)",
+];
+
 export default function FeatureBlock({ project, index }: FeatureBlockProps) {
   const proof = PROOFS[project.id] ?? PROOFS["ds3-park-smart"];
   const { Main, Side } = proof;
@@ -66,18 +72,35 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
         Placeholder preview · {project.imagePlaceholder.label}
       </p>
 
-      {/* DETAIL SLOTS: three short columns, no boxes */}
+      {/* DETAIL CARDS: art tile + title + text (Shopify card-grid pattern; tiles hold real images later) */}
       {project.slots && project.slots.length > 0 && (
-        <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-8 pt-8 border-t border-[var(--border-hairline)]">
-          {project.slots.map((slot) => (
-            <div key={slot.label}>
-              <span className="block text-[12px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)] font-semibold mb-2">
+        <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          {project.slots.map((slot, i) => (
+            <motion.div
+              key={slot.label}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: 0.8, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+              className="group"
+            >
+              <div
+                className="relative aspect-[4/3] overflow-hidden rounded-lg"
+                style={{ background: TILES[i % TILES.length] }}
+              >
+                <div className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-105"
+                  style={{ background: "radial-gradient(circle at 70% 25%, rgba(255,240,225,0.22), transparent 55%)" }} />
+                <span className="absolute left-4 bottom-3 text-[10px] tracking-[0.22em] uppercase text-[#F4EFE6]/60">
+                  Image slot
+                </span>
+              </div>
+              <span className="block mt-4 text-[15px] font-semibold text-[var(--text-ink)]">
                 {slot.label}
               </span>
-              <span className="block font-mono text-[14px] italic text-[var(--accent-oxblood)]">
+              <span className="block mt-1.5 font-mono text-[14px] leading-snug italic text-[var(--accent-oxblood)]">
                 {slot.prompt}
               </span>
-            </div>
+            </motion.div>
           ))}
         </div>
       )}

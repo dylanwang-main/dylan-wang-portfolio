@@ -4,7 +4,7 @@ import Navigation from "./components/Navigation";
 import SectionOpener from "./components/SectionOpener";
 import IntroBurst, { INTRO_VH, SCENE_DWELL_VH } from "./components/IntroBurst";
 import FeatureBlock from "./components/FeatureBlock";
-import PlaceholderImage from "./components/PlaceholderImage";
+import CardFan from "./components/CardFan";
 import AboutSection from "./components/AboutSection";
 import ContactSection from "./components/ContactSection";
 import Footer from "./components/Footer";
@@ -15,7 +15,6 @@ import {
   HERO_SCENE,
   SECTION_SCENES,
 } from "./data/portfolio";
-import { motion } from "motion/react";
 
 export default function App() {
   const workSectionRef = useRef<HTMLDivElement>(null);
@@ -107,15 +106,9 @@ export default function App() {
                   {/* Featured Content Project Overview */}
                   <FeatureBlock project={CONTENT_PROJECT} index={0} />
 
-                  {/* Editorial Content Frame Showcase */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 32 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, amount: 0.2 }}
-                    transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                    className="mt-[var(--space-xl)] pt-[var(--space-xl)] border-t border-[var(--border-hairline)]"
-                  >
-                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+                  {/* Editorial Content Frame Showcase: cards fan out from a stack */}
+                  <div className="mt-[var(--space-xl)] pt-[var(--space-xl)] border-t border-[var(--border-hairline)]">
+                    <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
                       <div>
                         <span className="text-xs uppercase tracking-widest text-[var(--taupe-subtle)] font-medium">
                           Content Creation
@@ -128,25 +121,14 @@ export default function App() {
                         Swap with production stills or video embeds
                       </span>
                     </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <PlaceholderImage
-                        label="STILL: short-form video concept & hook"
-                        recommendedSize="9:16 vertical / 1080 × 1920"
-                        aspectRatio="9/14"
-                      />
-                      <PlaceholderImage
-                        label="WORKFLOW: DaVinci Resolve editing timeline"
-                        recommendedSize="16:9 cinematic / 1920 × 1080"
-                        aspectRatio="9/14"
-                      />
-                      <PlaceholderImage
-                        label="METRIC / STORYBOARD: audience insight deck"
-                        recommendedSize="4:5 editorial / 1080 × 1350"
-                        aspectRatio="9/14"
-                      />
-                    </div>
-                  </motion.div>
+                    <CardFan
+                      cards={[
+                        { label: "STILL: short-form video concept & hook", recommendedSize: "9:16 vertical / 1080 × 1920" },
+                        { label: "WORKFLOW: DaVinci Resolve editing timeline", recommendedSize: "16:9 cinematic / 1920 × 1080" },
+                        { label: "METRIC / STORYBOARD: audience insight deck", recommendedSize: "4:5 editorial / 1080 × 1350" },
+                      ]}
+                    />
+                  </div>
                 </div>
               </SectionContentWrapper>
             </section>

@@ -4,6 +4,13 @@ import { SceneData, SceneLayer, RESUME_LINK } from "../data/portfolio";
 import PaperEdge from "./PaperEdge";
 import SceneShowcase from "./SceneShowcase";
 
+const SCENE_TINT: Record<string, string> = {
+  work: "#2f4f7a",
+  content: "#8a3040",
+  about: "#3f6a52",
+  contact: "#5a4390",
+};
+
 interface SectionOpenerProps {
   scene: SceneData;
   isHero?: boolean;
@@ -528,6 +535,19 @@ export default function SectionOpener({
             />
           );
         })}
+
+        {/* Colour world: each chapter gets its own glow until real artwork arrives */}
+        {SCENE_TINT[scene.id] && (
+          <div
+            aria-hidden="true"
+            className="absolute inset-0"
+            style={{
+              zIndex: 5,
+              background: `radial-gradient(ellipse 75% 60% at 50% 66%, ${SCENE_TINT[scene.id]}80 0%, transparent 72%), linear-gradient(to bottom, ${SCENE_TINT[scene.id]}2e 0%, transparent 45%)`,
+              mixBlendMode: "screen",
+            }}
+          />
+        )}
 
         {/* Huge, Low-Contrast Numeral Anchored to Lower Left Behind Everything */}
         {scene.numeral && (
