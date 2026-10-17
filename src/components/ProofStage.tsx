@@ -4,11 +4,11 @@ import { motion, useScroll, useTransform, MotionValue } from "motion/react";
 // left %, top %, scroll drift in px, float delay
 const CARD_SLOTS: Array<[number, number, number, number]> = [
   [-3, 6, 170, 0],
-  [86, 2, 240, 1.4],
+  [80, 2, 240, 1.4],
   [-6, 50, 120, 0.7],
-  [90, 44, 200, 2.1],
+  [83, 44, 200, 2.1],
   [3, 86, 260, 1.1],
-  [80, 88, 150, 2.8],
+  [74, 88, 150, 2.8],
 ];
 
 function ToolCard({
@@ -25,7 +25,7 @@ function ToolCard({
   const [l, t, drift, delay] = slot;
   const y = useTransform(depth, [0, 1], [drift * 0.6, -drift * 0.6]);
   return (
-    <motion.div className="absolute z-20 hidden lg:block" style={{ left: `${l}%`, top: `${t}%`, y }}>
+    <motion.div className="absolute z-20 hidden xl:block" style={{ left: `${l}%`, top: `${t}%`, y }}>
       <div className="animate-ambient-float" style={{ animationDelay: `${delay}s` }}>
         <div
           className="px-5 py-3 rounded-xl text-[15px] text-[var(--text-ink)] whitespace-nowrap"

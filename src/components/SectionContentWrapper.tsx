@@ -39,7 +39,7 @@ const SectionContentWrapper = forwardRef<
       ref={ref}
       id={id}
       data-nav-theme="light"
-      className={`relative z-20 w-full bg-[var(--bg-cream)] ${className}`}
+      className={`relative z-20 w-full overflow-x-clip bg-[var(--bg-cream)] ${className}`}
     >
       <PaperEdge
         seed={seed}
