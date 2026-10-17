@@ -305,26 +305,42 @@ const LAYOUTS: Record<string, Layout> = {
   },
 };
 
-// left %, top %, exit speed (vh), delay (s)
-const CHIP_SLOTS: Array<[number, number, number, number]> = [
-  [66, 5, 46, 0], [80, 9, 62, 1.2], [42, 6, 38, 2.1], [88, 22, 52, 0.6],
-  [91, 36, 70, 1.7], [74, 15, 34, 2.6], [90, 48, 58, 0.3], [30, 12, 44, 1.1],
-];
+/**
+ * Tool labels sit in two tidy columns in the margins either side of the title (never over it),
+ * evenly spaced, with a small zigzag so it feels designed rather than stacked. Left and right
+ * alternate, and they enter one after another with identical motion.
+ */
+const COL_TOP = 18; // % of scene height
+const COL_BOTTOM = 54;
+const LEFT_X: [number, number] = [19, 22.5]; // zigzag, % of scene width (centres)
+const RIGHT_X: [number, number] = [90, 93.5];
+const CHIP_EXIT_VH = 48; // every label leaves at the same speed, so spacing stays even
 
-function Chip({ label, slot, build, exit }: { label: string; slot: (typeof CHIP_SLOTS)[number]; build: V; exit: V }) {
-  const [l, t, speed, delay] = slot;
-  const y = useTransform(() => `${(1 - build.get()) * 10 - exit.get() * speed}vh`);
-  const opacity = useRange(build, 0.35, 0.8);
+function rowY(row: number, rows: number) {
+  return rows <= 1 ? (COL_TOP + COL_BOTTOM) / 2 : COL_TOP + (row * (COL_BOTTOM - COL_TOP)) / (rows - 1);
+}
+
+function chipSlot(i: number, n: number): [number, number] {
+  const left = i % 2 === 0;
+  const row = Math.floor(i / 2);
+  const rows = left ? Math.ceil(n / 2) : Math.floor(n / 2);
+  const xs = left ? LEFT_X : RIGHT_X;
+  return [xs[row % 2], rowY(row, rows)];
+}
+
+function Chip({ label, index, total, build, exit }: { label: string; index: number; total: number; build: V; exit: V }) {
+  const [l, t] = chipSlot(index, total);
+  const start = 0.3 + index * 0.035;
+  const prog = useRange(build, start, start + 0.3);
+  const y = useTransform(() => `${(1 - prog.get()) * 5 - exit.get() * CHIP_EXIT_VH}vh`);
   return (
-    <motion.div className="absolute hidden md:block" style={{ left: `${l}%`, top: `${t}%`, y, opacity }}>
-      <div className="animate-ambient-float" style={{ animationDelay: `${delay}s` }}>
-        <span
-          className="block px-3 py-1.5 text-[12px] tracking-[0.12em] whitespace-nowrap"
-          style={{ color: CREAM, border: `1px solid rgba(244,239,230,0.3)`, background: "rgba(22,19,16,0.55)", backdropFilter: "blur(6px)" }}
-        >
-          {label}
-        </span>
-      </div>
+    <motion.div className="absolute hidden xl:block" style={{ left: `${l}%`, top: `${t}%`, x: "-50%", y, opacity: prog }}>
+      <span
+        className="block px-3 py-1.5 text-[12px] tracking-[0.12em] whitespace-nowrap"
+        style={{ color: CREAM, border: `1px solid rgba(244,239,230,0.3)`, background: "rgba(22,19,16,0.55)", backdropFilter: "blur(6px)" }}
+      >
+        {label}
+      </span>
     </motion.div>
   );
 }
@@ -374,8 +390,8 @@ export default function SceneShowcase({
       )}
 
       {/* floating labels, each at its own depth */}
-      {chips.slice(0, CHIP_SLOTS.length).map((c, i) => (
-        <Chip key={c} label={c} slot={CHIP_SLOTS[i]} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} />
+      {chips.slice(0, 8).map((c, i, all) => (
+        <Chip key={c} label={c} index={i} total={all.length} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} />
       ))}
     </div>
   );
