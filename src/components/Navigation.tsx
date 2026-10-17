@@ -1,3 +1,4 @@
+import { INTRO_VH } from "./IntroBurst";
 import { useEffect, useState, useRef } from "react";
 import { NAVIGATION_ITEMS, RESUME_LINK } from "../data/portfolio";
 
@@ -91,7 +92,7 @@ export default function Navigation() {
       updateThemeFromPosition();
 
       // 3. Scrollspy: identify currently active section
-      if (scrollY < window.innerHeight * 0.38) {
+      if (scrollY < window.innerHeight * INTRO_VH * 0.92) {
         setActiveSection("hero");
         return;
       }

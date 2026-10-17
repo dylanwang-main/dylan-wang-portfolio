@@ -2,6 +2,7 @@ import { useRef } from "react";
 import LenisProvider from "./components/LenisProvider";
 import Navigation from "./components/Navigation";
 import SectionOpener from "./components/SectionOpener";
+import IntroBurst, { INTRO_VH } from "./components/IntroBurst";
 import FeatureBlock from "./components/FeatureBlock";
 import PlaceholderImage from "./components/PlaceholderImage";
 import AboutSection from "./components/AboutSection";
@@ -38,29 +39,31 @@ export default function App() {
         {/* Main Content Stream with Pair Structure */}
         <div className="w-full">
           <main className="w-full">
-            {/* HERO: Page A (sticky, top 0, height 100svh, stays behind) */}
-            <div className="sticky top-0 w-full h-[100svh] z-10">
-              <SectionOpener
-                scene={HERO_SCENE}
-                isHero={true}
-                nextPageRef={workSectionRef}
-              />
-            </div>
-
             {/* SECTION I: WORK */}
             <section
-              id="work"
+              id="work-section"
               ref={workSectionRef}
               aria-labelledby="section-work-heading"
               className="w-full m-0 p-0 relative z-20"
             >
-              {/* Page A: position sticky, top 0, height 100svh, so it stays behind */}
-              <div className="sticky top-0 w-full h-[100svh] z-10">
-                <SectionOpener
-                  scene={SECTION_SCENES.work}
-                  nextPageRef={workContentRef}
-                />
-              </div>
+              {/* Anchors: #hero is the very top, #work is where the intro has finished */}
+              <div id="hero" aria-hidden="true" className="absolute top-0 left-0 h-px w-px pointer-events-none" />
+              <div
+                id="work"
+                aria-hidden="true"
+                className="absolute left-0 w-full bottom-0 pointer-events-none"
+                style={{ top: `${INTRO_VH * 100}vh` }}
+              />
+
+              {/* Pinned intro: hero -> big bang -> Work scene. Stays pinned for the whole section. */}
+              <IntroBurst
+                heroScene={HERO_SCENE}
+                workScene={SECTION_SCENES.work}
+                nextPageRef={workContentRef}
+              />
+
+              {/* Scroll runway the intro plays across (transparent; the pinned stage stays on screen) */}
+              <div aria-hidden="true" style={{ height: `${(INTRO_VH + 1) * 100}vh`, marginTop: "-100svh" }} />
 
               {/* Page B: normal flow, directly below A, with torn edge attached to top overlapping A */}
               <SectionContentWrapper ref={workContentRef} seed={101}>
