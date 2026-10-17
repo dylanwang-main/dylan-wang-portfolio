@@ -14,7 +14,7 @@ export interface Tile {
 }
 
 /** 2- or 3-column textured tiles; each tile is a slot for a real image later. */
-export function TileGrid({ tiles }: { tiles: Tile[] }) {
+export function TileGrid({ tiles, aspect = "4/5" }: { tiles: Tile[]; aspect?: string }) {
   const cols = tiles.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3";
   return (
     <div className={`grid grid-cols-1 ${cols} gap-5 md:gap-6`}>
@@ -28,8 +28,8 @@ export function TileGrid({ tiles }: { tiles: Tile[] }) {
           className="group"
         >
           <div
-            className="relative aspect-[4/5] overflow-hidden rounded-lg"
-            style={{ background: TONES[i % TONES.length] }}
+            className="relative overflow-hidden rounded-lg"
+            style={{ background: TONES[i % TONES.length], aspectRatio: aspect }}
           >
             <div
               className="absolute inset-0 transition-transform duration-700 ease-out group-hover:scale-105"
@@ -51,7 +51,7 @@ export function TileGrid({ tiles }: { tiles: Tile[] }) {
 }
 
 /** Glowing prompt bar on a dark stage (Shopify's "Sidekick" bar). */
-export function PromptBar({ prompt, chips = [] }: { prompt: string; chips?: string[] }) {
+export function PromptBar({ prompt, chips = [], caption }: { prompt: string; chips?: string[]; caption?: string }) {
   return (
     <div
       className="relative overflow-hidden rounded-xl px-5 py-[clamp(3rem,8vw,7rem)] flex flex-col items-center gap-6"
@@ -82,6 +82,9 @@ export function PromptBar({ prompt, chips = [] }: { prompt: string; chips?: stri
             </span>
           ))}
         </div>
+      )}
+      {caption && (
+        <span className="relative text-[10px] uppercase tracking-[0.22em] text-[#F4EFE6]/40">{caption}</span>
       )}
     </div>
   );

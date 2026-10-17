@@ -51,7 +51,7 @@ export default function Footer() {
 
         <div
           aria-hidden="true"
-          className="font-editorial-serif italic select-none leading-[0.82] tracking-[-0.03em] text-[clamp(4.5rem,15.5vw,16rem)] mt-[clamp(2rem,5vw,4rem)] -mb-[0.06em] whitespace-nowrap"
+          className="font-editorial-serif italic select-none leading-[1.12] tracking-[-0.03em] text-[clamp(4.5rem,15.5vw,16rem)] mt-[clamp(1rem,3vw,2.5rem)] pb-[0.08em] whitespace-nowrap"
           style={{ color: "rgba(244,239,230,0.92)" }}
         >
           Dylan Wang

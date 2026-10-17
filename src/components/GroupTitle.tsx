@@ -20,8 +20,8 @@ export default function GroupTitle({ title }: { title: string }) {
   const { scrollYProgress: p } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const words = title.split(" ");
   return (
-    <div ref={ref} className="py-[clamp(3rem,8vw,7rem)] overflow-hidden">
-      <h2 className="swash-grand font-editorial-serif italic text-[clamp(3.6rem,11vw,11rem)] leading-[0.95] tracking-[-0.03em] text-[var(--text-ink)] flex flex-col md:flex-row md:justify-center md:gap-[0.3em]">
+    <div ref={ref} className="py-[clamp(2.5rem,7vw,6rem)] overflow-hidden">
+      <h2 className="swash-grand font-editorial-serif italic text-[clamp(3.6rem,11vw,11rem)] leading-[1.1] tracking-[-0.03em] text-[var(--text-ink)] flex flex-col md:flex-row md:justify-center md:gap-[0.3em]">
         {words.map((w, i) =>
           reduce ? (
             <span key={i}>{w}</span>
