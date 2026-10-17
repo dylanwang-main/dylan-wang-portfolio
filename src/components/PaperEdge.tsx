@@ -6,8 +6,9 @@ import { useEffect, useRef } from "react";
  * The main canvas is transparent ABOVE the ragged line (so the scene behind shows through)
  * and filled with `fill` BELOW it (so it merges into the page directly under the canvas).
  * Nothing about it is frozen:
- *  - the tear line itself keeps moving: slow waves drift sideways and breathe, scrolling
- *    pushes them along, and a fast fine "boil" makes the fibres shimmer
+ *  - the tear line flows like a calm ocean: a few wide travelling swells roll sideways at
+ *    steady speeds (no fine jitter, no scroll coupling), with a see-through ghost sheet on
+ *    its own slower swells behind them
  *  - the rim is a band of varying width (not a constant stroke), so it looks fibrous
  *  - pixel flakes lift off the edge and fade as they rise; char / dust specks twinkle
  *    just inside the paper
@@ -87,17 +88,29 @@ function heatColor(i: number) {
 }
 
 /**
- * Slow waves down to fine tear. w = drift in radians per second (sign = direction), b = breathing rate.
- * Drift is an angle, not a distance, so fine octaves never race: the big shape rolls like a swell
- * while the small tear detail holds nearly still. That is what reads as smooth instead of flickery.
+ * Calm-ocean swells. Each one is a true travelling wave: its phase advances at a steady
+ * speed (px per second, + = rolls to the right), so crests visibly flow sideways along the tear.
+ * Wide wavelengths only, constant speed, no scroll coupling: that is what reads as buttery.
  */
-const OCT = [
-  { a: 40, f: 0.0035, w: 0.11, b: 0.07 },
-  { a: 22, f: 0.011, w: -0.15, b: 0.09 },
-  { a: 10, f: 0.03, w: 0.12, b: 0.11 },
-  { a: 5, f: 0.09, w: -0.08, b: 0.08 },
-  { a: 2, f: 0.25, w: 0.05, b: 0.06 },
+const SWELLS = [
+  { a: 20, len: 760, v: 46 }, // wide primary swell
+  { a: 11, len: 430, v: 72 }, // medium swell, faster, slides across the primary
+  { a: 13, len: 1350, v: 18 }, // very wide, slow roll so the overall shape keeps changing
 ];
+/** Softer second layer: a ghost sheet of paper just behind the tear, on its own slower swells. */
+const GHOST = [
+  { a: 15, len: 900, v: 30 },
+  { a: 8, len: 520, v: 41 },
+];
+/** How far above the main tear the ghost layer rides on average, and how see-through it is. */
+const GHOST_LIFT = 18;
+const GHOST_ALPHA = 0.17;
+
+/** One travelling wave with slightly rounded crests and flatter troughs, like a real swell. */
+const swell = (x: number, t: number, a: number, len: number, v: number, p: number) => {
+  const th = ((x - v * t) / len) * Math.PI * 2 + p;
+  return a * (Math.sin(th) + 0.18 * Math.sin(2 * th + 1.1));
+};
 
 export default function PaperEdge({
   seed,
@@ -135,6 +148,8 @@ export default function PaperEdge({
     type Flake = { x: number; d0: number; v: number; ph: number; w: number; sz: number; a: number };
     type Char = { x: number; d: number; ph: number; w: number; sz: number; a: number };
     let ph: number[] = [];
+    let gph: number[] = [];
+    let ys2: number[] = [];
     let fibres: Fibre[] = [];
     let flakes: Flake[] = [];
     let chars: Char[] = [];
@@ -142,25 +157,28 @@ export default function PaperEdge({
     /** The tear line at time t (ms). */
     const compute = (t: number) => {
       const tt = animate ? t / 1000 : 0;
-      const T = tt * SLOW;
+      // the ragged tear detail is carried along by the swell (coarse bits faster, fine bits
+      // not at all), so the edge looks like one material rolling, not noise being re-rolled
+      const u1 = tt * 26;
+      const u2 = tt * 14;
       for (let x = 0; x <= W; x++) {
         let y = base;
-        for (let i = 0; i < OCT.length; i++) {
-          const o = OCT[i];
-          const A = tt * o.w;
-          const breath = 0.9 + 0.1 * Math.sin(tt * o.b + ph[i]);
-          y +=
-            o.a *
-            breath *
-            Math.sin(x * o.f + ph[i] + A) *
-            (0.6 + 0.4 * Math.sin(x * o.f * 0.37 + ph[i] * 1.7 - A * 0.6));
+        for (let i = 0; i < SWELLS.length; i++) {
+          const s = SWELLS[i];
+          y += swell(x, tt, s.a, s.len, s.v, ph[i]);
         }
-        // gentle morph of the ragged detail: smooth value noise sliding through time
         y +=
-          (vn(x * 0.06 + seed, T * 0.9) - 0.5) * 10 +
-          (vn(x * 0.22 + seed * 3.1, T * 0.7) - 0.5) * 4.4 +
-          (vn(x * 0.9 + seed * 1.7, T * 0.5 + 50) - 0.5) * 2.2;
+          (vn((x - u1) * 0.06 + seed, 3.7) - 0.5) * 10 +
+          (vn((x - u2) * 0.22 + seed * 3.1, 9.1) - 0.5) * 4.4 +
+          (vn(x * 0.9 + seed * 1.7, 21.3) - 0.5) * 2.2;
         ys[x] = y;
+
+        let g = base - GHOST_LIFT;
+        for (let i = 0; i < GHOST.length; i++) {
+          const s = GHOST[i];
+          g += swell(x, tt, s.a, s.len, s.v, gph[i]);
+        }
+        ys2[x] = g + (vn((x - u2) * 0.05 + seed * 5.3, 14.9) - 0.5) * 6;
       }
     };
 
@@ -168,8 +186,30 @@ export default function PaperEdge({
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
       if (!ctx || !W) return;
       const T = animate ? (t / 1000) * SLOW : 0;
+      const tt = animate ? t / 1000 : 0;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, W, H);
+
+      // 0. softer second layer: a see-through ghost sheet behind the tear, on its own swells.
+      // Kept under alpha 128 so the nav contrast sampler (which reads this canvas) ignores it.
+      const ghostP = new Path2D();
+      const ghostEdge = new Path2D();
+      ghostP.moveTo(0, H + 2);
+      ghostEdge.moveTo(0, ys2[0]);
+      for (let x = 0; x <= W; x++) {
+        ghostP.lineTo(x, ys2[x]);
+        ghostEdge.lineTo(x, ys2[x]);
+      }
+      ghostP.lineTo(W, H + 2);
+      ghostP.closePath();
+      ctx.fillStyle = fill;
+      ctx.globalAlpha = GHOST_ALPHA;
+      ctx.fill(ghostP);
+      ctx.globalAlpha = 0.22;
+      ctx.strokeStyle = `rgb(${rim})`;
+      ctx.lineWidth = 1.2;
+      ctx.stroke(ghostEdge);
+      ctx.globalAlpha = 1;
 
       const bodyP = new Path2D();
       const edgeP = new Path2D();
@@ -198,7 +238,7 @@ export default function PaperEdge({
       rimP.moveTo(0, ys[0]);
       for (let x = 1; x <= W; x++) rimP.lineTo(x, ys[x]);
       for (let x = W; x >= 0; x--) {
-        const w = 3.2 + 6.5 * vn(x * 0.08 + seed, T * 0.8) + 2 * vn(x * 0.5 + seed * 2, T * 0.9);
+        const w = 3.2 + 6.5 * vn((x - tt * 14) * 0.08 + seed, 5.3) + 2 * vn(x * 0.5 + seed * 2, 8.1);
         rimP.lineTo(x, ys[x] + w);
       }
       rimP.closePath();
@@ -344,7 +384,8 @@ export default function PaperEdge({
       compute(t);
       paintMain(t);
       if (burn) paintFx(t, dt);
-      if (frame++ % 8 === 0) paintShadow();
+      // the edge now travels ~50px/s, so keep the (tiny, cheap) shadow in step: every 2nd frame
+      if (frame++ % 2 === 0) paintShadow();
     };
 
     const build = () => {
@@ -364,8 +405,10 @@ export default function PaperEdge({
       frame = 0;
 
       const rnd = mulberry32(seed);
-      ph = OCT.map(() => rnd() * 1000);
+      ph = SWELLS.map(() => rnd() * 6.2832);
+      gph = GHOST.map(() => rnd() * 6.2832);
       ys = new Array(W + 1).fill(base);
+      ys2 = new Array(W + 1).fill(base - GHOST_LIFT);
 
       fibres = Array.from({ length: Math.round(W * 1.3) }, () => ({
         x: rnd() * W,
