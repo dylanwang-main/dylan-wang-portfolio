@@ -2,6 +2,9 @@ import { motion } from "motion/react";
 import { ABOUT_PROFILE } from "../data/portfolio";
 import ProofStage from "./ProofStage";
 import { AboutMain, AboutSide } from "./SceneShowcase";
+import SubBlock from "./SubBlock";
+import CardFan from "./CardFan";
+import { TileGrid } from "./MediaSlots";
 
 const CARDS = ["UC San Diego", "Data Science", "Content Creator", "Short-form Content"];
 
@@ -15,13 +18,7 @@ export default function AboutSection() {
         viewport={{ once: true, amount: 0.25 }}
         transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className="flex items-center gap-3 text-[12px] uppercase tracking-[0.22em] text-[var(--taupe-subtle)] font-medium">
-          <span>03</span>
-          <span aria-hidden="true" className="block w-8 h-px bg-[var(--taupe-subtle)]/50" />
-          <span>About</span>
-        </div>
-
-        <h3 className="statement-title font-editorial-serif italic text-[clamp(3.2rem,7.6vw,8rem)] leading-[0.98] tracking-[-0.02em] text-[var(--text-ink)] mt-6">
+        <h3 className="statement-title font-editorial-serif italic text-[clamp(3.2rem,7.6vw,8rem)] leading-[0.98] tracking-[-0.02em] text-[var(--text-ink)]">
           Dylan Wang
         </h3>
 
@@ -39,6 +36,30 @@ export default function AboutSection() {
       <p className="mt-6 text-[11px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)]">
         Placeholder preview · {ABOUT_PROFILE.photoPlaceholder.label}
       </p>
+
+      {/* SUB-BLOCKS (placeholder copy and image slots; swap in real photos) */}
+      <div className="mt-[clamp(3rem,6vw,5rem)]">
+        <SubBlock label="Background" headline="Data by training, storytelling by habit.">
+          <TileGrid
+            aspect="4/3"
+            tiles={[
+              { title: "UC San Diego", note: "[Add: campus photo]" },
+              { title: "Data Science", note: "[Add: project or classroom photo]" },
+              { title: "Content creator", note: "[Add: filming photo]" },
+            ]}
+          />
+        </SubBlock>
+
+        <SubBlock label="Leadership" headline="Captained a team. Coached players. Mentored students.">
+          <CardFan
+            cards={[
+              { label: "PHOTO: JV tennis team", recommendedSize: "4:5 / 1080 × 1350" },
+              { label: "PHOTO: coaching a session", recommendedSize: "4:5 / 1080 × 1350" },
+              { label: "PHOTO: mentoring students", recommendedSize: "4:5 / 1080 × 1350" },
+            ]}
+          />
+        </SubBlock>
+      </div>
 
       {/* DETAILS */}
       <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-8 pt-8 border-t border-[var(--border-hairline)]">
