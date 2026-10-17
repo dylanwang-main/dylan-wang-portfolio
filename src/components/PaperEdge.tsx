@@ -373,12 +373,19 @@ export default function PaperEdge({
     let raf = 0;
     let last = 0;
     let running = false;
+    // adaptive: stay at ~60fps while drawing is cheap, fall back to ~30fps on slower machines
+    let minDt = 15;
+    let avg = 4;
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
       const dt = now - last;
-      if (dt < 15) return;
+      if (dt < minDt) return;
       last = now;
+      const t0 = performance.now();
       draw(now, Math.min(dt, 100));
+      avg = avg * 0.9 + (performance.now() - t0) * 0.1;
+      (window as unknown as { __edgeMs?: number }).__edgeMs = avg;
+      minDt = avg > 9 ? 33 : avg < 6 ? 15 : minDt;
     };
     const start = () => {
       if (running || !animate) return;
