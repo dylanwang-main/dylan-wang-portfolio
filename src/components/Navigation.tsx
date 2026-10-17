@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { NAVIGATION_ITEMS, RESUME_LINK } from "../data/portfolio";
 
 export default function Navigation() {
@@ -7,6 +7,7 @@ export default function Navigation() {
   const [heroScroll, setHeroScroll] = useState<number>(0);
   const [viewport, setViewport] = useState({ width: 1200, height: 800 });
   const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean>(false);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -24,35 +25,70 @@ export default function Navigation() {
 
     updateMeasurements();
 
-    const updateNavState = () => {
+    // Set up IntersectionObserver to detect which section sits behind the nav's vertical position
+    const themedElements = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-nav-theme]")
+    );
+
+    const updateThemeFromPosition = () => {
       const scrollY = window.scrollY;
       const isMobile = window.innerWidth < 768;
+      // In top state, sample near top (32px); in rail state, sample at rail vertical center (46% of viewport)
+      const sampleY = isMobile
+        ? 32
+        : scrollY < 80
+          ? 32
+          : window.innerHeight * 0.46;
+
+      for (let i = themedElements.length - 1; i >= 0; i--) {
+        const el = themedElements[i];
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= sampleY && rect.bottom > sampleY) {
+          const theme = el.getAttribute("data-nav-theme") as "dark" | "light";
+          setIsDarkSection(theme === "dark");
+          break;
+        }
+      }
+    };
+
+    // IntersectionObserver monitoring the nav's vertical position scanline
+    const isMobile = window.innerWidth < 768;
+    const rootMargin = isMobile ? "-28px 0px -90% 0px" : "-45% 0px -54% 0px";
+
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const theme = entry.target.getAttribute("data-nav-theme") as "dark" | "light";
+            if (theme) {
+              setIsDarkSection(theme === "dark");
+            }
+          }
+        }
+      },
+      {
+        root: null,
+        rootMargin,
+        threshold: [0, 0.05, 0.5],
+      }
+    );
+
+    themedElements.forEach((el) => observer.observe(el));
+    observerRef.current = observer;
+
+    const updateNavState = () => {
+      const scrollY = window.scrollY;
 
       // 1. Scrubbable scroll progress through hero (0 at top to 1 at 320px)
       const progress = Math.min(1, Math.max(0, scrollY / 320));
       setHeroScroll(progress);
 
-      // 2. Sample coordinate behind navigation to detect theme
-      const sampleY = isMobile
-        ? 32
-        : progress < 0.4
-          ? 32
-          : window.innerHeight * 0.46;
-
-      const themedElements = Array.from(
-        document.querySelectorAll<HTMLElement>("[data-nav-theme]")
-      );
-
-      let detectedTheme: "dark" | "light" = "dark";
-      for (const el of themedElements) {
-        const rect = el.getBoundingClientRect();
-        if (rect.top <= sampleY && rect.bottom > sampleY) {
-          detectedTheme =
-            (el.getAttribute("data-nav-theme") as "dark" | "light") || "dark";
-          break;
-        }
-      }
-      setIsDarkSection(detectedTheme === "dark");
+      // 2. Real-time theme verification at nav's exact vertical position
+      updateThemeFromPosition();
 
       // 3. Scrollspy: identify currently active section
       if (scrollY < window.innerHeight * 0.38) {
@@ -117,6 +153,9 @@ export default function Navigation() {
     return () => {
       mq.removeEventListener("change", mqHandler);
       window.removeEventListener("scroll", onScroll);
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
     };
   }, []);
 
@@ -152,18 +191,18 @@ export default function Navigation() {
 
   const isDesktop = viewport.width >= 768;
   const centerX = viewport.width / 2;
-  const railX = 38; // Slightly more compact left inset for breathing room
+  const railX = 38; // Compact left inset for dedicated whitespace
   const railCenterY = viewport.height * 0.46;
 
   return (
     <>
       {/* ======================================================== */}
       {/* DESKTOP TWO-STATE GLIDING NAVIGATION (>=768px)           */}
-      {/* Compact refined scale giving the main pages room to breathe */}
+      {/* 250ms transition, >=4.5:1 contrast, visible accent markers */}
       {/* ======================================================== */}
       {isDesktop && (
         <nav aria-label="Main Navigation">
-          {/* DW Monogram: Top-left header -> Rail top */}
+          {/* DW Monogram: Top-left header -> Rail top. Always visible. */}
           {(() => {
             const t = prefersReducedMotion
               ? heroScroll >= 0.5
@@ -194,19 +233,19 @@ export default function Navigation() {
                 title="Dylan Wang - Return to Top"
               >
                 <span
-                  className={`font-editorial-serif text-xl lg:text-2xl font-bold tracking-tight transition-colors duration-500 ease-out ${
+                  className={`font-editorial-serif text-xl lg:text-2xl font-bold tracking-tight transition-colors duration-[250ms] ease-out ${
                     isDarkSection
-                      ? "text-[#F4EFE6] group-hover:text-[#E88080]"
-                      : "text-[var(--text-ink)] group-hover:text-[var(--accent-oxblood)]"
+                      ? "text-[#FFFFFF] group-hover:text-[#E88080]"
+                      : "text-[#161310] group-hover:text-[#6B2D2D]"
                   }`}
                 >
                   DW
                 </span>
                 <span
-                  className={`text-[8.5px] tracking-[0.2em] uppercase font-semibold mt-0.5 transition-colors duration-500 ease-out ${
+                  className={`text-[8.5px] tracking-[0.2em] uppercase font-semibold mt-0.5 transition-colors duration-[250ms] ease-out ${
                     isDarkSection
-                      ? "text-[#A89A8A]"
-                      : "text-[var(--taupe-subtle)]"
+                      ? "text-[#D5C9B8]"
+                      : "text-[#54473C]"
                   }`}
                 >
                   UCSD &apos;26
@@ -257,56 +296,56 @@ export default function Navigation() {
                 {/* Active indicator bar when in rail state */}
                 {inRailState && (
                   <span
-                    className={`w-[2.5px] transition-all duration-300 mr-2 rounded-full ${
+                    className={`w-[3px] transition-all duration-[250ms] ease-out mr-2.5 rounded-full ${
                       isActive
                         ? isDarkSection
-                          ? "h-4 bg-[#E88080]"
-                          : "h-4 bg-[var(--accent-oxblood)]"
+                          ? "h-4 bg-[#E88080] shadow-[0_0_8px_rgba(232,128,128,0.7)]"
+                          : "h-4 bg-[#6B2D2D] shadow-[0_0_4px_rgba(107,45,45,0.4)]"
                         : "h-1 opacity-0 group-hover:opacity-40 " +
-                          (isDarkSection ? "bg-[#A89A8A]" : "bg-[var(--taupe-subtle)]")
+                          (isDarkSection ? "bg-[#D5C9B8]" : "bg-[#54473C]")
                     }`}
                   />
                 )}
 
-                {/* Roman Numeral */}
+                {/* Roman Numeral: >=4.5:1 contrast at all times */}
                 <span
-                  className={`font-editorial-serif tracking-tight transition-colors duration-500 ease-out ${
+                  className={`font-editorial-serif tracking-tight transition-colors duration-[250ms] ease-out ${
                     inRailState ? "w-6 text-[15px] lg:text-[16px]" : "text-[14px] lg:text-[15px]"
                   } ${
                     isActive
                       ? isDarkSection
-                        ? "font-bold text-[#F4EFE6]"
-                        : "font-bold text-[var(--text-ink)]"
+                        ? "font-bold text-[#FFFFFF]"
+                        : "font-bold text-[#161310]"
                       : isDarkSection
-                        ? "font-normal text-[#A89A8A] group-hover:text-[#F4EFE6]"
-                        : "font-normal text-[var(--taupe-subtle)] group-hover:text-[var(--text-ink)]"
+                        ? "font-medium text-[#E8D8C5] group-hover:text-[#FFFFFF]"
+                        : "font-medium text-[#1F1B16] group-hover:text-[#161310]"
                   }`}
                 >
                   {item.numeral}
                 </span>
 
-                {/* Section Label */}
+                {/* Section Label: >=4.5:1 contrast at all times */}
                 <span
-                  className={`text-[13.5px] lg:text-[14.5px] tracking-wide transition-colors duration-500 ease-out ${
+                  className={`text-[13.5px] lg:text-[14.5px] tracking-wide transition-colors duration-[250ms] ease-out ${
                     isActive
                       ? isDarkSection
-                        ? "font-semibold text-[#F4EFE6]"
-                        : "font-semibold text-[var(--text-ink)]"
+                        ? "font-bold text-[#FFFFFF]"
+                        : "font-bold text-[#161310]"
                       : isDarkSection
-                        ? "font-normal text-[#A89A8A] group-hover:text-[#F4EFE6]"
-                        : "font-normal text-[var(--taupe-subtle)] group-hover:text-[var(--text-ink)]"
+                        ? "font-normal text-[#E8D8C5] group-hover:text-[#FFFFFF]"
+                        : "font-normal text-[#26201B] group-hover:text-[#161310]"
                   }`}
                 >
                   {item.label}
                 </span>
 
-                {/* Subtle active dot when in top header state */}
+                {/* Active accent marker when in top header state */}
                 {!inRailState && isActive && (
                   <span
-                    className={`w-1 h-1 ml-1 self-center rounded-full ${
+                    className={`w-1.5 h-1.5 ml-1.5 self-center rounded-full transition-colors duration-[250ms] ease-out ${
                       isDarkSection
-                        ? "bg-[#E88080] shadow-[0_0_6px_rgba(232,128,128,0.7)]"
-                        : "bg-[var(--accent-oxblood)]"
+                        ? "bg-[#E88080] shadow-[0_0_8px_rgba(232,128,128,0.8)]"
+                        : "bg-[#6B2D2D] shadow-[0_0_4px_rgba(107,45,45,0.5)]"
                     }`}
                   />
                 )}
@@ -343,19 +382,19 @@ export default function Navigation() {
                 className="flex flex-col items-start text-left select-none will-change-transform"
               >
                 <span
-                  className={`text-[13px] lg:text-[13.5px] font-medium tracking-wide cursor-not-allowed transition-colors duration-500 ease-out ${
+                  className={`text-[13px] lg:text-[13.5px] font-medium tracking-wide cursor-not-allowed transition-colors duration-[250ms] ease-out ${
                     isDarkSection
-                      ? "text-[#A89A8A]"
-                      : "text-[var(--taupe-subtle)]"
+                      ? "text-[#D5C9B8]"
+                      : "text-[#3D332A]"
                   }`}
                   title="Resume coming soon"
                 >
                   {RESUME_LINK.label} ↗
                   <span
-                    className={`block text-[9px] transition-colors duration-500 ease-out ${
+                    className={`block text-[9px] transition-colors duration-[250ms] ease-out ${
                       isDarkSection
-                        ? "text-[#A89A8A]/70"
-                        : "text-[var(--taupe-subtle)]/70"
+                        ? "text-[#C0B4A4]"
+                        : "text-[#54473C]"
                     }`}
                   >
                     (coming soon)
@@ -373,17 +412,23 @@ export default function Navigation() {
       {/* ======================================================== */}
       {!isDesktop && (
         <header
-          className={`fixed top-0 left-0 right-0 z-50 px-4 py-2.5 select-none flex items-center justify-between border-b transition-colors duration-500 backdrop-blur-md ${
+          className={`fixed top-0 left-0 right-0 z-50 px-4 py-2.5 select-none flex items-center justify-between border-b transition-colors duration-[250ms] ease-out backdrop-blur-md ${
             isDarkSection
-              ? "bg-[#161310]/90 border-[rgba(244,239,230,0.08)] text-[#F4EFE6]"
-              : "bg-[#F4EFE6]/90 border-[rgba(31,27,22,0.12)] text-[var(--text-ink)]"
+              ? "bg-[#161310]/95 border-[rgba(244,239,230,0.12)] text-[#FFFFFF]"
+              : "bg-[#F4EFE6]/95 border-[rgba(31,27,22,0.15)] text-[#161310]"
           }`}
         >
           <button
             onClick={() => scrollToSection("hero")}
             className="flex items-center gap-1 focus:outline-none cursor-pointer"
           >
-            <span className="font-editorial-serif text-lg font-bold">DW</span>
+            <span
+              className={`font-editorial-serif text-lg font-bold transition-colors duration-[250ms] ease-out ${
+                isDarkSection ? "text-[#FFFFFF]" : "text-[#161310]"
+              }`}
+            >
+              DW
+            </span>
           </button>
 
           <nav className="flex items-center gap-2" aria-label="Mobile Navigation">
@@ -393,14 +438,14 @@ export default function Navigation() {
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className={`px-1.5 py-0.5 text-xs transition-colors duration-300 focus:outline-none cursor-pointer ${
+                  className={`px-1.5 py-0.5 text-xs transition-colors duration-[250ms] ease-out focus:outline-none cursor-pointer ${
                     isActive
                       ? isDarkSection
                         ? "font-bold text-[#E88080]"
-                        : "font-bold text-[var(--accent-oxblood)]"
+                        : "font-bold text-[#6B2D2D]"
                       : isDarkSection
-                        ? "text-[#A89A8A] hover:text-[#F4EFE6]"
-                        : "text-[var(--taupe-subtle)] hover:text-[var(--text-ink)]"
+                        ? "text-[#E8D8C5] hover:text-[#FFFFFF]"
+                        : "text-[#26201B] hover:text-[#161310]"
                   }`}
                 >
                   <span className="font-editorial-serif text-sm mr-0.5">
@@ -413,8 +458,8 @@ export default function Navigation() {
           </nav>
 
           <span
-            className={`text-[10px] cursor-not-allowed transition-colors duration-500 ${
-              isDarkSection ? "text-[#A89A8A]" : "text-[var(--taupe-subtle)]"
+            className={`text-[10px] cursor-not-allowed transition-colors duration-[250ms] ease-out ${
+              isDarkSection ? "text-[#D5C9B8]" : "text-[#3D332A]"
             }`}
             title="Resume coming soon"
           >

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import Lenis from "lenis";
 
 interface LenisProviderProps {
@@ -6,45 +6,36 @@ interface LenisProviderProps {
 }
 
 export default function LenisProvider({ children }: LenisProviderProps) {
-  const lenisRef = useRef<Lenis | null>(null);
-
   useEffect(() => {
-    // Respect prefers-reduced-motion
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
+    if (prefersReducedMotion) return;
 
-    if (prefersReducedMotion) {
-      return;
-    }
-
+    // Light smoothing only: wheel distance is never scaled or held back.
     const lenis = new Lenis({
-      lerp: 0.1,
+      lerp: 0.12,
       wheelMultiplier: 1,
       syncTouch: false,
       touchMultiplier: 1,
       infinite: false,
     });
-
-    lenisRef.current = lenis;
     (window as unknown as { __lenis?: Lenis }).__lenis = lenis;
 
-    // Feed Lenis scroll updates into window scroll events for Framer Motion useScroll
-    lenis.on("scroll", () => {
-      window.dispatchEvent(new Event("scroll"));
-    });
+    // NOTE: do not re-dispatch "scroll" events here. Lenis listens to the
+    // window scroll event itself, so doing that recurses forever.
+    // Framer Motion's useScroll already reads the native scroll position.
 
-    function raf(time: number) {
+    let frame = 0;
+    const raf = (time: number) => {
       lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-
-    const animationFrameId = requestAnimationFrame(raf);
+      frame = requestAnimationFrame(raf);
+    };
+    frame = requestAnimationFrame(raf);
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      cancelAnimationFrame(frame);
       lenis.destroy();
-      lenisRef.current = null;
       delete (window as unknown as { __lenis?: Lenis }).__lenis;
     };
   }, []);

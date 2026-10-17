@@ -1,71 +1,267 @@
 import { useRef, useEffect, useState } from "react";
-import { motion, useScroll, useTransform, MotionValue } from "motion/react";
+import { motion, useScroll, useTransform, useMotionValue, MotionValue } from "motion/react";
 import { SceneData, SceneLayer, RESUME_LINK } from "../data/portfolio";
+import PaperEdge from "./PaperEdge";
 
 interface SectionOpenerProps {
   scene: SceneData;
   isHero?: boolean;
+  edgeSeed?: number;
+  nextPageRef?: React.RefObject<HTMLElement | null>;
+}
+
+/**
+ * Architectural Motifs rendered with pure inline SVG line art.
+ * Each section has a distinctive classical composition with tall arches and columns.
+ */
+function ArchitecturalMotif({ type: rawType }: { type?: string }) {
+  const strokeColor = "#CBB39C"; // muted warm line art tone
+  // Scene data uses these ids; map them to the drawings that exist.
+  const aliases: Record<string, string> = {
+    "about-rotunda": "about-portico",
+    "contact-portico": "contact-rotunda",
+  };
+  const type = rawType ? aliases[rawType] ?? rawType : rawType;
+
+  switch (type) {
+    case "hero-arch":
+      return (
+        <svg
+          viewBox="0 0 1400 900"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-full object-contain pointer-events-none select-none opacity-[0.3]"
+        >
+          {/* Ground Baseline / Stylobate */}
+          <line x1="100" y1="820" x2="1300" y2="820" stroke={strokeColor} strokeWidth="1" />
+          <line x1="120" y1="832" x2="1280" y2="832" stroke={strokeColor} strokeWidth="0.6" strokeDasharray="4 4" />
+
+          {/* Left Fluted Column Pair */}
+          <rect x="240" y="240" width="48" height="580" stroke={strokeColor} strokeWidth="0.8" />
+          <line x1="252" y1="240" x2="252" y2="820" stroke={strokeColor} strokeWidth="0.5" strokeDasharray="3 3" />
+          <line x1="264" y1="240" x2="264" y2="820" stroke={strokeColor} strokeWidth="0.5" strokeDasharray="3 3" />
+          <line x1="276" y1="240" x2="276" y2="820" stroke={strokeColor} strokeWidth="0.5" strokeDasharray="3 3" />
+          <rect x="232" y="804" width="64" height="16" stroke={strokeColor} strokeWidth="0.8" />
+          <rect x="234" y="226" width="60" height="14" stroke={strokeColor} strokeWidth="0.8" />
+
+          {/* Right Fluted Column Pair */}
+          <rect x="1112" y="240" width="48" height="580" stroke={strokeColor} strokeWidth="0.8" />
+          <line x1="1124" y1="240" x2="1124" y2="820" stroke={strokeColor} strokeWidth="0.5" strokeDasharray="3 3" />
+          <line x1="1136" y1="240" x2="1136" y2="820" stroke={strokeColor} strokeWidth="0.5" strokeDasharray="3 3" />
+          <line x1="1148" y1="240" x2="1148" y2="820" stroke={strokeColor} strokeWidth="0.5" strokeDasharray="3 3" />
+          <rect x="1104" y="804" width="64" height="16" stroke={strokeColor} strokeWidth="0.8" />
+          <rect x="1106" y="226" width="60" height="14" stroke={strokeColor} strokeWidth="0.8" />
+
+          {/* Inner Pilasters Supporting Arch */}
+          <rect x="390" y="340" width="36" height="480" stroke={strokeColor} strokeWidth="0.8" />
+          <rect x="974" y="340" width="36" height="480" stroke={strokeColor} strokeWidth="0.8" />
+
+          {/* Semicircular Classical Triumphal Arch */}
+          <path d="M 426 340 A 274 274 0 0 1 974 340" stroke={strokeColor} strokeWidth="1.2" />
+          <path d="M 390 340 A 310 310 0 0 1 1010 340" stroke={strokeColor} strokeWidth="0.8" strokeDasharray="6 4" />
+
+          {/* Keystone at Apex */}
+          <polygon points="688,30 712,30 718,72 682,72" stroke={strokeColor} strokeWidth="0.8" />
+
+          {/* Architrave / Entablature */}
+          <line x1="180" y1="226" x2="1220" y2="226" stroke={strokeColor} strokeWidth="1" />
+          <line x1="180" y1="190" x2="1220" y2="190" stroke={strokeColor} strokeWidth="0.8" />
+          <line x1="200" y1="160" x2="1200" y2="160" stroke={strokeColor} strokeWidth="0.8" />
+
+          {/* Pediment Guidelines */}
+          <line x1="200" y1="160" x2="700" y2="70" stroke={strokeColor} strokeWidth="0.7" strokeDasharray="4 4" />
+          <line x1="1200" y1="160" x2="700" y2="70" stroke={strokeColor} strokeWidth="0.7" strokeDasharray="4 4" />
+          <circle cx="700" cy="115" r="28" stroke={strokeColor} strokeWidth="0.6" strokeDasharray="3 3" />
+        </svg>
+      );
+
+    case "work-colonnade":
+      return (
+        <svg
+          viewBox="0 0 1400 900"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-full object-contain pointer-events-none select-none opacity-[0.3]"
+        >
+          <line x1="80" y1="800" x2="1320" y2="800" stroke={strokeColor} strokeWidth="1" />
+          <line x1="60" y1="816" x2="1340" y2="816" stroke={strokeColor} strokeWidth="0.6" />
+          <line x1="80" y1="220" x2="1320" y2="220" stroke={strokeColor} strokeWidth="1" />
+          <line x1="80" y1="190" x2="1320" y2="190" stroke={strokeColor} strokeWidth="0.7" />
+
+          {[160, 390, 620, 850, 1080].map((x, idx) => (
+            <g key={idx}>
+              <line x1={x} y1="360" x2={x} y2="800" stroke={strokeColor} strokeWidth="0.8" />
+              <line x1={x + 160} y1="360" x2={x + 160} y2="800" stroke={strokeColor} strokeWidth="0.8" />
+              <line x1={x + 6} y1="360" x2={x + 6} y2="800" stroke={strokeColor} strokeWidth="0.4" strokeDasharray="4 4" />
+              <line x1={x + 154} y1="360" x2={x + 154} y2="800" stroke={strokeColor} strokeWidth="0.4" strokeDasharray="4 4" />
+              <path d={`M ${x} 360 A 80 80 0 0 1 ${x + 160} 360`} stroke={strokeColor} strokeWidth="1" />
+              <path d={`M ${x - 8} 360 A 88 88 0 0 1 ${x + 168} 360`} stroke={strokeColor} strokeWidth="0.5" strokeDasharray="4 4" />
+              <line x1={x + 80} y1="272" x2={x + 80} y2="288" stroke={strokeColor} strokeWidth="0.9" />
+            </g>
+          ))}
+        </svg>
+      );
+
+    case "content-vault":
+      return (
+        <svg
+          viewBox="0 0 1400 900"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-full object-contain pointer-events-none select-none opacity-[0.3]"
+        >
+          <line x1="120" y1="820" x2="1280" y2="820" stroke={strokeColor} strokeWidth="1" />
+          <line x1="140" y1="836" x2="1260" y2="836" stroke={strokeColor} strokeWidth="0.6" />
+
+          {/* Left Arch Bay */}
+          <rect x="220" y="320" width="36" height="500" stroke={strokeColor} strokeWidth="0.8" />
+          <rect x="620" y="320" width="36" height="500" stroke={strokeColor} strokeWidth="0.8" />
+          <path d="M 256 320 A 182 182 0 0 1 620 320" stroke={strokeColor} strokeWidth="1.2" />
+          <path d="M 238 320 A 200 200 0 0 1 638 320" stroke={strokeColor} strokeWidth="0.6" strokeDasharray="4 4" />
+          <line x1="438" y1="138" x2="438" y2="162" stroke={strokeColor} strokeWidth="1" />
+
+          {/* Right Arch Bay */}
+          <rect x="744" y="320" width="36" height="500" stroke={strokeColor} strokeWidth="0.8" />
+          <rect x="1144" y="320" width="36" height="500" stroke={strokeColor} strokeWidth="0.8" />
+          <path d="M 780 320 A 182 182 0 0 1 1144 320" stroke={strokeColor} strokeWidth="1.2" />
+          <path d="M 762 320 A 200 200 0 0 1 1162 320" stroke={strokeColor} strokeWidth="0.6" strokeDasharray="4 4" />
+          <line x1="962" y1="138" x2="962" y2="162" stroke={strokeColor} strokeWidth="1" />
+
+          <line x1="140" y1="180" x2="1260" y2="180" stroke={strokeColor} strokeWidth="0.8" />
+          <line x1="180" y1="150" x2="1220" y2="150" stroke={strokeColor} strokeWidth="0.6" strokeDasharray="6 6" />
+        </svg>
+      );
+
+    case "about-portico":
+      return (
+        <svg
+          viewBox="0 0 1400 900"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-full object-contain pointer-events-none select-none opacity-[0.3]"
+        >
+          <line x1="160" y1="810" x2="1240" y2="810" stroke={strokeColor} strokeWidth="1" />
+          <line x1="140" y1="824" x2="1260" y2="824" stroke={strokeColor} strokeWidth="0.8" />
+          <line x1="120" y1="838" x2="1280" y2="838" stroke={strokeColor} strokeWidth="0.6" />
+
+          {[240, 420, 600, 780, 960, 1140].map((x, idx) => (
+            <g key={idx}>
+              <rect x={x - 18} y="240" width="36" height="570" stroke={strokeColor} strokeWidth="0.8" />
+              <line x1={x - 6} y1="240" x2={x - 6} y2="810" stroke={strokeColor} strokeWidth="0.4" strokeDasharray="4 4" />
+              <line x1={x + 6} y1="240" x2={x + 6} y2="810" stroke={strokeColor} strokeWidth="0.4" strokeDasharray="4 4" />
+              <rect x={x - 24} y="796" width="48" height="14" stroke={strokeColor} strokeWidth="0.8" />
+              <rect x={x - 24} y="228" width="48" height="12" stroke={strokeColor} strokeWidth="0.8" />
+            </g>
+          ))}
+
+          <rect x="180" y="196" width="1040" height="32" stroke={strokeColor} strokeWidth="0.9" />
+          <polygon points="180,196 700,54 1220,196" stroke={strokeColor} strokeWidth="1.2" />
+          <polygon points="204,190 700,72 1196,190" stroke={strokeColor} strokeWidth="0.6" strokeDasharray="4 4" />
+          <circle cx="700" cy="135" r="24" stroke={strokeColor} strokeWidth="0.7" strokeDasharray="3 3" />
+        </svg>
+      );
+
+    case "contact-rotunda":
+      return (
+        <svg
+          viewBox="0 0 1400 900"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-full object-contain pointer-events-none select-none opacity-[0.3]"
+        >
+          <ellipse cx="700" cy="810" rx="520" ry="24" stroke={strokeColor} strokeWidth="1" />
+          <ellipse cx="700" cy="824" rx="540" ry="26" stroke={strokeColor} strokeWidth="0.6" />
+
+          <path d="M 280 240 A 420 220 0 0 1 1120 240" stroke={strokeColor} strokeWidth="1.2" />
+          <path d="M 320 240 A 380 200 0 0 1 1080 240" stroke={strokeColor} strokeWidth="0.6" strokeDasharray="4 4" />
+          <line x1="700" y1="20" x2="700" y2="44" stroke={strokeColor} strokeWidth="1.2" />
+
+          {[300, 460, 620, 780, 940, 1100].map((x, idx) => (
+            <g key={idx}>
+              <line x1={x} y1="240" x2={x} y2="810" stroke={strokeColor} strokeWidth="0.8" />
+              <line x1={x + 6} y1="240" x2={x + 6} y2="810" stroke={strokeColor} strokeWidth="0.4" strokeDasharray="4 4" />
+              <line x1={x - 6} y1="240" x2={x - 6} y2="810" stroke={strokeColor} strokeWidth="0.4" strokeDasharray="4 4" />
+            </g>
+          ))}
+
+          <g>
+            <line x1="620" y1="440" x2="620" y2="810" stroke={strokeColor} strokeWidth="0.9" />
+            <line x1="780" y1="440" x2="780" y2="810" stroke={strokeColor} strokeWidth="0.9" />
+            <path d="M 620 440 A 80 80 0 0 1 780 440" stroke={strokeColor} strokeWidth="1" />
+            <line x1="700" y1="360" x2="700" y2="810" stroke={strokeColor} strokeWidth="0.5" strokeDasharray="4 4" />
+          </g>
+
+          <rect x="220" y="210" width="960" height="36" stroke={strokeColor} strokeWidth="0.9" />
+          <polygon points="220,210 700,70 1180,210" stroke={strokeColor} strokeWidth="1.2" />
+          <polygon points="244,204 700,88 1156,204" stroke={strokeColor} strokeWidth="0.6" strokeDasharray="4 4" />
+        </svg>
+      );
+
+    default:
+      return null;
+  }
 }
 
 function LayerElement({
   layer,
-  scrollYProgress,
+  layerY,
   prefersReducedMotion,
   zIndex,
 }: {
   layer: SceneLayer;
-  scrollYProgress: MotionValue<number>;
+  layerY: MotionValue<string>;
   prefersReducedMotion: boolean;
   zIndex: number;
 }) {
-  const [isDebug, setIsDebug] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setIsDebug(new URLSearchParams(window.location.search).has("debug"));
-    }
-  }, []);
-
-  // Compute smooth parallax translation based on layer.parallaxSpeed
-  const travelPx = Math.round(layer.parallaxSpeed * 80);
-  const y = useTransform(
-    scrollYProgress,
-    [0, 1],
-    [`-${travelPx}px`, `${travelPx}px`]
-  );
-
   const style: React.CSSProperties = {
     opacity: layer.opacity,
     mixBlendMode:
       (layer.blendMode as React.CSSProperties["mixBlendMode"]) || "normal",
+    transform:
+      layer.scale && layer.scale !== 1 ? `scale(${layer.scale})` : undefined,
     zIndex,
   };
 
   return (
     <motion.div
-      style={prefersReducedMotion ? style : { ...style, y }}
-      className="absolute inset-0 w-full h-full pointer-events-none will-change-transform"
+      style={prefersReducedMotion ? style : { ...style, y: layerY }}
+      className="absolute inset-0 w-full h-full pointer-events-none will-change-transform flex items-center justify-center"
     >
-      {layer.imagePath ? (
-        <img
-          src={layer.imagePath}
-          alt={layer.label || "Scene layer"}
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
-      ) : (
-        <div
-          className={`w-full h-full ${layer.gradientFallback} relative overflow-hidden`}
-        >
-          {isDebug && layer.label && (
-            <div className="absolute bottom-3 right-4 pointer-events-none select-none opacity-40">
-              <span className="text-[9px] uppercase tracking-widest font-mono text-[var(--taupe-subtle)]">
-                {layer.label}
-              </span>
-            </div>
-          )}
-        </div>
+      {/* 1. Soft Warm Radial Glow */}
+      {layer.motifId === "radial-glow" && (
+        <div className="absolute inset-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_rgba(107,45,45,0.22)_0%,_rgba(138,123,106,0.14)_45%,_transparent_75%)]" />
       )}
+
+      {/* 2. Film Grain Noise Overlay & Gentle Vignette */}
+      {layer.motifId === "vignette-grain" && (
+        <>
+          <svg
+            className="absolute inset-0 w-full h-full opacity-[0.038] pointer-events-none mix-blend-overlay"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <filter id="film-grain-filter">
+              <feTurbulence
+                type="fractalNoise"
+                baseFrequency="0.8"
+                numOctaves="3"
+                stitchTiles="stitch"
+              />
+              <feColorMatrix type="saturate" values="0" />
+            </filter>
+            <rect width="100%" height="100%" filter="url(#film-grain-filter)" />
+          </svg>
+          <div className="absolute inset-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_transparent_40%,_rgba(10,8,7,0.72)_100%)] pointer-events-none" />
+        </>
+      )}
+
+      {/* 3. Inline SVG Architectural Line Art Motif */}
+      {layer.motifId &&
+        layer.motifId !== "radial-glow" &&
+        layer.motifId !== "vignette-grain" && (
+          <div className="absolute inset-0 w-full h-full flex items-center justify-center p-4">
+            <ArchitecturalMotif type={layer.motifId} />
+          </div>
+        )}
     </motion.div>
   );
 }
@@ -73,6 +269,8 @@ function LayerElement({
 export default function SectionOpener({
   scene,
   isHero = false,
+  edgeSeed,
+  nextPageRef,
 }: SectionOpenerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
@@ -87,46 +285,48 @@ export default function SectionOpener({
     return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
-  // Scroll progress through this section (start end to end start for natural flow, no pinning)
-  const { scrollYProgress } = useScroll({
+  // Entry scroll progress when this scene enters as Page B from "start end" to "start start"
+  const { scrollYProgress: entryP } = useScroll({
     target: containerRef,
-    offset: isHero ? ["start start", "end start"] : ["start end", "end start"],
+    offset: ["start end", "start start"],
   });
 
-  // Hero exit transforms: gentle scale, translation, and fade as page scrolls naturally
-  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.94]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.8, 1], [1, 0.4, 0]);
-  const heroContentY = useTransform(scrollYProgress, [0, 1], ["0px", "-50px"]);
+  // Exit scroll progress: p of Page B rising over this scene (Page A)
+  // from "B's top at the bottom of the viewport" (p=0) to "B's top at the top of the viewport" (p=1)
+  const defaultP = useMotionValue(0);
+  const { scrollYProgress: hookExitP } = useScroll(
+    nextPageRef
+      ? { target: nextPageRef, offset: ["start end", "start start"] }
+      : { target: containerRef, offset: ["start start", "end start"] }
+  );
+  const p = nextPageRef ? hookExitP : defaultP;
 
-  // Standard Opener scroll-linked motion (as it enters from bottom and exits through top)
-  const yHeading = useTransform(
-    scrollYProgress,
-    [0, 0.5, 1],
-    ["50px", "0px", "-50px"]
-  );
-  const scaleHeading = useTransform(
-    scrollYProgress,
-    [0, 0.5, 1],
-    [0.97, 1, 0.97]
-  );
-  const opacityHeading = useTransform(
-    scrollYProgress,
-    [0, 0.2, 0.8, 1],
-    [0.4, 1, 1, 0.3]
-  );
+  // While p goes 0 to 1:
+  // - A's background layer translateY: 0 to -6vh
+  const bgY = useTransform(p, [0, 1], ["0vh", "-10vh"]);
+  // - A's midground layer: 0 to -14vh
+  const midY = useTransform(p, [0, 1], ["0vh", "-24vh"]);
+  // - A's foreground layer: 0 to -30vh
+  const fgY = useTransform(p, [0, 1], ["0vh", "-30vh"]);
+  // - A dims: a black overlay from 0 to 0.45 opacity
+  const dimOpacity = useTransform(p, [0, 1], [0, 0.45]);
 
-  const yTagline = useTransform(
-    scrollYProgress,
-    [0, 0.5, 1],
-    ["65px", "0px", "-30px"]
-  );
-  const opacityTagline = useTransform(
-    scrollYProgress,
-    [0, 0.25, 0.8, 1],
-    [0.3, 1, 1, 0.3]
-  );
+  // - A's heading and tagline: 0 to -22vh, scale 1 to 0.94, opacity 1 to 0.35
+  // - B's own heading and tagline rise from +10vh to 0 as B comes in
+  const headingY = useTransform(() => {
+    const exitVal = p.get();
+    if (exitVal > 0) {
+      return `${-22 * exitVal}vh`;
+    }
+    if (!isHero) {
+      const entryVal = entryP.get();
+      return `${10 * (1 - entryVal)}vh`;
+    }
+    return "0vh";
+  });
 
-  const yWatermark = useTransform(scrollYProgress, [0, 1], ["30px", "-30px"]);
+  const headingScale = useTransform(p, [0, 1], [1, 0.94]);
+  const headingOpacity = useTransform(p, [0, 1], [1, 0.35]);
 
   const scrollToWork = () => {
     const el = document.getElementById("work");
@@ -151,30 +351,40 @@ export default function SectionOpener({
       <div
         id={scene.id}
         ref={containerRef}
-        data-nav-theme={scene.theme || "dark"}
-        className={`relative w-full h-[100svh] min-h-[100svh] max-h-[100svh] flex flex-col justify-between items-center text-center px-6 md:px-12 lg:px-20 py-8 md:py-12 overflow-hidden select-none ${
+        data-nav-theme={scene.theme}
+        className={`relative w-full h-[100svh] min-h-[100svh] max-h-[100svh] flex flex-col justify-between items-center text-center px-6 md:px-12 lg:px-20 py-8 md:py-12 overflow-hidden select-none z-10 ${
           isDark ? "bg-[#161310]" : "bg-[var(--bg-cream)]"
         }`}
       >
-        {/* Parallax Layers mapped from scene.layers */}
-        {scene.layers.map((layer, index) => (
-          <LayerElement
-            key={index}
-            layer={layer}
-            scrollYProgress={scrollYProgress}
-            prefersReducedMotion={prefersReducedMotion}
-            zIndex={index * 10}
-          />
-        ))}
+        {/* Parallax Layers: Background (0 to -6vh), Midground (0 to -14vh), Foreground (0 to -30vh) */}
+        {scene.layers.map((layer, index) => {
+          const layerY = index === 0 ? bgY : index === 1 ? midY : fgY;
+          return (
+            <LayerElement
+              key={index}
+              layer={layer}
+              layerY={layerY}
+              prefersReducedMotion={prefersReducedMotion}
+              zIndex={index * 10}
+            />
+          );
+        })}
+
+        {/* A dims: black overlay from 0 to 0.45 opacity */}
+        <motion.div
+          style={prefersReducedMotion ? undefined : { opacity: dimOpacity }}
+          className="absolute inset-0 bg-black pointer-events-none z-20 will-change-transform"
+          aria-hidden="true"
+        />
 
         {/* Top Editorial Kicker */}
         <motion.div
-          style={prefersReducedMotion ? undefined : { opacity: heroOpacity }}
+          style={prefersReducedMotion ? undefined : { opacity: headingOpacity }}
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className={`w-full flex items-center justify-between text-xs pt-12 md:pt-4 max-w-6xl relative z-30 ${
-            isDark ? "text-[#A89A8A]" : "text-[var(--taupe-subtle)]"
+            isDark ? "text-[#C0B4A4]" : "text-[var(--taupe-subtle)]"
           }`}
         >
           <span className="font-editorial-sans tracking-widest uppercase text-[11px]">
@@ -185,100 +395,48 @@ export default function SectionOpener({
           </span>
         </motion.div>
 
-        {/* Main Hero Center: Shrinks and fades gently as it leaves, zero hold */}
+        {/* Centerpiece: Heading & Tagline (0 to -22vh, scale 1 to 0.94, opacity 1 to 0.35) */}
         <motion.div
           style={
             prefersReducedMotion
               ? undefined
               : {
-                  scale: heroScale,
-                  opacity: heroOpacity,
-                  y: heroContentY,
+                  y: headingY,
+                  scale: headingScale,
+                  opacity: headingOpacity,
                 }
           }
-          className="my-auto max-w-6xl flex flex-col items-center will-change-transform relative z-30"
+          className="w-full flex flex-col items-center select-none will-change-transform z-30"
         >
-          {/* Ambient Floating Monogram Seal */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-4 will-change-transform"
-          >
-            <div
-              className={`animate-ambient-float w-14 h-14 md:w-16 md:h-16 rounded-full border flex flex-col items-center justify-center p-2 shadow-xs select-none ${
-                isDark
-                  ? "border-[#6B2D2D]/70 bg-[#221D18]"
-                  : "border-[var(--accent-oxblood)]/40 bg-[var(--bg-cream)]"
-              }`}
-              title="Dylan Wang Monogram Seal"
-            >
-              <span
-                className={`font-editorial-serif text-lg md:text-xl font-bold italic ${
-                  isDark ? "text-[#EFE8DC]" : "text-[var(--accent-oxblood)]"
-                }`}
-              >
-                DW
-              </span>
-              <span
-                className={`text-[7px] uppercase tracking-widest ${
-                  isDark ? "text-[#9E9080]" : "text-[var(--taupe-subtle)]"
-                }`}
-              >
-                UCSD
-              </span>
-            </div>
-          </motion.div>
-
-          {/* Hero Name Heading: refined grand scale giving breathing room */}
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-            className={`font-editorial-serif text-[clamp(4.25rem,10.5vw,9.5rem)] font-normal tracking-tight leading-[0.9] mb-4 will-change-transform ${
+          <h1
+            className={`font-editorial-serif text-[clamp(4.2rem,12vw,10.5rem)] font-normal tracking-[-0.035em] leading-[0.88] mb-6 text-balance ${
               isDark ? "text-[#F4EFE6]" : "text-[var(--text-ink)]"
             }`}
           >
             {scene.heading}
-          </motion.h1>
+          </h1>
 
-          {/* Serif Italic Tagline: refined clamp with swash initial */}
-          <motion.p
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          <p
             style={
               {
                 "--swash-color": isDark ? "#E88080" : "#6B2D2D",
               } as React.CSSProperties
             }
-            className={`font-editorial-serif italic text-[clamp(1.35rem,2.2vw,2.25rem)] swash-grand max-w-3xl leading-relaxed text-balance will-change-transform ${
+            className={`font-editorial-serif italic text-[clamp(1.4rem,2.4vw,2.4rem)] swash-grand max-w-2xl text-balance leading-relaxed ${
               isDark ? "text-[#D5C9B8]" : "text-[var(--taupe-subtle)]"
             }`}
           >
             {scene.tagline}
-          </motion.p>
+          </p>
 
-          {/* Action Buttons */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-wrap items-center justify-center gap-4 mt-6 will-change-transform"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="mt-8 flex items-center gap-3"
           >
-            <button
-              onClick={scrollToWork}
-              className={`px-6 py-2.5 text-xs font-medium uppercase tracking-widest transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent-oxblood)] ${
-                isDark
-                  ? "bg-[#F4EFE6] text-[#161310] hover:bg-[#6B2D2D] hover:text-[#F4EFE6]"
-                  : "bg-[var(--text-ink)] text-[var(--bg-cream)] hover:bg-[var(--accent-oxblood)]"
-              }`}
-            >
-              Explore Work
-            </button>
-
             <span
-              className={`px-5 py-2.5 text-xs font-medium uppercase tracking-widest border cursor-not-allowed ${
+              className={`text-xs tracking-widest uppercase px-3 py-1.5 rounded-none border ${
                 isDark
                   ? "border-white/20 text-[#A89A8A]"
                   : "border-[var(--border-hairline)] text-[var(--taupe-subtle)]"
@@ -292,7 +450,7 @@ export default function SectionOpener({
 
         {/* Bottom Scroll Prompt */}
         <motion.div
-          style={prefersReducedMotion ? undefined : { opacity: heroOpacity }}
+          style={prefersReducedMotion ? undefined : { opacity: headingOpacity }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
@@ -302,7 +460,7 @@ export default function SectionOpener({
             onClick={scrollToWork}
             className={`group flex flex-col items-center gap-2 transition-colors focus:outline-none ${
               isDark
-                ? "text-[#A89A8A] hover:text-[#F4EFE6]"
+                ? "text-[#C0B4A4] hover:text-[#F4EFE6]"
                 : "text-[var(--taupe-subtle)] hover:text-[var(--text-ink)]"
             }`}
           >
@@ -311,9 +469,7 @@ export default function SectionOpener({
             </span>
             <div
               className={`w-[1px] h-6 transition-all duration-300 group-hover:h-9 ${
-                isDark
-                  ? "bg-gradient-to-b from-[#E88080] to-transparent"
-                  : "bg-gradient-to-b from-[var(--accent-oxblood)] to-transparent"
+                isDark ? "bg-[#E88080]" : "bg-[var(--accent-oxblood)]"
               }`}
             />
           </button>
@@ -323,55 +479,90 @@ export default function SectionOpener({
   }
 
   // Standard Sections (I. Work, II. Content, III. About, IV. Contact)
-  // Full-bleed 100vw by 100svh, scrolling naturally at normal speed with scroll-linked transforms, zero hold, zero seam
   return (
     <div
       id={`${scene.id}-opener`}
       ref={containerRef}
-      data-nav-theme={scene.theme || "dark"}
-      className={`relative w-full h-[100svh] min-h-[100svh] max-h-[100svh] flex flex-col justify-between items-center text-center px-6 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 py-8 md:py-12 overflow-hidden select-none ${
+      data-nav-theme={scene.theme}
+      className={`relative w-full h-[100svh] min-h-[100svh] max-h-[100svh] flex flex-col justify-between items-center text-center px-6 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 py-8 md:py-12 select-none z-10 ${
         isDark ? "bg-[#161310]" : "bg-[var(--bg-cream)]"
       }`}
     >
-      {/* Parallax Layers mapped from scene.layers */}
-      {scene.layers.map((layer, index) => (
-        <LayerElement
-          key={index}
-          layer={layer}
-          scrollYProgress={scrollYProgress}
-          prefersReducedMotion={prefersReducedMotion}
-          zIndex={index * 10}
+      {/* Dark torn edge ABOVE this scene: it rises over the previous cream page */}
+      {edgeSeed && (
+        <PaperEdge
+          seed={edgeSeed}
+          fill="#161310"
+          rim="232,221,207"
+          shadow="rgba(0,0,0,0.16)"
         />
-      ))}
-
-      {/* Editorial Watermark Numeral in Background */}
-      {scene.numeral && (
-        <motion.span
-          style={prefersReducedMotion ? undefined : { y: yWatermark }}
-          aria-hidden="true"
-          className={`absolute pointer-events-none select-none font-editorial-serif text-[22vw] md:text-[18vw] leading-none top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-25 will-change-transform ${
-            isDark ? "text-white/[0.04]" : "text-[var(--taupe-subtle)]/8"
-          }`}
-        >
-          {scene.numeral}
-        </motion.span>
       )}
+
+      {/* Parallax Layers & Numeral */}
+      <div
+        className="absolute inset-0 overflow-hidden pointer-events-none select-none"
+        style={
+          edgeSeed
+            ? {
+                // fade the scene art in under the torn edge so no seam shows
+                WebkitMaskImage: "linear-gradient(to bottom, transparent 0, #000 240px)",
+                maskImage: "linear-gradient(to bottom, transparent 0, #000 240px)",
+              }
+            : undefined
+        }
+      >
+        {scene.layers.map((layer, index) => {
+          const layerY = index === 0 ? bgY : index === 1 ? midY : fgY;
+          return (
+            <LayerElement
+              key={index}
+              layer={layer}
+              layerY={layerY}
+              prefersReducedMotion={prefersReducedMotion}
+              zIndex={index * 10}
+            />
+          );
+        })}
+
+        {/* Huge, Low-Contrast Numeral Anchored to Lower Left Behind Everything */}
+        {scene.numeral && (
+          <span
+            aria-hidden="true"
+            className="absolute -bottom-[4vw] -left-[2vw] font-editorial-serif font-bold text-[40vw] leading-[0.72] pointer-events-none select-none z-10 text-[#F4EFE6] opacity-[0.055]"
+          >
+            {scene.numeral}
+          </span>
+        )}
+      </div>
+
+      {/* A dims: black overlay from 0 to 0.45 opacity */}
+      <motion.div
+        style={prefersReducedMotion ? undefined : { opacity: dimOpacity }}
+        className="absolute inset-0 bg-black pointer-events-none z-20 will-change-transform"
+        aria-hidden="true"
+      />
 
       {/* Top spacer */}
       <div className="w-full pt-8 md:pt-4 max-w-5xl relative z-30" />
 
-      {/* Main Center Content: Scroll-linked translateY, scale, opacity without pinning */}
-      <div className="my-auto max-w-5xl flex flex-col items-center relative z-30">
+      {/* Main Center Content:
+          - B's own heading and tagline rise from +10vh to 0 as B comes in
+          - As next page rises over this scene, translates 0 to -22vh, scale 1 to 0.94, opacity 1 to 0.35 */}
+      <motion.div
+        style={
+          prefersReducedMotion
+            ? undefined
+            : {
+                y: headingY,
+                scale: headingScale,
+                opacity: headingOpacity,
+              }
+        }
+        className="my-auto w-full max-w-7xl flex flex-col items-center relative z-30 will-change-transform"
+      >
         {/* Roman Numeral Kicker */}
         {scene.numeral && (
-          <motion.div
-            style={
-              prefersReducedMotion
-                ? undefined
-                : { y: yHeading, opacity: opacityHeading }
-            }
-            className="flex items-center gap-3 mb-4 will-change-transform"
-          >
+          <div className="flex items-center gap-3 mb-4">
             <div
               className={`w-8 h-[1px] ${
                 isDark ? "bg-[#E88080]" : "bg-[var(--accent-oxblood)]"
@@ -389,53 +580,38 @@ export default function SectionOpener({
                 isDark ? "bg-[#E88080]" : "bg-[var(--accent-oxblood)]"
               }`}
             />
-          </motion.div>
+          </div>
         )}
 
-        {/* Section Heading: refined grand scale giving breathing room */}
-        <motion.h2
-          style={
-            prefersReducedMotion
-              ? undefined
-              : {
-                  y: yHeading,
-                  scale: scaleHeading,
-                  opacity: opacityHeading,
-                }
-          }
-          className={`font-editorial-serif text-[clamp(4.5rem,11.5vw,10.5rem)] font-normal tracking-[-0.03em] leading-[0.88] mb-4 will-change-transform drop-shadow-xs ${
+        {/* Section Heading: Largest & Widest element in scene, clamp(8rem, 20vw, 22rem) */}
+        <h2
+          className={`font-editorial-serif text-[clamp(8rem,20vw,22rem)] font-normal tracking-[-0.035em] leading-[0.82] select-none text-center mb-4 drop-shadow-xs ${
             isDark ? "text-[#F4EFE6]" : "text-[var(--text-ink)]"
           }`}
         >
           {scene.heading}
-        </motion.h2>
+        </h2>
 
-        {/* Serif Italic Tagline: refined clamp with swash initial */}
-        <motion.p
+        {/* Serif Italic Tagline: Capped at about 70% of heading width */}
+        <p
           style={
-            prefersReducedMotion
-              ? {
-                  "--swash-color": isDark ? "#E88080" : "#6B2D2D",
-                } as React.CSSProperties
-              : {
-                  y: yTagline,
-                  opacity: opacityTagline,
-                  "--swash-color": isDark ? "#E88080" : "#6B2D2D",
-                } as unknown as React.CSSProperties
+            {
+              "--swash-color": isDark ? "#E88080" : "#6B2D2D",
+            } as React.CSSProperties
           }
-          className={`font-editorial-serif italic text-[clamp(1.35rem,2.2vw,2.25rem)] swash-grand max-w-3xl leading-relaxed text-balance will-change-transform ${
+          className={`font-editorial-serif italic text-[clamp(1.35rem,2.2vw,2.25rem)] swash-grand max-w-[70vw] lg:max-w-[70%] w-fit mx-auto leading-relaxed text-balance ${
             isDark ? "text-[#D5C9B8]" : "text-[var(--taupe-subtle)]"
           }`}
         >
           {scene.tagline}
-        </motion.p>
-      </div>
+        </p>
+      </motion.div>
 
       {/* Bottom Downward Indicator */}
       <motion.div
-        style={prefersReducedMotion ? undefined : { opacity: opacityTagline }}
+        style={prefersReducedMotion ? undefined : { opacity: headingOpacity }}
         className={`w-full flex flex-col items-center text-center pb-6 md:pb-8 relative z-30 ${
-          isDark ? "text-[#9E9080]" : "text-[var(--taupe-subtle)]"
+          isDark ? "text-[#C0B4A4]" : "text-[var(--taupe-subtle)]"
         }`}
       >
         <span className="text-[10px] tracking-widest uppercase">
@@ -443,9 +619,7 @@ export default function SectionOpener({
         </span>
         <div
           className={`w-[1px] h-6 mt-2 ${
-            isDark
-              ? "bg-gradient-to-b from-[#E88080] to-transparent"
-              : "bg-gradient-to-b from-[var(--accent-oxblood)] to-transparent"
+            isDark ? "bg-[#E88080]" : "bg-[var(--accent-oxblood)]"
           }`}
         />
       </motion.div>

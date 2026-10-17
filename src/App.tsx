@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import LenisProvider from "./components/LenisProvider";
 import Navigation from "./components/Navigation";
 import SectionOpener from "./components/SectionOpener";
@@ -16,23 +17,53 @@ import {
 import { motion } from "motion/react";
 
 export default function App() {
+  const workSectionRef = useRef<HTMLDivElement>(null);
+  const workContentRef = useRef<HTMLDivElement>(null);
+
+  const contentSectionRef = useRef<HTMLDivElement>(null);
+  const contentContentRef = useRef<HTMLDivElement>(null);
+
+  const aboutSectionRef = useRef<HTMLDivElement>(null);
+  const aboutContentRef = useRef<HTMLDivElement>(null);
+
+  const contactSectionRef = useRef<HTMLDivElement>(null);
+  const contactContentRef = useRef<HTMLDivElement>(null);
+
   return (
     <LenisProvider>
       <div className="min-h-screen w-full bg-[#161310] text-[var(--text-ink)] selection:bg-[var(--accent-oxblood)] selection:text-[var(--bg-cream)]">
-        {/* Floating Two-State Navigation (Top Header Morphs into Left Rail, No Panel) */}
+        {/* Floating Two-State Navigation */}
         <Navigation />
 
-        {/* Main Content Stream with Full-Bleed Section Backgrounds & Dedicated Nav Whitespace */}
+        {/* Main Content Stream with Pair Structure */}
         <div className="w-full">
           <main className="w-full">
-            {/* Layered Scene: HERO (Full width, top header state) */}
-            <SectionOpener scene={HERO_SCENE} isHero={true} />
+            {/* HERO: Page A (sticky, top 0, height 100svh, stays behind) */}
+            <div className="sticky top-0 w-full h-[100svh] z-10">
+              <SectionOpener
+                scene={HERO_SCENE}
+                isHero={true}
+                nextPageRef={workSectionRef}
+              />
+            </div>
 
             {/* SECTION I: WORK */}
-            <section id="work" aria-labelledby="section-work-heading" className="w-full m-0 p-0">
-              <SectionOpener scene={SECTION_SCENES.work} />
+            <section
+              id="work"
+              ref={workSectionRef}
+              aria-labelledby="section-work-heading"
+              className="w-full m-0 p-0 relative z-20"
+            >
+              {/* Page A: position sticky, top 0, height 100svh, so it stays behind */}
+              <div className="sticky top-0 w-full h-[100svh] z-10">
+                <SectionOpener
+                  scene={SECTION_SCENES.work}
+                  nextPageRef={workContentRef}
+                />
+              </div>
 
-              <SectionContentWrapper>
+              {/* Page B: normal flow, directly below A, with torn edge attached to top overlapping A */}
+              <SectionContentWrapper ref={workContentRef} seed={101}>
                 <div className="w-full px-6 sm:px-10 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 max-w-[1400px] py-[clamp(8rem,16vw,16rem)]">
                   <div>
                     {WORK_PROJECTS.map((project, idx) => (
@@ -49,10 +80,23 @@ export default function App() {
             </section>
 
             {/* SECTION II: CONTENT */}
-            <section id="content" aria-labelledby="section-content-heading" className="w-full m-0 p-0">
-              <SectionOpener scene={SECTION_SCENES.content} />
+            <section
+              id="content"
+              ref={contentSectionRef}
+              aria-labelledby="section-content-heading"
+              className="w-full m-0 p-0 relative z-30"
+            >
+              {/* Page A: position sticky, top 0, height 100svh, so it stays behind */}
+              <div className="sticky top-0 w-full h-[100svh] z-10">
+                <SectionOpener
+                  scene={SECTION_SCENES.content}
+                  edgeSeed={201}
+                  nextPageRef={contentContentRef}
+                />
+              </div>
 
-              <SectionContentWrapper>
+              {/* Page B: normal flow, directly below A, with torn edge attached to top overlapping A */}
+              <SectionContentWrapper ref={contentContentRef} seed={202}>
                 <div className="w-full px-6 sm:px-10 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 max-w-[1400px] py-[clamp(8rem,16vw,16rem)]">
                   {/* Featured Content Project Overview */}
                   <FeatureBlock project={CONTENT_PROJECT} index={0} />
@@ -102,26 +146,54 @@ export default function App() {
             </section>
 
             {/* SECTION III: ABOUT */}
-            <section id="about" aria-labelledby="section-about-heading" className="w-full m-0 p-0">
-              <SectionOpener scene={SECTION_SCENES.about} />
+            <section
+              id="about"
+              ref={aboutSectionRef}
+              aria-labelledby="section-about-heading"
+              className="w-full m-0 p-0 relative z-40"
+            >
+              {/* Page A: position sticky, top 0, height 100svh, so it stays behind */}
+              <div className="sticky top-0 w-full h-[100svh] z-10">
+                <SectionOpener
+                  scene={SECTION_SCENES.about}
+                  edgeSeed={301}
+                  nextPageRef={aboutContentRef}
+                />
+              </div>
 
-              <SectionContentWrapper>
+              {/* Page B: normal flow, directly below A, with torn edge attached to top overlapping A */}
+              <SectionContentWrapper ref={aboutContentRef} seed={302}>
                 <AboutSection />
               </SectionContentWrapper>
             </section>
 
             {/* SECTION IV: CONTACT */}
-            <section id="contact" aria-labelledby="section-contact-heading" className="w-full m-0 p-0">
-              <SectionOpener scene={SECTION_SCENES.contact} />
+            <section
+              id="contact"
+              ref={contactSectionRef}
+              aria-labelledby="section-contact-heading"
+              className="w-full m-0 p-0 relative z-50"
+            >
+              {/* Page A: position sticky, top 0, height 100svh, so it stays behind */}
+              <div className="sticky top-0 w-full h-[100svh] z-10">
+                <SectionOpener
+                  scene={SECTION_SCENES.contact}
+                  edgeSeed={401}
+                  nextPageRef={contactContentRef}
+                />
+              </div>
 
-              <SectionContentWrapper>
+              {/* Page B: normal flow, directly below A, with torn edge attached to top overlapping A */}
+              <SectionContentWrapper ref={contactContentRef} seed={402}>
                 <ContactSection />
               </SectionContentWrapper>
             </section>
           </main>
 
           {/* Quiet Monograph Footer */}
-          <Footer />
+          <div className="relative z-50">
+            <Footer />
+          </div>
         </div>
       </div>
     </LenisProvider>

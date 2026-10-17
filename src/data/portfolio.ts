@@ -22,8 +22,10 @@ export interface SceneLayer {
   imagePath?: string;
   parallaxSpeed: number; // e.g. 0.15 (slow), 0.45 (mid), 0.85 (foreground)
   opacity: number; // 0 to 1
+  scale: number; // e.g. 1.0, 1.02, 1.05
   blendMode?: string; // "normal", "multiply", "overlay", "soft-light", etc.
   gradientFallback: string; // warm gradient fallback class
+  motifId?: string; // architectural motif identifier ("hero", "work", "content", "about", "contact", etc.)
   label?: string;
 }
 
@@ -34,7 +36,7 @@ export interface SceneData {
   heading: string;
   tagline: string;
   subtitle?: string;
-  theme?: "dark" | "light"; // "dark" = dark scene (light-on-dark nav), "light" = light scene
+  theme: "dark" | "light"; // "dark" = dark scene (light-on-dark nav), "light" = light scene
   layers: SceneLayer[];
 }
 
@@ -50,28 +52,34 @@ export const HERO_SCENE: SceneData = {
       imagePath: "",
       parallaxSpeed: 0.15,
       opacity: 1,
+      scale: 1.0,
+      motifId: "radial-glow",
       blendMode: "normal",
       gradientFallback:
         "bg-gradient-to-b from-[#161310] via-[#1E1915] to-[#161310]",
-      label: "Layer 1 (Background): Atmospheric dark ink parchment tone field",
+      label: "Layer 1 (Background): Soft warm radial glow & dark ink parchment",
     },
     {
       imagePath: "",
       parallaxSpeed: 0.45,
-      opacity: 0.75,
-      blendMode: "screen",
+      opacity: 0.85,
+      scale: 1.02,
+      motifId: "hero-arch",
+      blendMode: "normal",
       gradientFallback:
         "bg-gradient-to-tr from-transparent via-[#6B2D2D]/25 to-[#8A7B6A]/20",
-      label: "Layer 2 (Midground): Atmospheric warm oxblood veil",
+      label: "Layer 2 (Midground): Classical Triumphal Arch & Corinthian columns in line art",
     },
     {
       imagePath: "",
       parallaxSpeed: 0.85,
-      opacity: 0.6,
-      blendMode: "overlay",
+      opacity: 0.7,
+      scale: 1.05,
+      motifId: "vignette-grain",
+      blendMode: "normal",
       gradientFallback:
         "bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/12 via-transparent to-black/35",
-      label: "Layer 3 (Foreground): Subtle radial bloom & optical grain frame",
+      label: "Layer 3 (Foreground): Subtle film grain & gentle vignette overlay",
     },
   ],
 };
@@ -90,28 +98,34 @@ export const SECTION_SCENES: Record<"work" | "content" | "about" | "contact", Sc
         imagePath: "",
         parallaxSpeed: 0.15,
         opacity: 1,
+        scale: 1.0,
+        motifId: "radial-glow",
         blendMode: "normal",
         gradientFallback:
           "bg-gradient-to-b from-[#161310] via-[#1C1814] to-[#161310]",
-        label: "Layer 1 (Background): Structural paper wash & matrix tone",
+        label: "Layer 1 (Background): Soft warm radial glow field",
       },
       {
         imagePath: "",
         parallaxSpeed: 0.45,
-        opacity: 0.75,
-        blendMode: "screen",
+        opacity: 0.85,
+        scale: 1.02,
+        motifId: "work-colonnade",
+        blendMode: "normal",
         gradientFallback:
           "bg-gradient-to-br from-transparent via-[#8A7B6A]/20 to-[#6B2D2D]/15",
-        label: "Layer 2 (Midground): Analytical grid veil & taupe gradient",
+        label: "Layer 2 (Midground): Classical Roman 5-bay colonnade in thin line art",
       },
       {
         imagePath: "",
         parallaxSpeed: 0.85,
-        opacity: 0.6,
-        blendMode: "overlay",
+        opacity: 0.7,
+        scale: 1.05,
+        motifId: "vignette-grain",
+        blendMode: "normal",
         gradientFallback:
           "bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/12 via-transparent to-black/25",
-        label: "Layer 3 (Foreground): Editorial hairline border mask",
+        label: "Layer 3 (Foreground): Film grain & vignette framing",
       },
     ],
   },
@@ -128,28 +142,34 @@ export const SECTION_SCENES: Record<"work" | "content" | "about" | "contact", Sc
         imagePath: "",
         parallaxSpeed: 0.15,
         opacity: 1,
+        scale: 1.0,
+        motifId: "radial-glow",
         blendMode: "normal",
         gradientFallback:
           "bg-gradient-to-b from-[#151210] via-[#201815] to-[#151210]",
-        label: "Layer 1 (Background): Warm cinematic dusk wash",
+        label: "Layer 1 (Background): Warm dusk radial wash",
       },
       {
         imagePath: "",
         parallaxSpeed: 0.45,
-        opacity: 0.75,
-        blendMode: "screen",
+        opacity: 0.85,
+        scale: 1.02,
+        motifId: "content-vault",
+        blendMode: "normal",
         gradientFallback:
           "bg-gradient-to-tl from-[#6B2D2D]/25 via-transparent to-[#8A7B6A]/15",
-        label: "Layer 2 (Midground): Storyboard tone curve & oxblood tint",
+        label: "Layer 2 (Midground): Twin soaring vaulted proscenium arches in line art",
       },
       {
         imagePath: "",
         parallaxSpeed: 0.85,
-        opacity: 0.6,
-        blendMode: "overlay",
+        opacity: 0.7,
+        scale: 1.05,
+        motifId: "vignette-grain",
+        blendMode: "normal",
         gradientFallback:
           "bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-white/12 via-transparent to-black/30",
-        label: "Layer 3 (Foreground): Cinematic framing & vignette mask",
+        label: "Layer 3 (Foreground): Subtle film grain & aperture vignette",
       },
     ],
   },
@@ -166,28 +186,34 @@ export const SECTION_SCENES: Record<"work" | "content" | "about" | "contact", Sc
         imagePath: "",
         parallaxSpeed: 0.15,
         opacity: 1,
+        scale: 1.0,
+        motifId: "radial-glow",
         blendMode: "normal",
         gradientFallback:
           "bg-gradient-to-b from-[#171411] via-[#1E1915] to-[#171411]",
-        label: "Layer 1 (Background): Vintage archival parchment field",
+        label: "Layer 1 (Background): Warm archival glow parchment",
       },
       {
         imagePath: "",
         parallaxSpeed: 0.45,
-        opacity: 0.75,
-        blendMode: "screen",
+        opacity: 0.85,
+        scale: 1.02,
+        motifId: "about-rotunda",
+        blendMode: "normal",
         gradientFallback:
           "bg-gradient-to-r from-transparent via-[#8A7B6A]/20 to-[#6B2D2D]/15",
-        label: "Layer 2 (Midground): Architectural contour & monogram tone",
+        label: "Layer 2 (Midground): Classical rotunda dome and peristyle columns in line art",
       },
       {
         imagePath: "",
         parallaxSpeed: 0.85,
-        opacity: 0.6,
-        blendMode: "overlay",
+        opacity: 0.7,
+        scale: 1.05,
+        motifId: "vignette-grain",
+        blendMode: "normal",
         gradientFallback:
           "bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white/10 via-transparent to-black/30",
-        label: "Layer 3 (Foreground): Subtle paper texture vignette",
+        label: "Layer 3 (Foreground): Archival film grain & paper texture vignette",
       },
     ],
   },
@@ -204,6 +230,8 @@ export const SECTION_SCENES: Record<"work" | "content" | "about" | "contact", Sc
         imagePath: "",
         parallaxSpeed: 0.15,
         opacity: 1,
+        scale: 1.0,
+        motifId: "radial-glow",
         blendMode: "normal",
         gradientFallback:
           "bg-gradient-to-b from-[#161310] via-[#1F1715] to-[#161310]",
@@ -212,20 +240,24 @@ export const SECTION_SCENES: Record<"work" | "content" | "about" | "contact", Sc
       {
         imagePath: "",
         parallaxSpeed: 0.45,
-        opacity: 0.75,
-        blendMode: "screen",
+        opacity: 0.85,
+        scale: 1.02,
+        motifId: "contact-portico",
+        blendMode: "normal",
         gradientFallback:
           "bg-gradient-to-br from-[#6B2D2D]/25 via-transparent to-[#8A7B6A]/20",
-        label: "Layer 2 (Midground): Correspondence seal warm tint",
+        label: "Layer 2 (Midground): Roman temple portico with tall fluted columns & pediment",
       },
       {
         imagePath: "",
         parallaxSpeed: 0.85,
-        opacity: 0.6,
-        blendMode: "overlay",
+        opacity: 0.7,
+        scale: 1.05,
+        motifId: "vignette-grain",
+        blendMode: "normal",
         gradientFallback:
           "bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/12 via-transparent to-black/25",
-        label: "Layer 3 (Foreground): Hairline border & contrast scrim",
+        label: "Layer 3 (Foreground): Gentle vignette & optical grain frame",
       },
     ],
   },
