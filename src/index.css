@@ -55,6 +55,10 @@ body {
   font-family: var(--font-serif);
 }
 
+.font-display {
+  font-family: 'Inter Tight', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
 .font-editorial-sans {
   font-family: var(--font-sans);
 }

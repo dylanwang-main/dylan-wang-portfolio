@@ -437,7 +437,7 @@ export default function Navigation() {
                 ? 1
                 : 0
               : Math.min(1, Math.max(0, (heroScroll - 0.2) / 0.7));
-            const startX = viewport.width - 56;
+            const startX = viewport.width - 215;
             const startY = 30;
             const endX = railX;
             const endY = viewport.height - 44;
@@ -482,6 +482,27 @@ export default function Navigation() {
                   </span>
                 </span>
               </div>
+            );
+          })()}
+
+          {/* Persistent call to action, top right (Shopify's "Start for free" slot) */}
+          {(() => {
+            const dark = darkOf("cta");
+            return (
+              <button
+                ref={(el) => {
+                  elRefs.current.cta = el;
+                }}
+                onClick={() => scrollToSection("contact")}
+                style={{ position: "fixed", top: 18, right: 28, zIndex: 60 }}
+                className={`rounded-full px-4 py-2 text-[13px] font-medium tracking-wide transition-colors duration-[250ms] ease-out cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent-oxblood)] ${
+                  dark
+                    ? "bg-[#F4EFE6] text-[#161310] hover:bg-white"
+                    : "bg-[#161310] text-[#F4EFE6] hover:bg-[#6B2D2D]"
+                }`}
+              >
+                Get in touch
+              </button>
             );
           })()}
         </nav>

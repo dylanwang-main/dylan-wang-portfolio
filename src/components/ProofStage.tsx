@@ -16,14 +16,16 @@ function ToolCard({
   slot,
   depth,
   glow,
+  driftScale = 1,
 }: {
   label: string;
   slot: (typeof CARD_SLOTS)[number];
   depth: MotionValue<number>;
   glow: boolean;
+  driftScale?: number;
 }) {
   const [l, t, drift, delay] = slot;
-  const y = useTransform(depth, [0, 1], [drift * 0.6, -drift * 0.6]);
+  const y = useTransform(depth, [0, 1], [drift * 0.6 * driftScale, -drift * 0.6 * driftScale]);
   return (
     <motion.div className="absolute z-20 hidden xl:block" style={{ left: `${l}%`, top: `${t}%`, y }}>
       <div className="animate-ambient-float" style={{ animationDelay: `${delay}s` }}>
@@ -52,6 +54,10 @@ interface ProofStageProps {
   /** Tailwind width classes for the main window, e.g. "lg:w-[min(100%,980px)]". */
   mainWidth?: string;
   className?: string;
+  /** Stage height classes. */
+  heightClass?: string;
+  /** When given (0 to 1), this drives the build and depth instead of the stage's own scroll position. */
+  progress?: MotionValue<number>;
 }
 
 /**
@@ -64,25 +70,30 @@ export default function ProofStage({
   cards,
   mainWidth = "lg:w-[min(100%,980px)]",
   className = "mt-[clamp(4rem,8vw,7rem)]",
+  heightClass = "h-[clamp(360px,60vh,620px)]",
+  progress,
 }: ProofStageProps) {
   const stageRef = useRef<HTMLDivElement>(null);
 
-  const { scrollYProgress: build } = useScroll({
+  const { scrollYProgress: ownBuild } = useScroll({
     target: stageRef,
     offset: ["start 0.92", "start 0.3"],
   });
-  const { scrollYProgress: depth } = useScroll({
+  const { scrollYProgress: ownDepth } = useScroll({
     target: stageRef,
     offset: ["start end", "end start"],
   });
+  const driven = useTransform(progress ?? ownBuild, [0.08, 0.7], [0, 1], { clamp: true });
+  const build = progress ? driven : ownBuild;
+  const depth = progress ?? ownDepth;
   const windowY = useTransform(build, [0, 1], [90, 0]);
   const windowScale = useTransform(build, [0, 1], [0.94, 1]);
   const sideY = useTransform(depth, [0, 1], [110, -110]);
 
   return (
-    <div ref={stageRef} className={`relative h-[clamp(360px,60vh,620px)] ${className}`}>
+    <div ref={stageRef} className={`relative ${heightClass} ${className}`}>
       {cards.slice(0, CARD_SLOTS.length).map((label, i) => (
-        <ToolCard key={label} label={label} slot={CARD_SLOTS[i]} depth={depth} glow={i === 1} />
+        <ToolCard key={label} label={label} slot={CARD_SLOTS[i]} depth={depth} glow={i === 1} driftScale={progress ? 0.3 : 1} />
       ))}
 
       <motion.div

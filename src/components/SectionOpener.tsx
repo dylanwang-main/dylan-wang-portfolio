@@ -618,7 +618,7 @@ export default function SectionOpener({
 
         {/* Section Heading: Largest & Widest element in scene, clamp(8rem, 20vw, 22rem) */}
         <h2
-          className={`font-editorial-serif text-[clamp(8rem,20vw,22rem)] font-normal tracking-[-0.035em] leading-[0.82] select-none text-center mb-4 drop-shadow-xs ${
+          className={`font-display text-[clamp(5.5rem,15vw,17rem)] font-semibold tracking-[-0.055em] leading-[0.9] select-none text-center mb-4 drop-shadow-xs ${
             isDark ? "text-[#F4EFE6]" : "text-[var(--text-ink)]"
           }`}
         >
