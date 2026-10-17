@@ -17,7 +17,7 @@ import {
 
 const PANEL = "#1b1612";
 const LINE = "rgba(244,239,230,0.14)";
-const CREAM = "#F4EFE6";
+export const CREAM = "#F4EFE6";
 const ROSE = "#E88080";
 const TAUPE = "#8A7B6A";
 
@@ -27,14 +27,14 @@ function useRange(v: V, a: number, b: number) {
   return useTransform(v, [a, b], [0, 1], { clamp: true });
 }
 
-function Win({ title, children }: { title: string; children: React.ReactNode }) {
+export function Win({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div
       className="w-full h-full rounded-xl overflow-hidden flex flex-col"
       style={{
         background: PANEL,
         border: `1px solid ${LINE}`,
-        boxShadow: "0 40px 120px rgba(0,0,0,0.65)",
+        boxShadow: "var(--win-shadow, 0 40px 120px rgba(0,0,0,0.65))",
       }}
     >
       <div
@@ -54,7 +54,7 @@ function Win({ title, children }: { title: string; children: React.ReactNode }) 
 }
 
 /* ---------- WORK ---------- */
-function WorkMain({ build }: { build: V }) {
+export function WorkMain({ build }: { build: V }) {
   const l1 = useRange(build, 0.05, 0.7);
   const l2 = useRange(build, 0.2, 0.9);
   const heat = useRange(build, 0.25, 0.75);
@@ -103,9 +103,9 @@ function WorkMain({ build }: { build: V }) {
   );
 }
 
-function WorkSide() {
+export function WorkSide() {
   return (
-    <div className="w-full h-full rounded-xl overflow-hidden flex flex-col" style={{ background: CREAM, boxShadow: "0 30px 90px rgba(0,0,0,0.6)" }}>
+    <div className="w-full h-full rounded-xl overflow-hidden flex flex-col" style={{ background: CREAM, boxShadow: "var(--win-shadow, 0 30px 90px rgba(0,0,0,0.6))" }}>
       <div className="flex items-center justify-between px-3 h-7 shrink-0" style={{ borderBottom: "1px solid rgba(31,27,22,0.14)" }}>
         <span className="block w-8 h-1.5 rounded-full" style={{ background: "#1F1B16", opacity: 0.7 }} />
         <span className="flex gap-1.5">{[0, 1, 2].map((i) => <i key={i} className="block w-6 h-1 rounded-full" style={{ background: "#1F1B16", opacity: 0.25 }} />)}</span>
@@ -123,8 +123,39 @@ function WorkSide() {
   );
 }
 
+/* ---------- CASE-STUDY ONLY: N10 website wireframe ---------- */
+export function SiteMain({ build }: { build: V }) {
+  const hero = useRange(build, 0.05, 0.6);
+  const cards = useRange(build, 0.3, 0.9);
+  const cardsY = useTransform(cards, [0, 1], [24, 0]);
+  return (
+    <Win title={WORK_PROJECTS[1].title}>
+      <div className="absolute inset-0 flex flex-col">
+        <div className="flex items-center justify-between px-5 h-11 shrink-0" style={{ borderBottom: `1px solid ${LINE}` }}>
+          <span className="block w-16 h-2.5 rounded-full" style={{ background: CREAM, opacity: 0.8 }} />
+          <span className="flex gap-4">{[0, 1, 2, 3].map((i) => <i key={i} className="block w-10 h-1.5 rounded-full" style={{ background: CREAM, opacity: 0.28 }} />)}</span>
+        </div>
+        <motion.div
+          className="relative flex-1 min-h-0 m-4 rounded-md overflow-hidden"
+          style={{ background: "linear-gradient(120deg,#6B2D2D,#2a1512 70%)", scaleY: hero, opacity: hero, transformOrigin: "50% 0%" }}
+        >
+          <div className="absolute left-6 bottom-6 flex flex-col gap-2.5 w-1/2">
+            <span className="block h-4 w-4/5 rounded-full" style={{ background: CREAM, opacity: 0.85 }} />
+            <span className="block h-4 w-3/5 rounded-full" style={{ background: CREAM, opacity: 0.85 }} />
+            <span className="block h-2 w-2/3 rounded-full mt-1" style={{ background: CREAM, opacity: 0.35 }} />
+            <span className="block h-7 w-28 mt-2" style={{ background: ROSE }} />
+          </div>
+        </motion.div>
+        <motion.div className="grid grid-cols-3 gap-3 px-4 pb-4 h-[28%] shrink-0" style={{ opacity: cards, y: cardsY }}>
+          {[0, 1, 2].map((i) => <div key={i} className="rounded-md" style={{ background: i === 1 ? ROSE : CREAM, opacity: i === 1 ? 0.55 : 0.14 }} />)}
+        </motion.div>
+      </div>
+    </Win>
+  );
+}
+
 /* ---------- CONTENT ---------- */
-function ContentMain({ build }: { build: V }) {
+export function ContentMain({ build }: { build: V }) {
   const head = useRange(build, 0.1, 0.95);
   const left = useTransform(head, (v) => `${6 + v * 86}%`);
   const clips = [
@@ -159,9 +190,9 @@ function ContentMain({ build }: { build: V }) {
   );
 }
 
-function ContentSide() {
+export function ContentSide() {
   return (
-    <div className="w-full h-full rounded-[22px] overflow-hidden relative" style={{ background: "linear-gradient(170deg,#6B2D2D,#1b1612 70%)", border: `1px solid ${LINE}`, boxShadow: "0 30px 90px rgba(0,0,0,0.6)" }}>
+    <div className="w-full h-full rounded-[22px] overflow-hidden relative" style={{ background: "linear-gradient(170deg,#6B2D2D,#1b1612 70%)", border: `1px solid ${LINE}`, boxShadow: "var(--win-shadow, 0 30px 90px rgba(0,0,0,0.6))" }}>
       <div className="absolute right-3 bottom-24 flex flex-col gap-3">
         {[0, 1, 2].map((i) => <i key={i} className="block w-6 h-6 rounded-full" style={{ background: CREAM, opacity: 0.35 }} />)}
       </div>
@@ -190,7 +221,7 @@ function AboutMain({ build }: { build: V }) {
           borderRadius: "999px 999px 14px 14px",
           background: "linear-gradient(180deg,#3a2a20 0%,#6B2D2D 55%,#2a1a14 100%)",
           border: `1px solid ${LINE}`,
-          boxShadow: "0 40px 120px rgba(0,0,0,0.65)",
+          boxShadow: "var(--win-shadow, 0 40px 120px rgba(0,0,0,0.65))",
         }}
       >
         <div className="absolute inset-3 pointer-events-none" style={{ borderRadius: "999px 999px 8px 8px", border: `1px solid ${CREAM}`, opacity: 0.18 }} />
@@ -205,7 +236,7 @@ function AboutMain({ build }: { build: V }) {
 
 function AboutSide() {
   return (
-    <div className="w-full h-full rounded-xl p-4 flex flex-col justify-between" style={{ background: CREAM, boxShadow: "0 30px 90px rgba(0,0,0,0.6)" }}>
+    <div className="w-full h-full rounded-xl p-4 flex flex-col justify-between" style={{ background: CREAM, boxShadow: "var(--win-shadow, 0 30px 90px rgba(0,0,0,0.6))" }}>
       <span className="font-editorial-serif italic text-[1.15rem] leading-tight" style={{ color: "#6B2D2D" }}>{ABOUT_PROFILE.institution}</span>
       <span className="text-[10px] tracking-[0.2em] uppercase" style={{ color: "#1F1B16", opacity: 0.7 }}>Data Science · Content</span>
     </div>

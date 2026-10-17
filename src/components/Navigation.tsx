@@ -9,6 +9,10 @@ export default function Navigation() {
   const [viewport, setViewport] = useState({ width: 1200, height: 800 });
   const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean>(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
+  // Per-element contrast: the torn edge can pass under one nav item but not the next
+  const elRefs = useRef<Record<string, HTMLElement | null>>({});
+  const [darkMap, setDarkMap] = useState<Record<string, boolean>>({});
+  const darkKey = useRef("");
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -30,6 +34,55 @@ export default function Navigation() {
     const themedElements = Array.from(
       document.querySelectorAll<HTMLElement>("[data-nav-theme]")
     );
+
+    const edgeCanvases = Array.from(
+      document.querySelectorAll<HTMLCanvasElement>("canvas[data-edge-paper]")
+    );
+
+    /** true = dark behind (x,y). Reads the torn-edge pixels so the ragged line is respected. */
+    const darkAt = (x: number, y: number): boolean | null => {
+      for (const c of edgeCanvases) {
+        const r = c.getBoundingClientRect();
+        if (x < r.left || x > r.right || y < r.top || y > r.bottom) continue;
+        const paperDark = c.getAttribute("data-edge-paper") === "dark";
+        try {
+          const ctx = c.getContext("2d", { willReadFrequently: true });
+          if (!ctx || !r.width || !r.height) continue;
+          const px = Math.floor(((x - r.left) / r.width) * c.width);
+          const py = Math.floor(((y - r.top) / r.height) * c.height);
+          const a = ctx.getImageData(px, py, 1, 1).data[3];
+          return a > 128 ? paperDark : !paperDark;
+        } catch {
+          continue;
+        }
+      }
+      for (let i = themedElements.length - 1; i >= 0; i--) {
+        const r = themedElements[i].getBoundingClientRect();
+        if (r.top <= y && r.bottom > y) {
+          return themedElements[i].getAttribute("data-nav-theme") === "dark";
+        }
+      }
+      return null;
+    };
+
+    const updateElementThemes = () => {
+      if (window.innerWidth < 768) return;
+      const next: Record<string, boolean> = {};
+      let key = "";
+      for (const [id, el] of Object.entries(elRefs.current)) {
+        if (!el) continue;
+        const r = el.getBoundingClientRect();
+        const d = darkAt(r.left + r.width / 2, r.top + r.height / 2);
+        if (d !== null) {
+          next[id] = d;
+          key += `${id}${d ? 1 : 0}`;
+        }
+      }
+      if (key !== darkKey.current) {
+        darkKey.current = key;
+        setDarkMap(next);
+      }
+    };
 
     const updateThemeFromPosition = () => {
       const scrollY = window.scrollY;
@@ -90,6 +143,7 @@ export default function Navigation() {
 
       // 2. Real-time theme verification at nav's exact vertical position
       updateThemeFromPosition();
+      updateElementThemes();
 
       // 3. Scrollspy: identify currently active section
       if (scrollY < window.innerHeight * INTRO_VH * 0.92) {
@@ -190,6 +244,8 @@ export default function Navigation() {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   };
 
+  const darkOf = (k: string) => darkMap[k] ?? isDarkSection;
+
   const isDesktop = viewport.width >= 768;
   const centerX = viewport.width / 2;
   const railX = 38; // Compact left inset for dedicated whitespace
@@ -217,9 +273,13 @@ export default function Navigation() {
             const curX = startX + (endX - startX) * t;
             const curY = startY + (endY - startY) * t;
             const inRail = t > 0.45;
+            const dark = darkOf("dw");
 
             return (
               <button
+                ref={(el) => {
+                  elRefs.current.dw = el;
+                }}
                 onClick={() => scrollToSection("hero")}
                 style={{
                   position: "fixed",
@@ -235,7 +295,7 @@ export default function Navigation() {
               >
                 <span
                   className={`font-editorial-serif text-xl lg:text-2xl font-bold tracking-tight transition-colors duration-[250ms] ease-out ${
-                    isDarkSection
+                    dark
                       ? "text-[#FFFFFF] group-hover:text-[#E88080]"
                       : "text-[#161310] group-hover:text-[#6B2D2D]"
                   }`}
@@ -244,7 +304,7 @@ export default function Navigation() {
                 </span>
                 <span
                   className={`text-[8.5px] tracking-[0.2em] uppercase font-semibold mt-0.5 transition-colors duration-[250ms] ease-out ${
-                    isDarkSection
+                    dark
                       ? "text-[#D5C9B8]"
                       : "text-[#54473C]"
                   }`}
@@ -259,6 +319,7 @@ export default function Navigation() {
           {NAVIGATION_ITEMS.map((item, index) => {
             const t = getStaggeredT(index);
             const isActive = activeSection === item.id;
+            const dark = darkOf(item.id);
 
             // In top state: centered across the top header with compact spacing
             const topOffsets = [-190, -65, 65, 190];
@@ -279,6 +340,9 @@ export default function Navigation() {
             return (
               <button
                 key={item.id}
+                ref={(el) => {
+                  elRefs.current[item.id] = el;
+                }}
                 onClick={() => scrollToSection(item.id)}
                 style={{
                   position: "fixed",
@@ -299,11 +363,11 @@ export default function Navigation() {
                   <span
                     className={`w-[3px] transition-all duration-[250ms] ease-out mr-2.5 rounded-full ${
                       isActive
-                        ? isDarkSection
+                        ? dark
                           ? "h-4 bg-[#E88080] shadow-[0_0_8px_rgba(232,128,128,0.7)]"
                           : "h-4 bg-[#6B2D2D] shadow-[0_0_4px_rgba(107,45,45,0.4)]"
                         : "h-1 opacity-0 group-hover:opacity-40 " +
-                          (isDarkSection ? "bg-[#D5C9B8]" : "bg-[#54473C]")
+                          (dark ? "bg-[#D5C9B8]" : "bg-[#54473C]")
                     }`}
                   />
                 )}
@@ -314,10 +378,10 @@ export default function Navigation() {
                     inRailState ? "w-6 text-[15px] lg:text-[16px]" : "text-[14px] lg:text-[15px]"
                   } ${
                     isActive
-                      ? isDarkSection
+                      ? dark
                         ? "font-bold text-[#FFFFFF]"
                         : "font-bold text-[#161310]"
-                      : isDarkSection
+                      : dark
                         ? "font-medium text-[#E8D8C5] group-hover:text-[#FFFFFF]"
                         : "font-medium text-[#1F1B16] group-hover:text-[#161310]"
                   }`}
@@ -329,10 +393,10 @@ export default function Navigation() {
                 <span
                   className={`text-[13.5px] lg:text-[14.5px] tracking-wide transition-colors duration-[250ms] ease-out ${
                     isActive
-                      ? isDarkSection
+                      ? dark
                         ? "font-bold text-[#FFFFFF]"
                         : "font-bold text-[#161310]"
-                      : isDarkSection
+                      : dark
                         ? "font-normal text-[#E8D8C5] group-hover:text-[#FFFFFF]"
                         : "font-normal text-[#26201B] group-hover:text-[#161310]"
                   }`}
@@ -344,7 +408,7 @@ export default function Navigation() {
                 {!inRailState && isActive && (
                   <span
                     className={`w-1.5 h-1.5 ml-1.5 self-center rounded-full transition-colors duration-[250ms] ease-out ${
-                      isDarkSection
+                      dark
                         ? "bg-[#E88080] shadow-[0_0_8px_rgba(232,128,128,0.8)]"
                         : "bg-[#6B2D2D] shadow-[0_0_4px_rgba(107,45,45,0.5)]"
                     }`}
@@ -368,9 +432,13 @@ export default function Navigation() {
             const curX = startX + (endX - startX) * t;
             const curY = startY + (endY - startY) * t;
             const inRail = t > 0.45;
+            const dark = darkOf("resume");
 
             return (
               <div
+                ref={(el) => {
+                  elRefs.current.resume = el;
+                }}
                 style={{
                   position: "fixed",
                   left: 0,
@@ -384,7 +452,7 @@ export default function Navigation() {
               >
                 <span
                   className={`text-[13px] lg:text-[13.5px] font-medium tracking-wide cursor-not-allowed transition-colors duration-[250ms] ease-out ${
-                    isDarkSection
+                    dark
                       ? "text-[#D5C9B8]"
                       : "text-[#3D332A]"
                   }`}
@@ -393,7 +461,7 @@ export default function Navigation() {
                   {RESUME_LINK.label} ↗
                   <span
                     className={`block text-[9px] transition-colors duration-[250ms] ease-out ${
-                      isDarkSection
+                      dark
                         ? "text-[#C0B4A4]"
                         : "text-[#54473C]"
                     }`}

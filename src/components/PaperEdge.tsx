@@ -30,6 +30,8 @@ interface PaperEdgeProps {
   /** Shadow cast onto the page behind (the side ABOVE the tear). */
   shadow?: string;
   height?: number;
+  /** Is the paper itself light (cream) or dark? Lets the nav read contrast from the real pixels. */
+  paper?: "light" | "dark";
 }
 
 export default function PaperEdge({
@@ -38,6 +40,7 @@ export default function PaperEdge({
   rim = "255,255,255",
   shadow = "rgba(0,0,0,0.45)",
   height = EDGE_HEIGHT,
+  paper = "light",
 }: PaperEdgeProps) {
   const ref = useRef<HTMLCanvasElement>(null);
 
@@ -54,7 +57,7 @@ export default function PaperEdge({
       canvas.style.width = "100%";
       canvas.style.height = `${H}px`;
 
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
       if (!ctx) return;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, W, H);
@@ -143,6 +146,7 @@ export default function PaperEdge({
     <canvas
       ref={ref}
       aria-hidden="true"
+      data-edge-paper={paper}
       className="pointer-events-none select-none absolute left-0 w-full"
       style={{
         // bottom edge of the canvas sits 2px inside the page below (no hairline seam)

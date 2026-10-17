@@ -496,6 +496,7 @@ export default function SectionOpener({
       {edgeSeed && (
         <PaperEdge
           seed={edgeSeed}
+          paper="dark"
           fill="#161310"
           rim="232,221,207"
           shadow="rgba(0,0,0,0.16)"

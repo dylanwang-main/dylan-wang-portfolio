@@ -43,6 +43,7 @@ const SectionContentWrapper = forwardRef<
     >
       <PaperEdge
         seed={seed}
+        paper="light"
         fill="#F4EFE6"
         rim="255,255,255"
         shadow="rgba(0,0,0,0.5)"

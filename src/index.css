@@ -94,3 +94,10 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+/* Big italic serif statement with an oversized swash first letter (Shopify Editions style) */
+.statement-title::first-letter {
+  font-size: 1.28em;
+  color: var(--accent-oxblood);
+  padding-right: 0.02em;
+}

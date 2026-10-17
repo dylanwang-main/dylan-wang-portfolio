@@ -32,7 +32,7 @@ export default function ContactSection() {
           <span className="text-xs uppercase tracking-widest text-[var(--taupe-subtle)] font-medium">
             Inquiries & Direct Correspondence
           </span>
-          <h3 className="font-editorial-serif text-[clamp(2.5rem,5vw,5rem)] font-medium tracking-tight text-[var(--text-ink)] leading-[1.05]">
+          <h3 className="statement-title font-editorial-serif italic text-[clamp(3rem,7vw,7rem)] tracking-[-0.02em] text-[var(--text-ink)] leading-[1]">
             Let’s start a conversation.
           </h3>
           <p className="font-editorial-sans text-[18px] md:text-[20px] text-[var(--taupe-subtle)] leading-relaxed">
