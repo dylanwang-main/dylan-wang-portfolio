@@ -207,7 +207,7 @@ export function ContentSide() {
 }
 
 /* ---------- ABOUT ---------- */
-function AboutMain({ build }: { build: V }) {
+export function AboutMain({ build }: { build: V }) {
   const reveal = useRange(build, 0.05, 0.85);
   const clip = useTransform(reveal, (v) => `inset(${(1 - v) * 100}% 0% 0% 0%)`);
   return (
@@ -234,7 +234,7 @@ function AboutMain({ build }: { build: V }) {
   );
 }
 
-function AboutSide() {
+export function AboutSide() {
   return (
     <div className="w-full h-full rounded-xl p-4 flex flex-col justify-between" style={{ background: CREAM, boxShadow: "var(--win-shadow, 0 30px 90px rgba(0,0,0,0.6))" }}>
       <span className="font-editorial-serif italic text-[1.15rem] leading-tight" style={{ color: "#6B2D2D" }}>{ABOUT_PROFILE.institution}</span>
@@ -244,7 +244,7 @@ function AboutSide() {
 }
 
 /* ---------- CONTACT ---------- */
-function ContactMain({ build }: { build: V }) {
+export function ContactMain({ build }: { build: V }) {
   const body = useRange(build, 0.25, 0.95);
   return (
     <Win title="New message">

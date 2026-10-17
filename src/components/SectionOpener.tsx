@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValue, MotionValue } from "motion/react";
-import { SceneData, SceneLayer, RESUME_LINK } from "../data/portfolio";
+import { SceneData, SceneLayer, RESUME_LINK, NAVIGATION_ITEMS } from "../data/portfolio";
 import PaperEdge from "./PaperEdge";
 import SceneShowcase from "./SceneShowcase";
 
@@ -332,8 +332,8 @@ export default function SectionOpener({
   const headingScale = useTransform(p, [0, 1], [1, 0.94]);
   const headingOpacity = useTransform(p, [0, 1], [1, 0.35]);
 
-  const scrollToWork = () => {
-    const el = document.getElementById("work");
+  const scrollToId = (id: string) => {
+    const el = document.getElementById(id);
     if (el) {
       const lenis = (
         window as unknown as {
@@ -452,6 +452,48 @@ export default function SectionOpener({
           </motion.div>
         </motion.div>
 
+        {/* Framed index panel (Shopify hero chapter list, in this site's own words) */}
+        <motion.nav
+          aria-label="Index"
+          style={prefersReducedMotion ? undefined : { opacity: headingOpacity }}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="hidden md:block absolute z-30 right-[6vw] bottom-[13vh] w-[250px] text-left backdrop-blur-[3px]"
+        >
+          <div
+            className="px-5 pt-4 pb-4"
+            style={{
+              border: "1px solid rgba(244,239,230,0.28)",
+              background: "rgba(22,19,16,0.38)",
+            }}
+          >
+            <div className="flex items-center justify-between text-[10px] tracking-[0.24em] uppercase text-[#C0B4A4]">
+              <span>Index</span>
+              <span>I to IV</span>
+            </div>
+            <ul className="mt-3">
+              {NAVIGATION_ITEMS.map((item) => (
+                <li key={item.id}>
+                  <button
+                    onClick={() => scrollToId(item.id)}
+                    className="group w-full flex items-baseline justify-between py-1.5 text-[#F4EFE6] hover:text-[#E88080] transition-colors duration-200 focus:outline-none focus-visible:text-[#E88080] cursor-pointer"
+                  >
+                    <span className="font-editorial-serif text-[1.35rem] leading-none">{item.label}</span>
+                    <span className="font-editorial-serif italic text-[13px] text-[#C0B4A4] group-hover:text-[#E88080]">
+                      {item.numeral}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="mt-2 flex items-center justify-between text-[10px] tracking-[0.2em] uppercase text-[#A89A8A]">
+            <span>UC San Diego</span>
+            <span>Data Science</span>
+          </div>
+        </motion.nav>
+
         {/* Bottom Scroll Prompt */}
         <motion.div
           style={prefersReducedMotion ? undefined : { opacity: headingOpacity }}
@@ -461,7 +503,7 @@ export default function SectionOpener({
           className="w-full flex flex-col items-center text-center pb-4 relative z-30"
         >
           <button
-            onClick={scrollToWork}
+            onClick={() => scrollToId("work")}
             className={`group flex flex-col items-center gap-2 transition-colors focus:outline-none ${
               isDark
                 ? "text-[#C0B4A4] hover:text-[#F4EFE6]"

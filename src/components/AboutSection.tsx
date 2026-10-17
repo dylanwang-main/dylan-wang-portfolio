@@ -1,101 +1,70 @@
 import { motion } from "motion/react";
 import { ABOUT_PROFILE } from "../data/portfolio";
-import PlaceholderImage from "./PlaceholderImage";
-import CompactRow from "./CompactRow";
+import ProofStage from "./ProofStage";
+import { AboutMain, AboutSide } from "./SceneShowcase";
+
+const CARDS = ["UC San Diego", "Data Science", "Content Creator", "Short-form Content"];
 
 export default function AboutSection() {
   return (
-    <section className="py-[clamp(8rem,16vw,16rem)] px-6 sm:px-10 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 max-w-[1400px] w-full">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-14 items-start">
-        {/* Left Column: Portrait Frame Slot */}
-        <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="lg:col-span-5"
-        >
-          <div className="sticky top-28">
-            <PlaceholderImage
-              label={ABOUT_PROFILE.photoPlaceholder.label}
-              recommendedSize={ABOUT_PROFILE.photoPlaceholder.dimensions}
-              aspectRatio="3/4"
-            />
-            <div className="mt-4 text-center">
-              <span className="font-editorial-serif text-xl text-[var(--text-ink)]">
-                Dylan Wang
-              </span>
-              <span className="block text-xs uppercase tracking-widest text-[var(--taupe-subtle)] mt-0.5">
-                UC San Diego · Data Science
-              </span>
-            </div>
-          </div>
-        </motion.div>
+    <section className="py-[clamp(6rem,12vw,11rem)] px-6 sm:px-10 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 max-w-[1400px] w-full">
+      {/* STATEMENT */}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.25 }}
+        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div className="flex items-center gap-3 text-[12px] uppercase tracking-[0.22em] text-[var(--taupe-subtle)] font-medium">
+          <span>03</span>
+          <span aria-hidden="true" className="block w-8 h-px bg-[var(--taupe-subtle)]/50" />
+          <span>About</span>
+        </div>
 
-        {/* Right Column: Bio Narrative, CompactRow Slots, and Facts */}
-        <motion.div
-          initial={{ opacity: 0, y: 32 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="lg:col-span-7 flex flex-col space-y-[var(--space-lg)]"
-        >
-          {/* Section Kicker & Summary */}
-          <div className="space-y-[var(--space-sm)]">
-            <span className="text-xs uppercase tracking-widest text-[var(--taupe-subtle)] font-medium">
-              About
-            </span>
-            <h3 className="statement-title font-editorial-serif italic text-[clamp(3rem,7vw,7rem)] tracking-[-0.02em] text-[var(--text-ink)] leading-[1]">
-              Dylan Wang
-            </h3>
-            <p className="font-editorial-sans text-[18px] md:text-[20px] text-[var(--text-ink)] leading-relaxed font-normal">
-              Incoming data science student at UC San Diego. Also a content creator.
-            </p>
-          </div>
+        <h3 className="statement-title font-editorial-serif italic text-[clamp(3.2rem,7.6vw,8rem)] leading-[0.98] tracking-[-0.02em] text-[var(--text-ink)] mt-6">
+          Dylan Wang
+        </h3>
 
-          {/* Audiences Addressed */}
-          <div className="border-t border-b border-[var(--border-hairline)] py-[var(--space-md)]">
-            <span className="block text-[11px] uppercase tracking-widest text-[var(--taupe-subtle)] mb-3 font-semibold">
-              Audiences & Collaborative Focus
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-[var(--text-ink)]">
-              {ABOUT_PROFILE.audiences.map((audience) => (
-                <div key={audience} className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[var(--accent-oxblood)] shrink-0" />
-                  <span className="font-medium">{audience}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className="mt-10 grid grid-cols-1 lg:grid-cols-[200px_minmax(0,680px)] gap-4 lg:gap-14 items-start">
+          <span className="text-[16px] font-semibold text-[var(--text-ink)]">Overview</span>
+          <p className="text-[clamp(1.35rem,2.1vw,2rem)] leading-[1.28] tracking-[-0.01em] text-[var(--text-ink)]">
+            Incoming data science student at UC San Diego. Also a content creator.
+          </p>
+        </div>
+      </motion.div>
 
-          {/* Labeled Bio Slots: CompactRow (No bordered boxes) */}
-          <div className="space-y-1">
-            <span className="block text-[10px] uppercase tracking-widest text-[var(--taupe-subtle)] font-semibold mb-2">
-              Editorial Slots
-            </span>
-            <div className="border-t border-[var(--border-hairline)]">
-              {ABOUT_PROFILE.slots.map((slot) => (
-                <CompactRow
-                  key={slot.title}
-                  label={slot.title}
-                  prompt={slot.placeholder}
-                />
-              ))}
-            </div>
-          </div>
+      {/* PROOF: portrait window + floating facts */}
+      <ProofStage Main={AboutMain} Side={AboutSide} cards={CARDS} mainWidth="lg:w-[min(100%,480px)]" />
 
-          {/* Academic & Creative Coordinates: CompactRow (No bordered boxes) */}
-          <div className="space-y-1">
-            <span className="block text-[10px] uppercase tracking-widest text-[var(--taupe-subtle)] font-semibold mb-2">
-              Academic & Creative Coordinates
+      <p className="mt-6 text-[11px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)]">
+        Placeholder preview · {ABOUT_PROFILE.photoPlaceholder.label}
+      </p>
+
+      {/* DETAILS */}
+      <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-8 pt-8 border-t border-[var(--border-hairline)]">
+        <div>
+          <span className="block text-[12px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)] font-semibold mb-3">
+            Open to
+          </span>
+          <ul className="space-y-2 text-[15px] text-[var(--text-ink)]">
+            {ABOUT_PROFILE.audiences.map((a) => (
+              <li key={a} className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-oxblood)] shrink-0" />
+                {a}
+              </li>
+            ))}
+          </ul>
+        </div>
+        {ABOUT_PROFILE.slots.map((slot) => (
+          <div key={slot.title}>
+            <span className="block text-[12px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)] font-semibold mb-2">
+              {slot.title}
             </span>
-            <div className="border-t border-[var(--border-hairline)]">
-              <CompactRow label="Institution" value="UC San Diego" />
-              <CompactRow label="Discipline" value="Data Science" />
-              <CompactRow label="Creative Focus" value="Short-form Content" />
-            </div>
+            <span className="block font-mono text-[14px] italic text-[var(--accent-oxblood)]">
+              {slot.placeholder}
+            </span>
           </div>
-        </motion.div>
+        ))}
       </div>
     </section>
   );
