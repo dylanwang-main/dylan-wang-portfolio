@@ -17,6 +17,8 @@ import { useEffect, useRef } from "react";
  */
 
 const EDGE_HEIGHT = 220;
+/** Global slow-down for every moving part (1 = the livelier first pass) */
+const SLOW = 0.3;
 const FLAKE_RISE = 48;
 const CHAR_DEPTH = 24;
 
@@ -133,14 +135,14 @@ export default function PaperEdge({
 
     /** The tear line at time t (ms). */
     const compute = (t: number) => {
-      const T = animate ? t / 1000 : 0;
+      const T = animate ? (t / 1000) * SLOW : 0;
       const S = animate ? window.scrollY : 0;
       for (let x = 0; x <= W; x++) {
         let y = base;
         for (let i = 0; i < OCT.length; i++) {
           const o = OCT[i];
           // waves drift on their own, and scrolling pushes them along
-          const sh = T * o.v + S * o.v * 0.12;
+          const sh = T * o.v + S * o.v * 0.08;
           const breath = 0.88 + 0.12 * Math.sin(T * o.b + ph[i]);
           y +=
             o.a *
@@ -160,7 +162,7 @@ export default function PaperEdge({
     const paintMain = (t: number) => {
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
       if (!ctx || !W) return;
-      const T = animate ? t / 1000 : 0;
+      const T = animate ? (t / 1000) * SLOW : 0;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, W, H);
 
@@ -248,9 +250,10 @@ export default function PaperEdge({
       path.moveTo(0, ys[0] - 1);
       for (let x = 1; x <= W; x++) path.lineTo(x, ys[x] - 1);
 
+      const ts = t * SLOW;
       // two burn fronts at different speeds, so the line never looks looped
-      const f1 = ((t / period + phase) % 1) * W * 1.4 - W * 0.2;
-      const f2 = ((t / (period * 1.7) + phase * 1.7 + 0.35) % 1) * W * 1.4 - W * 0.2;
+      const f1 = ((ts / period + phase) % 1) * W * 1.4 - W * 0.2;
+      const f2 = ((ts / (period * 1.7) + phase * 1.7 + 0.35) % 1) * W * 1.4 - W * 0.2;
       const front = (x: number, f: number) =>
         x > f ? Math.exp(-(((x - f) / 55) ** 2)) : Math.exp(-(f - x) / (W * 0.2));
 
@@ -260,7 +263,7 @@ export default function PaperEdge({
         const flick =
           0.62 +
           0.38 *
-            (0.5 + 0.5 * Math.sin(x * 0.07 + t * 0.007 + seed) * Math.sin(x * 0.023 - t * 0.0043));
+            (0.5 + 0.5 * Math.sin(x * 0.07 + ts * 0.007 + seed) * Math.sin(x * 0.023 - ts * 0.0043));
         const heat = clamp01(0.11 + front(x, f1) * 0.95 + front(x, f2) * 0.55) * flick;
         grad.addColorStop(Math.min(1, x / W), heatColor(heat));
       }
@@ -280,7 +283,7 @@ export default function PaperEdge({
 
       // sparks lift off the hot front
       if (animate) {
-        if (sparks.length < 26 && Math.random() < 0.55) {
+        if (sparks.length < 26 && Math.random() < 0.3) {
           const f = Math.random() < 0.7 ? f1 : f2;
           const x = f + (Math.random() - 0.5) * 90;
           if (x > 0 && x < W) {
@@ -288,7 +291,7 @@ export default function PaperEdge({
               x,
               y: ys[Math.floor(x)] - 2,
               vx: (Math.random() - 0.5) * 0.03,
-              vy: -(0.02 + Math.random() * 0.05),
+              vy: -(0.012 + Math.random() * 0.03),
               age: 0,
               life: 900 + Math.random() * 900,
               r: 0.8 + Math.random() * 1.4,
@@ -366,14 +369,14 @@ export default function PaperEdge({
 
     build();
 
-    // animation loop: only while on screen, ~30fps
+    // animation loop: only while on screen, ~60fps (motion is slow, so frames stay cheap and silky)
     let raf = 0;
     let last = 0;
     let running = false;
     const tick = (now: number) => {
       raf = requestAnimationFrame(tick);
       const dt = now - last;
-      if (dt < 33) return;
+      if (dt < 15) return;
       last = now;
       draw(now, Math.min(dt, 100));
     };
