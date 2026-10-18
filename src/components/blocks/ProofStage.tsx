@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform, MotionValue } from "motion/react";
+import { EASE } from "../../lib/motion";
 
-const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 /** One skill chip. Pops in (slight overshoot) in turn as the window builds. */
 function ToolCard({

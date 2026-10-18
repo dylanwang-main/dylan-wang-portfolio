@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import Lenis from "lenis";
+import { setLenis } from "../../lib/scroll";
+import { prefersReducedMotion } from "../../lib/useReducedMotion";
 
 interface LenisProviderProps {
   children: React.ReactNode;
@@ -7,10 +9,7 @@ interface LenisProviderProps {
 
 export default function LenisProvider({ children }: LenisProviderProps) {
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    if (prefersReducedMotion) return;
+    if (prefersReducedMotion()) return;
 
     // Light smoothing only: wheel distance is never scaled or held back.
     const lenis = new Lenis({
@@ -20,7 +19,7 @@ export default function LenisProvider({ children }: LenisProviderProps) {
       touchMultiplier: 1,
       infinite: false,
     });
-    (window as unknown as { __lenis?: Lenis }).__lenis = lenis;
+    setLenis(lenis);
 
     // NOTE: do not re-dispatch "scroll" events here. Lenis listens to the
     // window scroll event itself, so doing that recurses forever.
@@ -36,7 +35,7 @@ export default function LenisProvider({ children }: LenisProviderProps) {
     return () => {
       cancelAnimationFrame(frame);
       lenis.destroy();
-      delete (window as unknown as { __lenis?: Lenis }).__lenis;
+      setLenis(undefined);
     };
   }, []);
 

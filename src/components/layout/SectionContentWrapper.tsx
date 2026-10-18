@@ -2,14 +2,13 @@ import { forwardRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import PaperEdge from "./PaperEdge";
 import PaperDecor from "./PaperDecor";
+import { prefersReducedMotion } from "../../lib/useReducedMotion";
 
 interface SectionContentWrapperProps {
   children: React.ReactNode;
   className?: string;
   id?: string;
   seed?: number;
-  /** Small folio line under the tear, e.g. "I · Work" */
-  folio?: string;
 }
 
 /**
@@ -22,7 +21,7 @@ const SectionContentWrapper = forwardRef<
   HTMLDivElement,
   SectionContentWrapperProps
 >(function SectionContentWrapper(
-  { children, className = "", id, seed = 101, folio },
+  { children, className = "", id, seed = 101 },
   ref
 ) {
   const { scrollYProgress: p } = useScroll({
@@ -30,9 +29,7 @@ const SectionContentWrapper = forwardRef<
     offset: ["start end", "start start"],
   });
 
-  const prefersReducedMotion =
-    typeof window !== "undefined" &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reduced = prefersReducedMotion();
 
   // Content rides in slightly slower than the page itself (depth), then settles.
   const contentY = useTransform(p, [0, 1], ["10vh", "0vh"]);
@@ -52,10 +49,10 @@ const SectionContentWrapper = forwardRef<
         shadow="rgba(0,0,0,0.5)"
       />
 
-      <PaperDecor folio={folio} />
+      <PaperDecor />
 
       <motion.div
-        style={prefersReducedMotion ? undefined : { y: contentY }}
+        style={reduced ? undefined : { y: contentY }}
         className="relative z-10 w-full will-change-transform"
       >
         {children}

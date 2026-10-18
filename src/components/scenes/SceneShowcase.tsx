@@ -5,7 +5,7 @@ import {
   SOCIAL_LINKS,
   CONTACT_EMAIL,
   ABOUT_PROFILE,
-} from "../data/portfolio";
+} from "../../data/portfolio";
 
 /**
  * The "show something off" layer of each full-screen scene.
@@ -17,7 +17,7 @@ import {
 
 const PANEL = "#1b1612";
 const LINE = "rgba(244,239,230,0.14)";
-export const CREAM = "#F4EFE6";
+const CREAM = "#F4EFE6";
 const ROSE = "#E88080";
 const TAUPE = "#8A7B6A";
 

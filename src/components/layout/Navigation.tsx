@@ -1,26 +1,23 @@
-import { INTRO_VH } from "./IntroBurst";
 import { useEffect, useState, useRef } from "react";
-import { NAVIGATION_ITEMS, RESUME_LINK } from "../data/portfolio";
+import { NAVIGATION_ITEMS, RESUME_LINK } from "../../data/portfolio";
+import { edgeToneAt } from "../../lib/paperEdges";
+import { getLenis, scrollToId } from "../../lib/scroll";
+import { useReducedMotion } from "../../lib/useReducedMotion";
+import { easeInOutCubic } from "../../lib/math";
+import { INTRO_VH } from "../../lib/timeline";
 
 export default function Navigation() {
   const [activeSection, setActiveSection] = useState<string>("hero");
   const [isDarkSection, setIsDarkSection] = useState<boolean>(true);
   const [heroScroll, setHeroScroll] = useState<number>(0);
   const [viewport, setViewport] = useState({ width: 1200, height: 800 });
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState<boolean>(false);
-  const observerRef = useRef<IntersectionObserver | null>(null);
+  const prefersReducedMotion = useReducedMotion();
   // Per-element contrast: the torn edge can pass under one nav item but not the next
   const elRefs = useRef<Record<string, HTMLElement | null>>({});
   const [darkMap, setDarkMap] = useState<Record<string, boolean>>({});
   const darkKey = useRef("");
 
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setPrefersReducedMotion(mq.matches);
-    const mqHandler = (e: MediaQueryListEvent) =>
-      setPrefersReducedMotion(e.matches);
-    mq.addEventListener("change", mqHandler);
-
     const updateMeasurements = () => {
       setViewport({
         width: window.innerWidth,
@@ -30,32 +27,15 @@ export default function Navigation() {
 
     updateMeasurements();
 
-    // Set up IntersectionObserver to detect which section sits behind the nav's vertical position
+    // Sections tag themselves light or dark; the torn edges (lib/paperEdges) refine that at the tear.
     const themedElements = Array.from(
       document.querySelectorAll<HTMLElement>("[data-nav-theme]")
     );
 
-    const edgeCanvases = Array.from(
-      document.querySelectorAll<HTMLCanvasElement>("canvas[data-edge-paper]")
-    );
-
-    /** true = dark behind (x,y). Reads the torn-edge pixels so the ragged line is respected. */
+    /** true = dark behind (x,y). Follows the ragged tear line exactly. */
     const darkAt = (x: number, y: number): boolean | null => {
-      for (const c of edgeCanvases) {
-        const r = c.getBoundingClientRect();
-        if (x < r.left || x > r.right || y < r.top || y > r.bottom) continue;
-        const paperDark = c.getAttribute("data-edge-paper") === "dark";
-        try {
-          const ctx = c.getContext("2d", { willReadFrequently: true });
-          if (!ctx || !r.width || !r.height) continue;
-          const px = Math.floor(((x - r.left) / r.width) * c.width);
-          const py = Math.floor(((y - r.top) / r.height) * c.height);
-          const a = ctx.getImageData(px, py, 1, 1).data[3];
-          return a > 128 ? paperDark : !paperDark;
-        } catch {
-          continue;
-        }
-      }
+      const edge = edgeToneAt(x, y);
+      if (edge !== null) return edge;
       for (let i = themedElements.length - 1; i >= 0; i--) {
         const r = themedElements[i].getBoundingClientRect();
         if (r.top <= y && r.bottom > y) {
@@ -117,34 +97,23 @@ export default function Navigation() {
       }
     };
 
-    // IntersectionObserver monitoring the nav's vertical position scanline
-    const isMobile = window.innerWidth < 768;
-    const rootMargin = isMobile ? "-28px 0px -90% 0px" : "-45% 0px -54% 0px";
-
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-    }
-
+    // A thin scan line where the nav sits also reports which section passes under it. It fires on
+    // its own schedule (not just on scroll), so it is what settles the mobile header colour.
+    const isMobileAtMount = window.innerWidth < 768;
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) {
-            const theme = entry.target.getAttribute("data-nav-theme") as "dark" | "light";
-            if (theme) {
-              setIsDarkSection(theme === "dark");
-            }
-          }
+          if (!entry.isIntersecting) continue;
+          const theme = entry.target.getAttribute("data-nav-theme");
+          if (theme) setIsDarkSection(theme === "dark");
         }
       },
       {
-        root: null,
-        rootMargin,
+        rootMargin: isMobileAtMount ? "-28px 0px -90% 0px" : "-45% 0px -54% 0px",
         threshold: [0, 0.05, 0.5],
       }
     );
-
     themedElements.forEach((el) => observer.observe(el));
-    observerRef.current = observer;
 
     const updateNavState = () => {
       const scrollY = window.scrollY;
@@ -202,45 +171,24 @@ export default function Navigation() {
       }
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", () => {
+    const onResize = () => {
       updateMeasurements();
       onScroll();
-    });
-
-    const lenis = (
-      window as unknown as {
-        __lenis?: { on: (event: string, callback: () => void) => void };
-      }
-    ).__lenis;
-    if (lenis && typeof lenis.on === "function") {
-      lenis.on("scroll", onScroll);
-    }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onResize);
+    const offLenis = getLenis()?.on("scroll", onScroll);
 
     return () => {
-      mq.removeEventListener("change", mqHandler);
       window.removeEventListener("scroll", onScroll);
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
+      window.removeEventListener("resize", onResize);
+      offLenis?.();
+      observer.disconnect();
     };
   }, []);
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      const lenis = (
-        window as unknown as {
-          __lenis?: { scrollTo: (target: HTMLElement | string) => void };
-        }
-      ).__lenis;
-      if (lenis) {
-        lenis.scrollTo(element);
-      } else {
-        element.scrollIntoView({ behavior: "smooth" });
-      }
-    }
-  };
+
+  const scrollToSection = scrollToId;
 
   // Staggered travel calculation for navigation items
   const getStaggeredT = (index: number) => {
@@ -251,9 +199,7 @@ export default function Navigation() {
     const duration = 0.54;
     if (heroScroll <= start) return 0;
     if (heroScroll >= start + duration) return 1;
-    const t = (heroScroll - start) / duration;
-    // Cubic ease-in-out
-    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    return easeInOutCubic((heroScroll - start) / duration);
   };
 
   const darkOf = (k: string) => darkMap[k] ?? isDarkSection;

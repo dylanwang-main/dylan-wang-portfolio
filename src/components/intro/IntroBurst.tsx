@@ -1,41 +1,24 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
-import SectionOpener from "./SectionOpener";
+import SectionOpener from "../scenes/SectionOpener";
 import BlackHole from "./BlackHole";
 import GravityField from "./GravityField";
-import { SceneData } from "../data/portfolio";
+import { SceneData } from "../../data/portfolio";
+import { clamp01, seg, easeOutCubic, easeInOutQuad, mulberry32 } from "../../lib/math";
+import { useReducedMotion } from "../../lib/useReducedMotion";
+import { INTRO_VH } from "../../lib/timeline";
 
-/** How many viewport heights of scroll the pinned intro lasts. */
-export const INTRO_VH = 2.5;
-
-/** Extra scroll (in viewport heights) each scene stays composed before the next page rises over it. */
-export const SCENE_DWELL_VH = 0.6;
 
 /** The "big bang" origin, in % of the viewport (where the figures' fingers would meet). */
 const OX = 50;
 const OY = 46;
 
-const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
-const seg = (v: number, a: number, b: number) => clamp01((v - a) / (b - a));
-const easeOut = (t: number) => 1 - Math.pow(1 - t, 3);
-const easeIn = (t: number) => Math.pow(t, 2.2);
-const easeInOut = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
 
 function maxRadius() {
   if (typeof window === "undefined") return 1200;
   const dx = (Math.max(OX, 100 - OX) / 100) * window.innerWidth;
   const dy = (Math.max(OY, 100 - OY) / 100) * window.innerHeight;
   return Math.hypot(dx, dy) + 60;
-}
-
-function mulberry32(a: number) {
-  return () => {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
 }
 
 /**
@@ -109,7 +92,7 @@ interface IntroBurstProps {
  * Everything is scroll-scrubbed (no timers), so scroll speed is never held or slowed.
  */
 export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroBurstProps) {
-  const [reduced, setReduced] = useState(false);
+  const reduced = useReducedMotion();
   const [ringSize, setRingSize] = useState(2400);
   const rootRef = useRef<HTMLDivElement>(null);
   // exact size of the pinned stage (the reveal wrapper needs real pixels)
@@ -118,10 +101,6 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
   vpRef.current = vp;
 
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(mq.matches);
-    const onMq = (e: MediaQueryListEvent) => setReduced(e.matches);
-    mq.addEventListener("change", onMq);
     const onResize = () => {
       setRingSize(maxRadius() * 2);
       const el = rootRef.current;
@@ -132,7 +111,6 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
     const ro = new ResizeObserver(onResize);
     if (rootRef.current) ro.observe(rootRef.current);
     return () => {
-      mq.removeEventListener("change", onMq);
       window.removeEventListener("resize", onResize);
       ro.disconnect();
     };
@@ -144,7 +122,7 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
   );
 
   // Radius of the expanding circle, in px
-  const radius = useTransform(p, (v) => easeInOut(seg(v, 0.24, 0.86)) * maxRadius());
+  const radius = useTransform(p, (v) => easeInOutQuad(seg(v, 0.24, 0.86)) * maxRadius());
 
   // HERO: every word and letter is pulled in on its own spiral (see SuckText); the backdrop winds up too.
   // The container itself never transforms, so each piece can measure where it sits.
@@ -155,7 +133,7 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
   // BLACK HOLE: forms at the burst point, grows, then the reveal circle swallows it
   const bhScale = useTransform(
     p,
-    (v) => (0.08 + 0.92 * easeOut(seg(v, 0.02, 0.2))) * (1 + 0.7 * seg(v, 0.3, 0.7))
+    (v) => (0.08 + 0.92 * easeOutCubic(seg(v, 0.02, 0.2))) * (1 + 0.7 * seg(v, 0.3, 0.7))
   );
   const bhOpacity = useTransform(p, (v) => seg(v, 0.02, 0.1) * (1 - seg(v, 0.55, 0.8)));
 
@@ -173,7 +151,7 @@ export default function IntroBurst({ heroScene, workScene, nextPageRef }: IntroB
   const innerX = useTransform(wrapX, (x) => -x);
   const innerY = useTransform(wrapY, (y) => -y);
   const workTransform = useTransform(p, (v) => {
-    const s = 1.55 - 0.55 * easeOut(seg(v, 0.24, 1));
+    const s = 1.55 - 0.55 * easeOutCubic(seg(v, 0.24, 1));
     return `scale(${s.toFixed(4)})`;
   });
   const starOpacity = useTransform(p, (v) => 1 - seg(v, 0.55, 0.96));

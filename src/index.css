@@ -6,20 +6,10 @@
   --text-ink: #1F1B16;
   --taupe-subtle: #8A7B6A;
   --accent-oxblood: #6B2D2D;
-  --accent-rose: #E88080;
   --border-hairline: rgba(31, 27, 22, 0.14);
-  --card-cream: #EFE9DE;
   --font-serif: 'Cormorant Garamond', Garamond, Georgia, serif;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --swash-color: #6B2D2D;
-
-  /* Unified Spacing Scale */
-  --space-xs: 0.5rem;   /* 8px */
-  --space-sm: 1rem;     /* 16px */
-  --space-md: 1.5rem;   /* 24px */
-  --space-lg: 3rem;     /* 48px */
-  --space-xl: 5rem;     /* 80px */
-  --space-2xl: 7.5rem;  /* 120px */
 }
 
 html,
@@ -64,7 +54,6 @@ body {
 }
 
 /* Swash initial capital: about 2x larger */
-.swash-initial::first-letter,
 .swash-grand::first-letter {
   font-style: italic;
   font-family: var(--font-serif);
@@ -114,4 +103,3 @@ body {
   padding-right: 0.02em;
 }
 
-@keyframes bh-spin { to { transform: rotate(360deg); } }

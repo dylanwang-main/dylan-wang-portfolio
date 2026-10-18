@@ -1,9 +1,15 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef } from "react";
 import { motion, useScroll, useTransform, useMotionValue, MotionValue } from "motion/react";
-import { SceneData, SceneLayer, RESUME_LINK } from "../data/portfolio";
-import PaperEdge from "./PaperEdge";
+import { SceneData, SceneLayer, RESUME_LINK } from "../../data/portfolio";
+import PaperEdge from "../layout/PaperEdge";
 import SceneShowcase from "./SceneShowcase";
-import { SuckCtx, SuckText, SuckUnit } from "./SuckText";
+import ArchitecturalMotif from "./ArchitecturalMotif";
+import { filmGrain } from "../../lib/noise";
+import { scrollToId } from "../../lib/scroll";
+import { useReducedMotion } from "../../lib/useReducedMotion";
+import { seg, smooth } from "../../lib/math";
+import { EASE } from "../../lib/motion";
+import { SuckCtx, SuckText, SuckUnit } from "../intro/SuckText";
 
 const SCENE_TINT: Record<string, string> = {
   work: "#2f4f7a",
@@ -21,198 +27,6 @@ interface SectionOpenerProps {
   buildProgress?: MotionValue<number>;
   /** Hero only: pieces of text fall into the black hole as this progress advances */
   suck?: SuckCtx;
-}
-
-/**
- * Architectural Motifs rendered with pure inline SVG line art.
- * Each section has a distinctive classical composition with tall arches and columns.
- */
-function ArchitecturalMotif({ type: rawType }: { type?: string }) {
-  const strokeColor = "#CBB39C"; // muted warm line art tone
-  // Scene data uses these ids; map them to the drawings that exist.
-  const aliases: Record<string, string> = {
-    "about-rotunda": "about-portico",
-    "contact-portico": "contact-rotunda",
-  };
-  const type = rawType ? aliases[rawType] ?? rawType : rawType;
-
-  switch (type) {
-    case "hero-arch":
-      return (
-        <svg
-          viewBox="0 0 1400 900"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full object-contain pointer-events-none select-none opacity-[0.3]"
-        >
-          {/* Ground Baseline / Stylobate */}
-          <line x1="100" y1="820" x2="1300" y2="820" stroke={strokeColor} strokeWidth="1" />
-          <line x1="120" y1="832" x2="1280" y2="832" stroke={strokeColor} strokeWidth="0.6" strokeDasharray="4 4" />
-
-          {/* Left Fluted Column Pair */}
-          <rect x="240" y="240" width="48" height="580" stroke={strokeColor} strokeWidth="0.8" />
-          <line x1="252" y1="240" x2="252" y2="820" stroke={strokeColor} strokeWidth="0.5" strokeDasharray="3 3" />
-          <line x1="264" y1="240" x2="264" y2="820" stroke={strokeColor} strokeWidth="0.5" strokeDasharray="3 3" />
-          <line x1="276" y1="240" x2="276" y2="820" stroke={strokeColor} strokeWidth="0.5" strokeDasharray="3 3" />
-          <rect x="232" y="804" width="64" height="16" stroke={strokeColor} strokeWidth="0.8" />
-          <rect x="234" y="226" width="60" height="14" stroke={strokeColor} strokeWidth="0.8" />
-
-          {/* Right Fluted Column Pair */}
-          <rect x="1112" y="240" width="48" height="580" stroke={strokeColor} strokeWidth="0.8" />
-          <line x1="1124" y1="240" x2="1124" y2="820" stroke={strokeColor} strokeWidth="0.5" strokeDasharray="3 3" />
-          <line x1="1136" y1="240" x2="1136" y2="820" stroke={strokeColor} strokeWidth="0.5" strokeDasharray="3 3" />
-          <line x1="1148" y1="240" x2="1148" y2="820" stroke={strokeColor} strokeWidth="0.5" strokeDasharray="3 3" />
-          <rect x="1104" y="804" width="64" height="16" stroke={strokeColor} strokeWidth="0.8" />
-          <rect x="1106" y="226" width="60" height="14" stroke={strokeColor} strokeWidth="0.8" />
-
-          {/* Inner Pilasters Supporting Arch */}
-          <rect x="390" y="340" width="36" height="480" stroke={strokeColor} strokeWidth="0.8" />
-          <rect x="974" y="340" width="36" height="480" stroke={strokeColor} strokeWidth="0.8" />
-
-          {/* Semicircular Classical Triumphal Arch */}
-          <path d="M 426 340 A 274 274 0 0 1 974 340" stroke={strokeColor} strokeWidth="1.2" />
-          <path d="M 390 340 A 310 310 0 0 1 1010 340" stroke={strokeColor} strokeWidth="0.8" strokeDasharray="6 4" />
-
-          {/* Keystone at Apex */}
-          <polygon points="688,30 712,30 718,72 682,72" stroke={strokeColor} strokeWidth="0.8" />
-
-          {/* Architrave / Entablature */}
-          <line x1="180" y1="226" x2="1220" y2="226" stroke={strokeColor} strokeWidth="1" />
-          <line x1="180" y1="190" x2="1220" y2="190" stroke={strokeColor} strokeWidth="0.8" />
-          <line x1="200" y1="160" x2="1200" y2="160" stroke={strokeColor} strokeWidth="0.8" />
-
-          {/* Pediment Guidelines */}
-          <line x1="200" y1="160" x2="700" y2="70" stroke={strokeColor} strokeWidth="0.7" strokeDasharray="4 4" />
-          <line x1="1200" y1="160" x2="700" y2="70" stroke={strokeColor} strokeWidth="0.7" strokeDasharray="4 4" />
-          <circle cx="700" cy="115" r="28" stroke={strokeColor} strokeWidth="0.6" strokeDasharray="3 3" />
-        </svg>
-      );
-
-    case "work-colonnade":
-      return (
-        <svg
-          viewBox="0 0 1400 900"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full object-contain pointer-events-none select-none opacity-[0.3]"
-        >
-          <line x1="80" y1="800" x2="1320" y2="800" stroke={strokeColor} strokeWidth="1" />
-          <line x1="60" y1="816" x2="1340" y2="816" stroke={strokeColor} strokeWidth="0.6" />
-          <line x1="80" y1="220" x2="1320" y2="220" stroke={strokeColor} strokeWidth="1" />
-          <line x1="80" y1="190" x2="1320" y2="190" stroke={strokeColor} strokeWidth="0.7" />
-
-          {[160, 390, 620, 850, 1080].map((x, idx) => (
-            <g key={idx}>
-              <line x1={x} y1="360" x2={x} y2="800" stroke={strokeColor} strokeWidth="0.8" />
-              <line x1={x + 160} y1="360" x2={x + 160} y2="800" stroke={strokeColor} strokeWidth="0.8" />
-              <line x1={x + 6} y1="360" x2={x + 6} y2="800" stroke={strokeColor} strokeWidth="0.4" strokeDasharray="4 4" />
-              <line x1={x + 154} y1="360" x2={x + 154} y2="800" stroke={strokeColor} strokeWidth="0.4" strokeDasharray="4 4" />
-              <path d={`M ${x} 360 A 80 80 0 0 1 ${x + 160} 360`} stroke={strokeColor} strokeWidth="1" />
-              <path d={`M ${x - 8} 360 A 88 88 0 0 1 ${x + 168} 360`} stroke={strokeColor} strokeWidth="0.5" strokeDasharray="4 4" />
-              <line x1={x + 80} y1="272" x2={x + 80} y2="288" stroke={strokeColor} strokeWidth="0.9" />
-            </g>
-          ))}
-        </svg>
-      );
-
-    case "content-vault":
-      return (
-        <svg
-          viewBox="0 0 1400 900"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full object-contain pointer-events-none select-none opacity-[0.3]"
-        >
-          <line x1="120" y1="820" x2="1280" y2="820" stroke={strokeColor} strokeWidth="1" />
-          <line x1="140" y1="836" x2="1260" y2="836" stroke={strokeColor} strokeWidth="0.6" />
-
-          {/* Left Arch Bay */}
-          <rect x="220" y="320" width="36" height="500" stroke={strokeColor} strokeWidth="0.8" />
-          <rect x="620" y="320" width="36" height="500" stroke={strokeColor} strokeWidth="0.8" />
-          <path d="M 256 320 A 182 182 0 0 1 620 320" stroke={strokeColor} strokeWidth="1.2" />
-          <path d="M 238 320 A 200 200 0 0 1 638 320" stroke={strokeColor} strokeWidth="0.6" strokeDasharray="4 4" />
-          <line x1="438" y1="138" x2="438" y2="162" stroke={strokeColor} strokeWidth="1" />
-
-          {/* Right Arch Bay */}
-          <rect x="744" y="320" width="36" height="500" stroke={strokeColor} strokeWidth="0.8" />
-          <rect x="1144" y="320" width="36" height="500" stroke={strokeColor} strokeWidth="0.8" />
-          <path d="M 780 320 A 182 182 0 0 1 1144 320" stroke={strokeColor} strokeWidth="1.2" />
-          <path d="M 762 320 A 200 200 0 0 1 1162 320" stroke={strokeColor} strokeWidth="0.6" strokeDasharray="4 4" />
-          <line x1="962" y1="138" x2="962" y2="162" stroke={strokeColor} strokeWidth="1" />
-
-          <line x1="140" y1="180" x2="1260" y2="180" stroke={strokeColor} strokeWidth="0.8" />
-          <line x1="180" y1="150" x2="1220" y2="150" stroke={strokeColor} strokeWidth="0.6" strokeDasharray="6 6" />
-        </svg>
-      );
-
-    case "about-portico":
-      return (
-        <svg
-          viewBox="0 0 1400 900"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full object-contain pointer-events-none select-none opacity-[0.3]"
-        >
-          <line x1="160" y1="810" x2="1240" y2="810" stroke={strokeColor} strokeWidth="1" />
-          <line x1="140" y1="824" x2="1260" y2="824" stroke={strokeColor} strokeWidth="0.8" />
-          <line x1="120" y1="838" x2="1280" y2="838" stroke={strokeColor} strokeWidth="0.6" />
-
-          {[240, 420, 600, 780, 960, 1140].map((x, idx) => (
-            <g key={idx}>
-              <rect x={x - 18} y="240" width="36" height="570" stroke={strokeColor} strokeWidth="0.8" />
-              <line x1={x - 6} y1="240" x2={x - 6} y2="810" stroke={strokeColor} strokeWidth="0.4" strokeDasharray="4 4" />
-              <line x1={x + 6} y1="240" x2={x + 6} y2="810" stroke={strokeColor} strokeWidth="0.4" strokeDasharray="4 4" />
-              <rect x={x - 24} y="796" width="48" height="14" stroke={strokeColor} strokeWidth="0.8" />
-              <rect x={x - 24} y="228" width="48" height="12" stroke={strokeColor} strokeWidth="0.8" />
-            </g>
-          ))}
-
-          <rect x="180" y="196" width="1040" height="32" stroke={strokeColor} strokeWidth="0.9" />
-          <polygon points="180,196 700,54 1220,196" stroke={strokeColor} strokeWidth="1.2" />
-          <polygon points="204,190 700,72 1196,190" stroke={strokeColor} strokeWidth="0.6" strokeDasharray="4 4" />
-          <circle cx="700" cy="135" r="24" stroke={strokeColor} strokeWidth="0.7" strokeDasharray="3 3" />
-        </svg>
-      );
-
-    case "contact-rotunda":
-      return (
-        <svg
-          viewBox="0 0 1400 900"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-full object-contain pointer-events-none select-none opacity-[0.3]"
-        >
-          <ellipse cx="700" cy="810" rx="520" ry="24" stroke={strokeColor} strokeWidth="1" />
-          <ellipse cx="700" cy="824" rx="540" ry="26" stroke={strokeColor} strokeWidth="0.6" />
-
-          <path d="M 280 240 A 420 220 0 0 1 1120 240" stroke={strokeColor} strokeWidth="1.2" />
-          <path d="M 320 240 A 380 200 0 0 1 1080 240" stroke={strokeColor} strokeWidth="0.6" strokeDasharray="4 4" />
-          <line x1="700" y1="20" x2="700" y2="44" stroke={strokeColor} strokeWidth="1.2" />
-
-          {[300, 460, 620, 780, 940, 1100].map((x, idx) => (
-            <g key={idx}>
-              <line x1={x} y1="240" x2={x} y2="810" stroke={strokeColor} strokeWidth="0.8" />
-              <line x1={x + 6} y1="240" x2={x + 6} y2="810" stroke={strokeColor} strokeWidth="0.4" strokeDasharray="4 4" />
-              <line x1={x - 6} y1="240" x2={x - 6} y2="810" stroke={strokeColor} strokeWidth="0.4" strokeDasharray="4 4" />
-            </g>
-          ))}
-
-          <g>
-            <line x1="620" y1="440" x2="620" y2="810" stroke={strokeColor} strokeWidth="0.9" />
-            <line x1="780" y1="440" x2="780" y2="810" stroke={strokeColor} strokeWidth="0.9" />
-            <path d="M 620 440 A 80 80 0 0 1 780 440" stroke={strokeColor} strokeWidth="1" />
-            <line x1="700" y1="360" x2="700" y2="810" stroke={strokeColor} strokeWidth="0.5" strokeDasharray="4 4" />
-          </g>
-
-          <rect x="220" y="210" width="960" height="36" stroke={strokeColor} strokeWidth="0.9" />
-          <polygon points="220,210 700,70 1180,210" stroke={strokeColor} strokeWidth="1.2" />
-          <polygon points="244,204 700,88 1156,204" stroke={strokeColor} strokeWidth="0.6" strokeDasharray="4 4" />
-        </svg>
-      );
-
-    default:
-      return null;
-  }
 }
 
 function LayerElement({
@@ -248,21 +62,10 @@ function LayerElement({
       {/* 2. Film Grain Noise Overlay & Gentle Vignette */}
       {layer.motifId === "vignette-grain" && (
         <>
-          <svg
+          <div
             className="absolute inset-0 w-full h-full opacity-[0.038] pointer-events-none mix-blend-overlay"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <filter id="film-grain-filter">
-              <feTurbulence
-                type="fractalNoise"
-                baseFrequency="0.8"
-                numOctaves="3"
-                stitchTiles="stitch"
-              />
-              <feColorMatrix type="saturate" values="0" />
-            </filter>
-            <rect width="100%" height="100%" filter="url(#film-grain-filter)" />
-          </svg>
+            style={{ backgroundImage: `url(${filmGrain()})` }}
+          />
           <div className="absolute inset-0 w-full h-full bg-[radial-gradient(ellipse_at_center,_transparent_40%,_rgba(10,8,7,0.72)_100%)] pointer-events-none" />
         </>
       )}
@@ -288,17 +91,7 @@ export default function SectionOpener({
   suck,
 }: SectionOpenerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setPrefersReducedMotion(mediaQuery.matches);
-
-    const handler = (e: MediaQueryListEvent) =>
-      setPrefersReducedMotion(e.matches);
-    mediaQuery.addEventListener("change", handler);
-    return () => mediaQuery.removeEventListener("change", handler);
-  }, []);
+  const prefersReducedMotion = useReducedMotion();
 
   // Entry scroll progress when this scene enters as Page B from "start end" to "start start"
   const { scrollYProgress: entryP } = useScroll({
@@ -346,30 +139,13 @@ export default function SectionOpener({
   // Hero backdrop: the whole painted background winds up and shrinks toward the hole
   const suckP = suck?.p ?? defaultP;
   const bgSwirl = useTransform(suckP, (v) => {
-    const k = Math.pow(Math.min(1, Math.max(0, (v - 0.1) / 0.52)), 2.2);
+    const k = Math.pow(seg(v, 0.1, 0.62), 2.2);
     return `rotate(${(-70 * k).toFixed(2)}deg) scale(${(1 - 0.6 * k).toFixed(4)})`;
   });
   const bgFade = useTransform(suckP, (v) => {
-    const t = Math.min(1, Math.max(0, (v - 0.12) / 0.38));
-    return 1 - 0.88 * t * t * (3 - 2 * t);
+    return 1 - 0.88 * smooth(seg(v, 0.12, 0.5));
   });
   const S = suck && !prefersReducedMotion ? suck : null;
-
-  const scrollToId = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      const lenis = (
-        window as unknown as {
-          __lenis?: { scrollTo: (target: HTMLElement | string) => void };
-        }
-      ).__lenis;
-      if (lenis) {
-        lenis.scrollTo(el);
-      } else {
-        el.scrollIntoView({ behavior: "smooth" });
-      }
-    }
-  };
 
   const isDark = scene.theme === "dark";
 
@@ -430,7 +206,7 @@ export default function SectionOpener({
           style={prefersReducedMotion ? undefined : { opacity: headingOpacity }}
           initial={{ opacity: 0, y: -16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.8, ease: EASE }}
           className={`w-full flex items-center justify-between text-xs pt-12 md:pt-4 max-w-6xl relative z-30 ${
             isDark ? "text-[#C0B4A4]" : "text-[var(--taupe-subtle)]"
           }`}
@@ -515,7 +291,7 @@ export default function SectionOpener({
           style={prefersReducedMotion ? undefined : { opacity: headingOpacity }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.8, delay: 0.5, ease: EASE }}
           className="w-full flex flex-col items-center text-center pb-4 relative z-30"
         >
           <button
@@ -684,22 +460,6 @@ export default function SectionOpener({
         </p>
       </motion.div>
 
-      {/* Bottom Downward Indicator */}
-      <motion.div
-        style={prefersReducedMotion ? undefined : { opacity: headingOpacity }}
-        className={`hidden w-full flex-col items-center text-center pb-6 md:pb-8 relative z-30 ${
-          isDark ? "text-[#C0B4A4]" : "text-[var(--taupe-subtle)]"
-        }`}
-      >
-        <span className="text-[10px] tracking-widest uppercase">
-          Scroll to explore {scene.heading}
-        </span>
-        <div
-          className={`w-[1px] h-6 mt-2 ${
-            isDark ? "bg-[#E88080]" : "bg-[var(--accent-oxblood)]"
-          }`}
-        />
-      </motion.div>
     </div>
   );
 }

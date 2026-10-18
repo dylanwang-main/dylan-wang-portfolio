@@ -1,4 +1,7 @@
 import { useEffect, useRef } from "react";
+import { clamp01, mix, mulberry32 } from "../../lib/math";
+import { prefersReducedMotion } from "../../lib/useReducedMotion";
+import { registerPaperEdge } from "../../lib/paperEdges";
 
 /**
  * A living torn-paper edge.
@@ -22,16 +25,6 @@ const SLOW = 0.3;
 const FLAKE_RISE = 48;
 const CHAR_DEPTH = 24;
 
-function mulberry32(a: number) {
-  return () => {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
 interface PaperEdgeProps {
   seed: number;
   /** Page color below the tear. Must match the page this edge belongs to. */
@@ -41,16 +34,13 @@ interface PaperEdgeProps {
   /** Shadow cast onto the page behind (the side ABOVE the tear). */
   shadow?: string;
   height?: number;
-  /** Is the paper itself light (cream) or dark? Lets the nav read contrast from the real pixels. */
+  /** Is the paper itself light (cream) or dark? The nav uses this (via lib/paperEdges) for contrast. */
   paper?: "light" | "dark";
   /** Animate the edge and the ember along the tear. */
   burn?: boolean;
 }
 
 type Spark = { x: number; y: number; vx: number; vy: number; age: number; life: number; r: number };
-
-const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
-const mix = (a: number, b: number, t: number) => a + (b - a) * t;
 
 const hash = (n: number) => {
   const s = Math.sin(n * 127.1) * 43758.5453;
@@ -121,7 +111,7 @@ export default function PaperEdge({
     const sh = shRef.current;
     if (!canvas || !fx || !sh) return;
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = prefersReducedMotion();
     const animate = burn && !reduced;
 
     let W = 0;
@@ -164,6 +154,8 @@ export default function PaperEdge({
     };
 
     const paintMain = (t: number) => {
+      // Keep this canvas on the CPU rasteriser: it draws thousands of tiny alpha rects per frame,
+      // which is the path this effect was tuned on (the GPU path was far slower in testing).
       const ctx = canvas.getContext("2d", { willReadFrequently: true });
       if (!ctx || !W) return;
       const T = animate ? (t / 1000) * SLOW : 0;
@@ -398,6 +390,7 @@ export default function PaperEdge({
     };
 
     build();
+    const unregister = registerPaperEdge({ el: canvas, paper, line: () => ys });
 
     // animation loop: only while on screen, ~60fps (motion is slow, so frames stay cheap and silky)
     let raf = 0;
@@ -443,6 +436,7 @@ export default function PaperEdge({
     if (canvas.parentElement) ro.observe(canvas.parentElement);
 
     return () => {
+      unregister();
       stop();
       cancelAnimationFrame(rraf);
       io.disconnect();
@@ -469,7 +463,6 @@ export default function PaperEdge({
       <canvas
         ref={ref}
         aria-hidden="true"
-        data-edge-paper={paper}
         className="pointer-events-none select-none absolute left-0 w-full"
         style={{ ...pos, zIndex: 5 }}
       />

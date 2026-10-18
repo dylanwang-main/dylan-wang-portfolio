@@ -1,22 +1,21 @@
+import { PAGE_COLUMN } from "../../lib/layout";
 import { motion } from "motion/react";
-import { ABOUT_PROFILE } from "../data/portfolio";
-import ProofStage from "./ProofStage";
-import { AboutMain, AboutSide } from "./SceneShowcase";
-import SubBlock from "./SubBlock";
-import CardFan from "./CardFan";
-import { TileGrid } from "./MediaSlots";
+import { ABOUT_PROFILE } from "../../data/portfolio";
+import ProofStage from "../blocks/ProofStage";
+import { AboutMain, AboutSide } from "../scenes/SceneShowcase";
+import SubBlock from "../blocks/SubBlock";
+import CardFan from "../blocks/CardFan";
+import { TileGrid } from "../blocks/MediaSlots";
+import { fadeUp } from "../../lib/motion";
 
 const CARDS = ["UC San Diego", "Data Science", "Content Creator", "Short-form Content"];
 
 export default function AboutSection() {
   return (
-    <section className="pt-[clamp(6rem,12vw,11rem)] pb-[clamp(14rem,18vw,18rem)] px-6 sm:px-10 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 max-w-[1400px] w-full">
+    <section className={`pt-[clamp(6rem,12vw,11rem)] pb-[clamp(14rem,18vw,18rem)] ${PAGE_COLUMN}`}>
       {/* STATEMENT */}
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.25 }}
-        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+        {...fadeUp()}
       >
         <h3 className="statement-title font-editorial-serif italic text-[clamp(3.2rem,7.6vw,8rem)] leading-[0.98] tracking-[-0.02em] text-[var(--text-ink)]">
           Dylan Wang

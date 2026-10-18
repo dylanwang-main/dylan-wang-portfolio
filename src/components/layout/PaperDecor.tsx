@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { paperGrain } from "../../lib/noise";
 
 /**
  * Quiet detail for the cream pages, so the empty space has something to look at while still
@@ -8,43 +9,9 @@ import { useEffect, useState } from "react";
  *  - a dot grid with a small plus at every fourth point (graph paper, a nod to the data work)
  *  - a few hairline circle diagrams drifting off the page edges, echoing the intro line art
  *  - a ruler along the right edge
- *  - a folio line under the tear ("I · Work")
  */
 
 const INK = "31,27,22";
-
-let grainCache: string | null = null;
-function makeGrain() {
-  if (grainCache) return grainCache;
-  const S = 180;
-  const c = document.createElement("canvas");
-  c.width = S;
-  c.height = S;
-  const g = c.getContext("2d");
-  if (!g) return "";
-  const img = g.createImageData(S, S);
-  // tiny seeded generator so the grain is identical on every load
-  let a = 4242;
-  const rnd = () => {
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-  for (let i = 0; i < S * S; i++) {
-    const r = rnd();
-    // ~22% of pixels get a speck, mostly very light, a few darker
-    const on = r < 0.22;
-    const k = i * 4;
-    img.data[k] = 70;
-    img.data[k + 1] = 52;
-    img.data[k + 2] = 36;
-    img.data[k + 3] = on ? (rnd() < 0.12 ? 18 : 6) : 0;
-  }
-  g.putImageData(img, 0, 0);
-  grainCache = c.toDataURL("image/png");
-  return grainCache;
-}
 
 const svgUrl = (svg: string) => `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
 
@@ -80,10 +47,10 @@ function Rings({ className, flip = false }: { className: string; flip?: boolean 
   );
 }
 
-export default function PaperDecor(_: { folio?: string }) {
+export default function PaperDecor() {
   const [grain, setGrain] = useState("");
   useEffect(() => {
-    setGrain(makeGrain());
+    setGrain(paperGrain());
   }, []);
 
   return (

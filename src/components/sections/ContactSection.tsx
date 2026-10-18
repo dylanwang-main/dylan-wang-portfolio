@@ -1,10 +1,12 @@
+import { PAGE_COLUMN } from "../../lib/layout";
 import { useState } from "react";
 import { motion } from "motion/react";
-import { CONTACT_EMAIL, SOCIAL_LINKS, RESUME_LINK, WORK_PROJECTS, CONTENT_PROJECT } from "../data/portfolio";
-import ProofStage from "./ProofStage";
-import FloatingWords from "./FloatingWords";
-import { ContactMain } from "./SceneShowcase";
+import { CONTACT_EMAIL, SOCIAL_LINKS, RESUME_LINK, WORK_PROJECTS, CONTENT_PROJECT } from "../../data/portfolio";
+import ProofStage from "../blocks/ProofStage";
+import FloatingWords from "../blocks/FloatingWords";
+import { ContactMain } from "../scenes/SceneShowcase";
 import { Mail, Check, Copy } from "lucide-react";
+import { fadeUp } from "../../lib/motion";
 
 const WORDS = Array.from(
   new Set([...WORK_PROJECTS.flatMap((p) => p.tools), ...CONTENT_PROJECT.tools])
@@ -26,13 +28,10 @@ export default function ContactSection() {
   };
 
   return (
-    <section className="pt-[clamp(6rem,12vw,11rem)] pb-[clamp(14rem,18vw,18rem)] px-6 sm:px-10 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 max-w-[1400px] w-full">
+    <section className={`pt-[clamp(6rem,12vw,11rem)] pb-[clamp(14rem,18vw,18rem)] ${PAGE_COLUMN}`}>
       {/* STATEMENT */}
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.25 }}
-        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+        {...fadeUp()}
       >
         <h3 className="statement-title font-editorial-serif italic text-[clamp(3.2rem,7.6vw,8rem)] leading-[0.98] tracking-[-0.02em] text-[var(--text-ink)] max-w-[14ch] text-balance">
           Let’s start a conversation.

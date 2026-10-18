@@ -25,7 +25,7 @@ export interface SceneLayer {
   scale: number; // e.g. 1.0, 1.02, 1.05
   blendMode?: string; // "normal", "multiply", "overlay", "soft-light", etc.
   gradientFallback: string; // warm gradient fallback class
-  motifId?: string; // architectural motif identifier ("hero", "work", "content", "about", "contact", etc.)
+  motifId?: string; // "radial-glow", "vignette-grain", or a line-art drawing in components/ArchitecturalMotif.tsx
   label?: string;
 }
 
@@ -198,7 +198,7 @@ export const SECTION_SCENES: Record<"work" | "content" | "about" | "contact", Sc
         parallaxSpeed: 0.45,
         opacity: 0.85,
         scale: 1.02,
-        motifId: "about-rotunda",
+        motifId: "about-portico",
         blendMode: "normal",
         gradientFallback:
           "bg-gradient-to-r from-transparent via-[#8A7B6A]/20 to-[#6B2D2D]/15",
@@ -242,7 +242,7 @@ export const SECTION_SCENES: Record<"work" | "content" | "about" | "contact", Sc
         parallaxSpeed: 0.45,
         opacity: 0.85,
         scale: 1.02,
-        motifId: "contact-portico",
+        motifId: "contact-rotunda",
         blendMode: "normal",
         gradientFallback:
           "bg-gradient-to-br from-[#6B2D2D]/25 via-transparent to-[#8A7B6A]/20",

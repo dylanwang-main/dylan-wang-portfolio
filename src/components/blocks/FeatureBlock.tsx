@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, MotionValue, useScroll } from "motion/react";
 import ProofStage from "./ProofStage";
 import { AnimatedTile } from "./MediaSlots";
-import { ProjectData } from "../data/portfolio";
+import { ProjectData } from "../../data/portfolio";
 import {
   DashboardMain,
   WorkMain,
@@ -10,12 +10,13 @@ import {
   SiteMain,
   ContentMain,
   ContentSide,
-} from "./SceneShowcase";
+} from "../scenes/SceneShowcase";
+import { fadeUp } from "../../lib/motion";
+import { useReducedMotion } from "../../lib/useReducedMotion";
 
 interface FeatureBlockProps {
   project: ProjectData;
   index: number;
-  reverse?: boolean;
 }
 
 type Proof = {
@@ -33,19 +34,15 @@ const PROOFS: Record<string, Proof> = {
 
 /** Pin the demo on tall, wide screens; fall back to normal flow elsewhere. */
 function usePinned() {
-  const [pinned, setPinned] = useState(false);
+  const reduced = useReducedMotion();
+  const [roomy, setRoomy] = useState(false);
   useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const f = () => setPinned(window.innerWidth >= 1024 && window.innerHeight >= 640 && !mq.matches);
+    const f = () => setRoomy(window.innerWidth >= 1024 && window.innerHeight >= 640);
     f();
     window.addEventListener("resize", f);
-    mq.addEventListener("change", f);
-    return () => {
-      window.removeEventListener("resize", f);
-      mq.removeEventListener("change", f);
-    };
+    return () => window.removeEventListener("resize", f);
   }, []);
-  return pinned;
+  return roomy && !reduced;
 }
 
 export default function FeatureBlock({ project, index }: FeatureBlockProps) {
@@ -80,10 +77,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
           }
         >
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.25 }}
-            transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+            {...fadeUp()}
           >
             {label}
             {pinned ? (
@@ -147,10 +141,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
           {project.slots.map((slot, i) => (
             <motion.div
               key={slot.label}
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.8, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] }}
+              {...fadeUp({ amount: 0.3, duration: 0.8, delay: i * 0.1 })}
               className="group"
             >
               <AnimatedTile index={i} aspect="4/3" />

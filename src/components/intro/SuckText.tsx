@@ -1,5 +1,6 @@
 import { Fragment, useLayoutEffect, useMemo, useRef } from "react";
 import { motion, useTransform, MotionValue } from "motion/react";
+import { clamp01, seg, smooth, mulberry32 } from "../../lib/math";
 
 /**
  * Per-piece gravitational infall for the hero. Every word (or letter) measures where it sits
@@ -16,20 +17,6 @@ export interface SuckCtx {
 }
 
 const TAU = Math.PI * 2;
-const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
-const seg = (v: number, a: number, b: number) => clamp01((v - a) / (b - a));
-const smooth = (t: number) => t * t * (3 - 2 * t);
-
-function mulberry32(a: number) {
-  return () => {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
 /** Intro progress window in which the pieces fall (everything is gone by ~0.64). */
 const START = 0.1;
 const SPREAD = 0.27;

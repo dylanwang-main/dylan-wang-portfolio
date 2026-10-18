@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
+import { fadeUp } from "../../lib/motion";
 
 interface SubBlockProps {
   label: string;
@@ -18,10 +19,7 @@ export default function SubBlock({ label, headline, swash = true, linkLabel, hre
   return (
     <article className="py-[clamp(4rem,9vw,8rem)] border-t border-[var(--border-hairline)] first:border-t-0">
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.25 }}
-        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+        {...fadeUp()}
         className="max-w-[900px]"
       >
         <span className="text-[12px] uppercase tracking-[0.22em] text-[var(--taupe-subtle)] font-medium">{label}</span>

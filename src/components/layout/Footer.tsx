@@ -1,26 +1,14 @@
-import { NAVIGATION_ITEMS } from "../data/portfolio";
+import { NAVIGATION_ITEMS } from "../../data/portfolio";
 import PaperEdge from "./PaperEdge";
+import { scrollToId, scrollToTop } from "../../lib/scroll";
+import { PAGE_X } from "../../lib/layout";
 
 /** Finale: a dark page torn in from below the last cream page, with a giant wordmark. */
 export default function Footer() {
-  const scrollToTop = () => {
-    const lenis = (window as unknown as { __lenis?: { scrollTo: (n: number) => void } }).__lenis;
-    if (lenis) lenis.scrollTo(0);
-    else window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const scrollToSection = (id: string) => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    const lenis = (window as unknown as { __lenis?: { scrollTo: (n: HTMLElement) => void } }).__lenis;
-    if (lenis) lenis.scrollTo(el);
-    else el.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
     <footer
       data-nav-theme="dark"
-      className="relative z-[60] w-full bg-[#161310] text-[#F4EFE6] pt-[clamp(1.5rem,3vw,3rem)] pb-10 px-6 sm:px-10 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 overflow-x-clip"
+      className={`relative z-[60] w-full bg-[#161310] text-[#F4EFE6] pt-[clamp(1.5rem,3vw,3rem)] pb-10 ${PAGE_X} overflow-x-clip`}
     >
       <PaperEdge seed={502} fill="#161310" rim="232,221,207" shadow="rgba(0,0,0,0.16)" paper="dark" />
 
@@ -33,7 +21,7 @@ export default function Footer() {
             {NAVIGATION_ITEMS.map((item) => (
               <button
                 key={item.id}
-                onClick={() => scrollToSection(item.id)}
+                onClick={() => scrollToId(item.id)}
                 className="hover:text-[#E88080] transition-colors focus:outline-none cursor-pointer"
               >
                 <span className="font-editorial-serif italic mr-1.5">{item.numeral}</span>

@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
+import { fadeUp, EASE } from "../../lib/motion";
 
 const TONES = [
   "linear-gradient(135deg,#6B2D2D 0%,#1b1612 100%)",
@@ -14,7 +15,6 @@ export interface Tile {
   note?: string;
 }
 
-const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const CARD = { background: "#FBF8F2", boxShadow: "0 18px 50px rgba(0,0,0,0.35)" };
 const skel = "rounded-full bg-[#1F1B16]/12";
 
@@ -144,10 +144,7 @@ export function TileGrid({ tiles, aspect = "4/5" }: { tiles: Tile[]; aspect?: st
       {tiles.map((t, i) => (
         <motion.div
           key={t.title}
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.8, delay: i * 0.1, ease: EASE }}
+          {...fadeUp({ amount: 0.3, duration: 0.8, delay: i * 0.1 })}
         >
           <AnimatedTile index={i} aspect={aspect} />
           <span className="block mt-4 text-[15px] font-semibold text-[var(--text-ink)]">{t.title}</span>
@@ -171,7 +168,7 @@ export function PromptBar({ prompt, chips = [], caption }: { prompt: string; chi
         initial={{ opacity: 0, scale: 0.96 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.9, ease: EASE }}
         className="relative w-full max-w-[640px]"
       >
         <div
