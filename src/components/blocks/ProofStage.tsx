@@ -63,7 +63,7 @@ export default function ProofStage({
   Side,
   cards,
   mainWidth = "lg:w-[min(100%,980px)]",
-  className = "mt-[clamp(4rem,8vw,7rem)]",
+  className = "mt-[clamp(2.5rem,5vw,4.5rem)]",
   heightClass = "h-[clamp(360px,60vh,620px)]",
   progress,
 }: ProofStageProps) {

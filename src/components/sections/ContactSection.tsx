@@ -28,7 +28,7 @@ export default function ContactSection() {
   };
 
   return (
-    <section className={`pt-[clamp(6rem,12vw,11rem)] pb-[clamp(14rem,18vw,18rem)] ${PAGE_COLUMN}`}>
+    <section className={`pt-[clamp(4rem,7vw,6.5rem)] pb-[clamp(11rem,13vw,12rem)] ${PAGE_COLUMN}`}>
       {/* STATEMENT */}
       <motion.div
         {...fadeUp()}
@@ -46,7 +46,7 @@ export default function ContactSection() {
       </motion.div>
 
       {/* Drifting tool words */}
-      <FloatingWords words={WORDS} className="mt-[clamp(3rem,6vw,5rem)]" />
+      <FloatingWords words={WORDS} className="mt-[clamp(2rem,4vw,3rem)]" />
 
       {/* PROOF: the message window + platform cards */}
       <ProofStage
@@ -57,7 +57,7 @@ export default function ContactSection() {
       />
 
       {/* Real action: mail + copy */}
-      <div className="mt-[clamp(4rem,7vw,6rem)] max-w-lg flex flex-col gap-4">
+      <div className="mt-[clamp(2.5rem,5vw,4rem)] max-w-lg flex flex-col gap-4">
         <a
           href={`mailto:${CONTACT_EMAIL}`}
           className="w-full inline-flex items-center justify-center gap-2 px-8 py-4 bg-[var(--text-ink)] text-[var(--bg-cream)] text-xs md:text-sm font-medium uppercase tracking-widest hover:bg-[var(--accent-oxblood)] transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent-oxblood)]"

@@ -29,7 +29,7 @@ export default function CardFan({ cards }: { cards: FanCard[] }) {
   const { scrollYProgress: p } = useScroll({ target: ref, offset: ["start 0.85", "start 0.2"] });
   return (
     <>
-      <div ref={ref} className="relative hidden md:block h-[clamp(420px,62vh,620px)]">
+      <div ref={ref} className="relative hidden md:block h-[clamp(360px,52vh,540px)]">
         {cards.slice(0, 3).map((c, i) => (
           <FanItem key={c.label} card={c} i={i} p={p} />
         ))}

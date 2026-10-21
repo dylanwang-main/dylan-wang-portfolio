@@ -154,7 +154,7 @@ export function AnimatedTile({ index = 0, aspect = "4/3" }: { index?: number; as
 }
 
 /** 2- or 3-column animated tiles; each tile is a slot for a real image later. */
-export function TileGrid({ tiles, aspect = "4/5" }: { tiles: Tile[]; aspect?: string }) {
+export function TileGrid({ tiles, aspect = "4/3" }: { tiles: Tile[]; aspect?: string }) {
   const cols = tiles.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3";
   return (
     <div className={`grid grid-cols-1 ${cols} gap-5 md:gap-6`}>

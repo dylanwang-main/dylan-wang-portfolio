@@ -67,14 +67,14 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
   const hasSlots = !!project.slots && project.slots.length > 0;
 
   return (
-    <article className={`relative border-b border-[var(--border-hairline)] last:border-b-0 ${hasSlots ? "" : "pb-[clamp(3rem,6vw,5rem)]"}`}>
+    <article className={`relative border-b border-[var(--border-hairline)] last:border-b-0 ${hasSlots ? "" : "pb-[clamp(2rem,4vw,3.5rem)]"}`}>
       {/* Pinned: the screen holds still while the demo builds with scroll (Shopify's sticky chapters) */}
-      <div ref={wrapRef} style={pinned ? { height: "250svh" } : undefined} className="relative">
+      <div ref={wrapRef} style={pinned ? { height: "140svh" } : undefined} className="relative">
         <div
           className={
             pinned
               ? "sticky top-0 h-svh flex flex-col justify-center pt-[76px] pb-8"
-              : "py-[clamp(5rem,11vw,10rem)]"
+              : "py-[clamp(3.5rem,7vw,6rem)]"
           }
         >
           <motion.div
@@ -138,14 +138,14 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
 
       {/* WALKTHROUGH: browser with pulsing hotspots (Shopify feature-tour pattern) */}
       {project.hotspots && project.hotspots.length > 0 && (
-        <div className={`mt-16 ${hasSlots ? "" : "pb-[clamp(5rem,11vw,10rem)]"}`}>
+        <div className={`mt-10 ${hasSlots ? "" : "pb-[clamp(3.5rem,7vw,6rem)]"}`}>
           <HotspotBrowser title={project.title} hotspots={project.hotspots} />
         </div>
       )}
 
       {/* DETAIL CARDS: art tile + title + text (Shopify card-grid pattern; tiles hold real images later) */}
       {project.slots && project.slots.length > 0 && (
-        <div className="mt-16 pb-[clamp(5rem,11vw,10rem)] grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+        <div className="mt-10 pb-[clamp(3.5rem,7vw,6rem)] grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
           {project.slots.map((slot, i) => (
             <motion.div
               key={slot.label}

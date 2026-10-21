@@ -35,7 +35,7 @@ export default function FloatingWords({ words, className = "" }: { words: string
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress: depth } = useScroll({ target: ref, offset: ["start end", "end start"] });
   return (
-    <div ref={ref} aria-hidden="true" className={`relative hidden md:block h-[clamp(260px,42vh,420px)] ${className}`}>
+    <div ref={ref} aria-hidden="true" className={`relative hidden md:block h-[clamp(200px,32vh,320px)] ${className}`}>
       {words.slice(0, SLOTS.length).map((w, i) => (
         <Word key={w} text={w} slot={SLOTS[i]} depth={depth} />
       ))}

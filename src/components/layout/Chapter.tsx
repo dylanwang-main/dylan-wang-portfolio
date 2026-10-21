@@ -48,7 +48,7 @@ export default function Chapter({
 /** Standard inner column for a chapter page built from blocks (Work, Content). */
 export function ChapterPage({ children }: { children: React.ReactNode }) {
   return (
-    <div className={`w-full ${PAGE_X} max-w-[1400px] pt-[clamp(8rem,16vw,16rem)] pb-[clamp(14rem,18vw,18rem)]`}>
+    <div className={`w-full ${PAGE_X} max-w-[1400px] pt-[clamp(5rem,8vw,8rem)] pb-[clamp(11rem,13vw,12rem)]`}>
       {children}
     </div>
   );

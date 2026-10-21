@@ -17,7 +17,7 @@ interface SubBlockProps {
 /** Shopify-style sub-block: small label, big serif headline, pill link, media slot. */
 export default function SubBlock({ label, headline, swash = true, linkLabel, href = "#", children }: SubBlockProps) {
   return (
-    <article className="py-[clamp(4rem,9vw,8rem)] border-t border-[var(--border-hairline)] first:border-t-0">
+    <article className="py-[clamp(3rem,5.5vw,5rem)] border-t border-[var(--border-hairline)] first:border-t-0">
       <motion.div
         {...fadeUp()}
         className="max-w-[900px]"
@@ -38,7 +38,7 @@ export default function SubBlock({ label, headline, swash = true, linkLabel, hre
           </a>
         )}
       </motion.div>
-      {children && <div className="mt-[clamp(2.5rem,5vw,4.5rem)]">{children}</div>}
+      {children && <div className="mt-[clamp(1.75rem,3.5vw,3rem)]">{children}</div>}
     </article>
   );
 }

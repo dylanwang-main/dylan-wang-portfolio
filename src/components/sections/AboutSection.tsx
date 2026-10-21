@@ -12,7 +12,7 @@ const CARDS = ["UC San Diego", "Data Science", "Content Creator", "Short-form Co
 
 export default function AboutSection() {
   return (
-    <section className={`pt-[clamp(6rem,12vw,11rem)] pb-[clamp(14rem,18vw,18rem)] ${PAGE_COLUMN}`}>
+    <section className={`pt-[clamp(4rem,7vw,6.5rem)] pb-[clamp(11rem,13vw,12rem)] ${PAGE_COLUMN}`}>
       {/* STATEMENT */}
       <motion.div
         {...fadeUp()}
@@ -37,7 +37,7 @@ export default function AboutSection() {
       </p>
 
       {/* SUB-BLOCKS (placeholder copy and image slots; swap in real photos) */}
-      <div className="mt-[clamp(3rem,6vw,5rem)]">
+      <div className="mt-[clamp(2rem,4vw,3.5rem)]">
         <SubBlock label="Background" headline="Data by training, storytelling by habit.">
           <TileGrid
             aspect="4/3"
@@ -61,7 +61,7 @@ export default function AboutSection() {
       </div>
 
       {/* DETAILS */}
-      <div className="mt-14 grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-8 pt-8 border-t border-[var(--border-hairline)]">
+      <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-8 pt-8 border-t border-[var(--border-hairline)]">
         <div>
           <span className="block text-[12px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)] font-semibold mb-3">
             Open to
