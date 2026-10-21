@@ -33,13 +33,10 @@ export default function AboutSection() {
       {/* PROOF: portrait window + floating facts */}
       <ProofStage Main={AboutMain} Side={AboutSide} cards={CARDS} mainWidth="lg:w-[min(100%,480px)]" />
 
-      <p className="mt-6 text-[11px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)]">
-        Placeholder preview · {ABOUT_PROFILE.photoPlaceholder.label}
-      </p>
 
       {/* SUB-BLOCKS (placeholder copy and image slots; swap in real photos) */}
       <div className="mt-[clamp(2rem,4vw,3.5rem)]">
-        <SubBlock label="Background" headline="Data by training, storytelling by habit.">
+        <SubBlock label="Background" headline="Data science student. Content creator.">
           <TileGrid
             aspect="4/3"
             tiles={[

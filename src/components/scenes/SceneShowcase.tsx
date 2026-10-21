@@ -306,7 +306,7 @@ export function AboutMain({ build }: { build: V }) {
       style={{ clipPath: clip, WebkitClipPath: clip }}
     >
       <div
-        className="relative h-full aspect-[3/4] flex items-end justify-center"
+        className="relative h-full aspect-[3/4] overflow-hidden"
         style={{
           borderRadius: "999px 999px 14px 14px",
           background: "linear-gradient(180deg,#3a2a20 0%,#6B2D2D 55%,#2a1a14 100%)",
@@ -314,11 +314,15 @@ export function AboutMain({ build }: { build: V }) {
           boxShadow: "var(--win-shadow, 0 40px 120px rgba(0,0,0,0.65))",
         }}
       >
-        <div className="absolute inset-3 pointer-events-none" style={{ borderRadius: "999px 999px 8px 8px", border: `1px solid ${CREAM}`, opacity: 0.18 }} />
-        <div className="pb-6 text-center text-[11px] tracking-[0.22em] uppercase" style={{ color: CREAM, opacity: 0.8 }}>
-          {ABOUT_PROFILE.photoPlaceholder.label}
-          <div className="mt-1 text-[10px] tracking-[0.18em]" style={{ opacity: 0.6 }}>{ABOUT_PROFILE.photoPlaceholder.dimensions}</div>
-        </div>
+        <img
+          src={ABOUT_PROFILE.photo}
+          alt={`Portrait of ${ABOUT_PROFILE.name}`}
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ objectPosition: "50% 30%" }}
+        />
+        <div className="absolute inset-3 pointer-events-none" style={{ borderRadius: "999px 999px 8px 8px", border: `1px solid ${CREAM}`, opacity: 0.35 }} />
       </div>
     </motion.div>
   );

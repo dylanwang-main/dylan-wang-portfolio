@@ -7,7 +7,7 @@ import Chapter, { ChapterPage } from "./components/layout/Chapter";
 import FeatureBlock from "./components/blocks/FeatureBlock";
 import CardFan from "./components/blocks/CardFan";
 import SubBlock from "./components/blocks/SubBlock";
-import { TileGrid, PromptBar } from "./components/blocks/MediaSlots";
+import { TileGrid } from "./components/blocks/MediaSlots";
 import AboutSection from "./components/sections/AboutSection";
 import ContactSection from "./components/sections/ContactSection";
 import Footer from "./components/layout/Footer";
@@ -56,7 +56,7 @@ export default function App() {
               <ChapterPage>
                 <FeatureBlock project={CONTENT_PROJECT} index={0} />
 
-                <SubBlock label="Short-form" headline="Hooks that earn the next second." linkLabel="See the breakdown">
+                <SubBlock label="Short-form" headline="3M+ views across 42 posts.">
                   <CardFan
                     cards={[
                       { label: "STILL: short-form video concept & hook", recommendedSize: "9:16 vertical / 1080 × 1920" },
@@ -66,22 +66,16 @@ export default function App() {
                   />
                 </SubBlock>
 
-                <SubBlock label="Process" headline="From raw footage to a clean cut." linkLabel="How I edit">
+                <SubBlock label="Process" headline="Ideate, edit, test, iterate.">
                   <TileGrid
                     tiles={[
-                      { title: "Plan", note: "[Add: storyboard still]" },
-                      { title: "Shoot", note: "[Add: behind the scenes]" },
-                      { title: "Edit", note: "[Add: timeline frame]" },
+                      { title: "Ideation", note: "[Add: idea board or notes]" },
+                      { title: "Editing", note: "[Add: DaVinci Resolve timeline]" },
+                      { title: "Testing formats", note: "[Add: two versions compared]" },
                     ]}
                   />
                 </SubBlock>
 
-                <SubBlock label="Workflow" headline="Ask better questions of the data." linkLabel="See the tools">
-                  <PromptBar
-                    prompt="Which hooks held viewers past 3 seconds?"
-                    chips={["Retention", "Audience", "Posting time"]}
-                  />
-                </SubBlock>
               </ChapterPage>
             </Chapter>
 

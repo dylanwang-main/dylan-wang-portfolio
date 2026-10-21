@@ -91,7 +91,7 @@ export const SECTION_SCENES: Record<"work" | "content" | "about" | "contact", Sc
     kicker: "Work",
     heading: "Work",
     tagline:
-      "Collaborative data science pipelines and responsive web development.",
+      "Analytics, web development, SEO, and research.",
     theme: "dark",
     layers: [
       {
@@ -135,7 +135,7 @@ export const SECTION_SCENES: Record<"work" | "content" | "about" | "contact", Sc
     kicker: "Content Creation",
     heading: "Content",
     tagline:
-      "Short-form media production, visual storytelling, and audience building.",
+      "Short-form content, growth analytics, and audience building.",
     theme: "dark",
     layers: [
       {
@@ -179,7 +179,7 @@ export const SECTION_SCENES: Record<"work" | "content" | "about" | "contact", Sc
     kicker: "About",
     heading: "About",
     tagline:
-      "Data science student at UC San Diego with a passion for creative communication.",
+      "Data science student at UC San Diego, expected class of 2030.",
     theme: "dark",
     layers: [
       {
@@ -471,6 +471,7 @@ export const LEADERSHIP: IndexEntry[] = [
 export const SKILLS: { group: string; items: string[] }[] = [
   { group: "Technical", items: ["Python", "Power BI", "Excel", "HTML/CSS", "GitHub", "Vercel", "WordPress", "Figma"] },
   { group: "Tools", items: ["Notion", "Miro", "Google AI Studio", "DaVinci Resolve Studio"] },
+  { group: "AI", items: ["ChatGPT", "Claude", "Claude Code"] },
   { group: "Languages", items: ["Mandarin Chinese"] },
 ];
 
@@ -478,8 +479,5 @@ export const ABOUT_PROFILE = {
   name: "Dylan Wang",
   summary: "Data science student at UC San Diego with experience in analytics, web development, SEO, and content.",
   institution: "University of California, San Diego",
-  photoPlaceholder: {
-    label: "PHOTO: headshot",
-    dimensions: "Portrait (3:4) · 1200 × 1600",
-  },
+  photo: "/dylan-wang-headshot.jpg",
 };
