@@ -6,6 +6,7 @@ import { AnimatedTile } from "./MediaSlots";
 import { ProjectData } from "../../data/portfolio";
 import {
   DashboardMain,
+  ResearchMain,
   WorkMain,
   WorkSide,
   SiteMain,
@@ -28,6 +29,7 @@ type Proof = {
 /** Which demo window proves each project. Wireframes only: no invented numbers. */
 const PROOFS: Record<string, Proof> = {
   "tusd-data-assessment": { Main: DashboardMain },
+  "rl-research-proposal": { Main: ResearchMain },
   "ds3-park-smart": { Main: WorkMain },
   "n10-dance-studios": { Main: SiteMain, Side: WorkSide },
   "personal-brand": { Main: ContentMain, Side: ContentSide },
@@ -135,6 +137,25 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
           Placeholder preview · {project.imagePlaceholder.label}
         </p>
       )}
+
+      {/* RESULTS: headline numbers from the resume */}
+      {project.stats && project.stats.length > 0 && (
+        <motion.dl
+          {...fadeUp({ amount: 0.3, duration: 0.8 })}
+          className={`mt-10 pt-6 border-t border-[var(--border-hairline)] grid grid-cols-2 gap-x-8 gap-y-6 ${project.stats.length > 3 ? "md:grid-cols-4" : "md:grid-cols-3"}`}
+        >
+          {project.stats.map((st) => (
+            <div key={st.label}>
+              <dt className="sr-only">{st.label}</dt>
+              <dd className="font-editorial-serif italic text-[clamp(2.4rem,4.4vw,3.8rem)] leading-none tracking-[-0.02em] text-[var(--accent-oxblood)]">
+                {st.value}
+              </dd>
+              <dd aria-hidden="true" className="mt-2 text-[13px] text-[var(--text-ink)]/75">{st.label}</dd>
+            </div>
+          ))}
+        </motion.dl>
+      )}
+      {project.stats && project.stats.length > 0 && !project.hotspots && !hasSlots && <div className="pb-[clamp(2rem,4vw,3.5rem)]" />}
 
       {/* WALKTHROUGH: browser with pulsing hotspots (Shopify feature-tour pattern) */}
       {project.hotspots && project.hotspots.length > 0 && (

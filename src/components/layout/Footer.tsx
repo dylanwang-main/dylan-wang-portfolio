@@ -82,7 +82,7 @@ export default function Footer() {
       <div className="relative max-w-[1400px]">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 text-[13px] text-[#C0B4A4]">
           <p className="max-w-sm leading-relaxed">
-            Incoming data science student at UC San Diego, and a content creator.
+            Data science student at UC San Diego, and a content creator.
           </p>
           <nav className="flex flex-wrap items-center gap-x-6 gap-y-2" aria-label="Footer">
             {NAVIGATION_ITEMS.map((item) => (

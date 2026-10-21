@@ -89,11 +89,17 @@ export default function ContactSection() {
           Profiles
         </span>
         <div className="flex flex-wrap items-center gap-x-8 gap-y-3 text-sm">
-          {[...SOCIAL_LINKS.map((l) => l.platform), RESUME_LINK.label].map((name) => (
-            <span key={name} className="flex items-baseline gap-1.5 text-[var(--text-ink)] font-medium">
-              {name}
-              <span className="text-xs italic font-normal text-[var(--taupe-subtle)]">(coming soon)</span>
-            </span>
+          {[...SOCIAL_LINKS.map((l) => ({ name: l.platform, url: l.url, handle: l.handleLabel })), { name: RESUME_LINK.label, url: RESUME_LINK.url, handle: "PDF" }].map((l) => (
+            <a
+              key={l.name}
+              href={l.url}
+              target="_blank"
+              rel="noopener"
+              className="group flex items-baseline gap-1.5 text-[var(--text-ink)] font-medium hover:text-[var(--accent-oxblood)] transition-colors"
+            >
+              {l.name} ↗
+              <span className="text-xs font-normal text-[var(--taupe-subtle)] group-hover:text-[var(--accent-oxblood)]">{l.handle}</span>
+            </a>
           ))}
         </div>
       </div>

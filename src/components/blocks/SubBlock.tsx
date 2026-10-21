@@ -31,6 +31,7 @@ export default function SubBlock({ label, headline, swash = true, linkLabel, hre
         {linkLabel && (
           <a
             href={href}
+            {...(/^https?:|\.pdf$/.test(href) ? { target: "_blank", rel: "noopener" } : {})}
             className="mt-6 inline-flex items-center gap-2 rounded-full border border-[var(--text-ink)]/70 px-5 py-2 text-[13px] font-medium text-[var(--text-ink)] hover:bg-[var(--text-ink)] hover:text-[var(--bg-cream)] transition-colors"
           >
             {linkLabel}

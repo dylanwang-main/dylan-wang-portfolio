@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { NAVIGATION_ITEMS, RESUME_LINK } from "../../data/portfolio";
+import { NAVIGATION_ITEMS, RESUME_LINK, GRAD_YEAR_SHORT } from "../../data/portfolio";
 import { edgeToneAt } from "../../lib/paperEdges";
 import { getLenis, scrollToId } from "../../lib/scroll";
 import { useReducedMotion } from "../../lib/useReducedMotion";
@@ -273,7 +273,7 @@ export default function Navigation() {
                       : "text-[#54473C]"
                   }`}
                 >
-                  UCSD &apos;26
+                  UCSD {GRAD_YEAR_SHORT}
                 </span>
               </button>
             );
@@ -431,25 +431,18 @@ export default function Navigation() {
                 }}
                 className="flex flex-col items-start text-left select-none will-change-transform"
               >
-                <span
-                  className={`text-[13px] lg:text-[13.5px] font-medium tracking-wide cursor-not-allowed transition-colors duration-[250ms] ease-out ${
+                <a
+                  href={RESUME_LINK.url}
+                  target="_blank"
+                  rel="noopener"
+                  className={`text-[13px] lg:text-[13.5px] font-medium tracking-wide transition-colors duration-[250ms] ease-out focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent-oxblood)] ${
                     dark
-                      ? "text-[#D5C9B8]"
-                      : "text-[#3D332A]"
+                      ? "text-[#D5C9B8] hover:text-[#FFFFFF]"
+                      : "text-[#3D332A] hover:text-[#6B2D2D]"
                   }`}
-                  title="Resume coming soon"
                 >
                   {RESUME_LINK.label} ↗
-                  <span
-                    className={`block text-[9px] transition-colors duration-[250ms] ease-out ${
-                      dark
-                        ? "text-[#C0B4A4]"
-                        : "text-[#54473C]"
-                    }`}
-                  >
-                    (coming soon)
-                  </span>
-                </span>
+                </a>
               </div>
             );
           })()}
@@ -528,14 +521,16 @@ export default function Navigation() {
             })}
           </nav>
 
-          <span
-            className={`text-[10px] cursor-not-allowed transition-colors duration-[250ms] ease-out ${
+          <a
+            href={RESUME_LINK.url}
+            target="_blank"
+            rel="noopener"
+            className={`text-[10px] transition-colors duration-[250ms] ease-out ${
               isDarkSection ? "text-[#D5C9B8]" : "text-[#3D332A]"
             }`}
-            title="Resume coming soon"
           >
             CV
-          </span>
+          </a>
         </header>
       )}
     </>

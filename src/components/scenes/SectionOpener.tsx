@@ -264,16 +264,18 @@ export default function SectionOpener({
           >
             {(() => {
               const chip = (
-                <span
-                  className={`text-xs tracking-widest uppercase px-3 py-1.5 rounded-none border ${
+                <a
+                  href={RESUME_LINK.url}
+                  target="_blank"
+                  rel="noopener"
+                  className={`inline-block text-xs tracking-widest uppercase px-3 py-1.5 rounded-none border transition-colors ${
                     isDark
-                      ? "border-white/20 text-[#A89A8A]"
-                      : "border-[var(--border-hairline)] text-[var(--taupe-subtle)]"
+                      ? "border-white/20 text-[#A89A8A] hover:text-[#F4EFE6] hover:border-white/40"
+                      : "border-[var(--border-hairline)] text-[var(--taupe-subtle)] hover:text-[var(--text-ink)]"
                   }`}
-                  title="Resume coming soon"
                 >
-                  {RESUME_LINK.label} (coming soon)
-                </span>
+                  {RESUME_LINK.label} ↗
+                </a>
               );
               return S ? (
                 <SuckUnit ctx={S} seed={300}>

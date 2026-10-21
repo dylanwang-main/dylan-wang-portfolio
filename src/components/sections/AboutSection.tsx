@@ -1,6 +1,7 @@
 import { PAGE_COLUMN } from "../../lib/layout";
 import { motion } from "motion/react";
-import { ABOUT_PROFILE } from "../../data/portfolio";
+import { ABOUT_PROFILE, EXPERIENCE, EDUCATION, LEADERSHIP, SKILLS, RESUME_LINK } from "../../data/portfolio";
+import IndexPanel, { IndexList, SkillList } from "../blocks/IndexPanel";
 import ProofStage from "../blocks/ProofStage";
 import { AboutMain, AboutSide } from "../scenes/SceneShowcase";
 import SubBlock from "../blocks/SubBlock";
@@ -8,7 +9,7 @@ import CardFan from "../blocks/CardFan";
 import { TileGrid } from "../blocks/MediaSlots";
 import { fadeUp } from "../../lib/motion";
 
-const CARDS = ["UC San Diego", "Data Science", "Content Creator", "Short-form Content"];
+const CARDS = ["UC San Diego", "Data Science", "Content Creator", "Mandarin Chinese"];
 
 export default function AboutSection() {
   return (
@@ -24,7 +25,7 @@ export default function AboutSection() {
         <div className="mt-10 grid grid-cols-1 lg:grid-cols-[200px_minmax(0,680px)] gap-4 lg:gap-14 items-start">
           <span className="text-[16px] font-semibold text-[var(--text-ink)]">Overview</span>
           <p className="text-[clamp(1.35rem,2.1vw,2rem)] leading-[1.28] tracking-[-0.01em] text-[var(--text-ink)]">
-            Incoming data science student at UC San Diego. Also a content creator.
+            {ABOUT_PROFILE.summary}
           </p>
         </div>
       </motion.div>
@@ -49,43 +50,26 @@ export default function AboutSection() {
           />
         </SubBlock>
 
-        <SubBlock label="Leadership" headline="Captained a team. Coached players. Mentored students.">
+        <SubBlock label="Leadership" headline="Mentoring five students. Teaching twenty more.">
           <CardFan
             cards={[
-              { label: "PHOTO: JV tennis team", recommendedSize: "4:5 / 1080 × 1350" },
-              { label: "PHOTO: coaching a session", recommendedSize: "4:5 / 1080 × 1350" },
-              { label: "PHOTO: mentoring students", recommendedSize: "4:5 / 1080 × 1350" },
+              { label: "PHOTO: mentorship cohort", recommendedSize: "4:5 / 1080 × 1350" },
+              { label: "PHOTO: coding workshop", recommendedSize: "4:5 / 1080 × 1350" },
+              { label: "PHOTO: Discovery Cube volunteering", recommendedSize: "4:5 / 1080 × 1350" },
             ]}
           />
         </SubBlock>
       </div>
 
-      {/* DETAILS */}
-      <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-8 pt-8 border-t border-[var(--border-hairline)]">
-        <div>
-          <span className="block text-[12px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)] font-semibold mb-3">
-            Open to
-          </span>
-          <ul className="space-y-2 text-[15px] text-[var(--text-ink)]">
-            {ABOUT_PROFILE.audiences.map((a) => (
-              <li key={a} className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent-oxblood)] shrink-0" />
-                {a}
-              </li>
-            ))}
-          </ul>
-        </div>
-        {ABOUT_PROFILE.slots.map((slot) => (
-          <div key={slot.title}>
-            <span className="block text-[12px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)] font-semibold mb-2">
-              {slot.title}
-            </span>
-            <span className="block font-mono text-[14px] italic text-[var(--accent-oxblood)]">
-              {slot.placeholder}
-            </span>
-          </div>
-        ))}
-      </div>
+      {/* INDEX: the resume at a glance */}
+      <SubBlock label="At a glance" headline="Experience, education, and the rest." linkLabel="Download resume" href={RESUME_LINK.url}>
+        <IndexPanel>
+          <IndexList heading="Experience" entries={EXPERIENCE} />
+          <IndexList heading="Education" entries={EDUCATION} />
+          <IndexList heading="Leadership & Volunteering" entries={LEADERSHIP} />
+          <SkillList groups={SKILLS} />
+        </IndexPanel>
+      </SubBlock>
     </section>
   );
 }
