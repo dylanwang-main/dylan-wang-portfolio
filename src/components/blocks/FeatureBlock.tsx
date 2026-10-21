@@ -91,7 +91,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
                   </h3>
                   {meta}
                 </div>
-                <p className="text-[clamp(1.1rem,1.5vw,1.5rem)] leading-[1.3] tracking-[-0.01em] text-[var(--text-ink)] pb-2">
+                <p className="lead-sm pb-2">
                   {project.description}
                 </p>
               </div>
@@ -103,7 +103,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
                 {meta}
                 <div className="mt-10 grid grid-cols-1 lg:grid-cols-[200px_minmax(0,680px)] gap-4 lg:gap-14 items-start">
                   <span className="text-[16px] font-semibold text-[var(--text-ink)]">Overview</span>
-                  <p className="text-[clamp(1.35rem,2.1vw,2rem)] leading-[1.28] tracking-[-0.01em] text-[var(--text-ink)]">
+                  <p className="lead">
                     {project.description}
                   </p>
                 </div>

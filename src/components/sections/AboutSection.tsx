@@ -24,7 +24,7 @@ export default function AboutSection() {
 
         <div className="mt-10 grid grid-cols-1 lg:grid-cols-[200px_minmax(0,680px)] gap-4 lg:gap-14 items-start">
           <span className="text-[16px] font-semibold text-[var(--text-ink)]">Overview</span>
-          <p className="text-[clamp(1.35rem,2.1vw,2rem)] leading-[1.28] tracking-[-0.01em] text-[var(--text-ink)]">
+          <p className="lead">
             {ABOUT_PROFILE.summary}
           </p>
         </div>

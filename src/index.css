@@ -112,3 +112,21 @@ body {
 .hotspot-ring {
   animation: hotspot-ping 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
+
+/* Lead paragraphs (overviews, project summaries): the editorial serif, sized up because
+   Cormorant runs small. One class so every lead reads the same. */
+.lead {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(1.6rem, 2.5vw, 2.35rem);
+  line-height: 1.22;
+  letter-spacing: -0.005em;
+  color: var(--text-ink);
+}
+.lead-sm {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(1.3rem, 1.8vw, 1.75rem);
+  line-height: 1.25;
+  color: var(--text-ink);
+}
