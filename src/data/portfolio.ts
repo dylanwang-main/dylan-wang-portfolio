@@ -273,6 +273,8 @@ export interface ProjectData {
   meta?: string;
   tools: string[];
   slots?: { label: string; prompt: string }[];
+  /** Optional browser walkthrough with pulsing hotspots (x, y in % of the page). */
+  hotspots?: { x: number; y: number; label: string; detail: string }[];
   imagePlaceholder: {
     label: string;
     aspectRatio: string;
@@ -332,6 +334,11 @@ export const WORK_PROJECTS: ProjectData[] = [
     description:
       "A responsive website I developed and customized for N10 Dance Studios to improve their online presence and user experience.",
     tools: ["WordPress", "HTML", "CSS"],
+    hotspots: [
+      { x: 22, y: 6, label: "Navigation", detail: "[Add: how the menu was restructured]" },
+      { x: 30, y: 52, label: "Homepage hero", detail: "[Add: branding and messaging changes]" },
+      { x: 76, y: 86, label: "Responsive layout", detail: "[Add: how it adapts on phones]" },
+    ],
     slots: [
       {
         label: "Client Objective",

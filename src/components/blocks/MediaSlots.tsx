@@ -1,6 +1,22 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { fadeUp, EASE } from "../../lib/motion";
+import { PAINTINGS, PaintSpec, usePainting } from "../../lib/paint";
+
+/** Dark, low-key painting for stages that hold UI on top (prompt bar, browser mockup). */
+export const STAGE_PAINTING: PaintSpec = { style: "foliage", palette: ["#120d0b", "#3a1d1d", "#7a4a3a"], seed: 53 };
+
+/** Painted texture filling its parent; fades in once painted (the parent's gradient shows until then). */
+export function PaintLayer({ spec, className = "" }: { spec: PaintSpec; className?: string }) {
+  const url = usePainting(spec);
+  return (
+    <div
+      aria-hidden="true"
+      className={`absolute inset-0 bg-cover bg-center transition-opacity duration-700 ${className}`}
+      style={{ backgroundImage: url ? `url(${url})` : undefined, opacity: url ? undefined : 0 }}
+    />
+  );
+}
 
 const TONES = [
   "linear-gradient(135deg,#6B2D2D 0%,#1b1612 100%)",
@@ -118,6 +134,7 @@ export function AnimatedTile({ index = 0, aspect = "4/3" }: { index?: number; as
       style={{ ["--ar" as string]: aspect.replace("/", " / "), background: TONES[index % TONES.length] }}
     >
       <motion.div className="absolute -inset-[8%]" style={{ y: bgY }}>
+        <PaintLayer spec={PAINTINGS[index % PAINTINGS.length]} />
         <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 70% 22%, rgba(255,240,225,0.24), transparent 55%)" }} />
         <div className="absolute inset-0 mix-blend-soft-light opacity-60" style={{ backgroundImage: GRAIN }} />
       </motion.div>
@@ -164,6 +181,8 @@ export function PromptBar({ prompt, chips = [], caption }: { prompt: string; chi
       className="relative overflow-hidden rounded-xl px-5 py-[clamp(3rem,8vw,7rem)] flex flex-col items-center gap-6"
       style={{ background: "radial-gradient(ellipse at 50% 120%, #3a1d1d 0%, #161310 65%)" }}
     >
+      <PaintLayer spec={STAGE_PAINTING} className="opacity-70" />
+      <div aria-hidden="true" className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 55%, rgba(22,19,16,0.15), rgba(22,19,16,0.75))" }} />
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
         whileInView={{ opacity: 1, scale: 1 }}

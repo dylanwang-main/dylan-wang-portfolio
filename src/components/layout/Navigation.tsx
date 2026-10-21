@@ -8,6 +8,8 @@ import { INTRO_VH } from "../../lib/timeline";
 
 export default function Navigation() {
   const [activeSection, setActiveSection] = useState<string>("hero");
+  // how far through the active chapter the reader is (0 to 1), drawn along the rail leader
+  const [chapterProgress, setChapterProgress] = useState(0);
   const [isDarkSection, setIsDarkSection] = useState<boolean>(true);
   const [heroScroll, setHeroScroll] = useState<number>(0);
   const [viewport, setViewport] = useState({ width: 1200, height: 800 });
@@ -135,6 +137,7 @@ export default function Navigation() {
       const sectionIds = NAVIGATION_ITEMS.map((item) => item.id);
       const spyY = window.innerHeight * 0.44;
       let currentActive = "hero";
+      let chapterP = 0;
 
       for (const id of sectionIds) {
         const el = document.getElementById(id);
@@ -142,6 +145,7 @@ export default function Navigation() {
           const rect = el.getBoundingClientRect();
           if (rect.top <= spyY && rect.bottom > spyY) {
             currentActive = id;
+            chapterP = (spyY - rect.top) / rect.height;
             break;
           }
         }
@@ -153,9 +157,11 @@ export default function Navigation() {
         document.documentElement.scrollHeight - 80
       ) {
         currentActive = "contact";
+        chapterP = 1;
       }
 
       setActiveSection(currentActive);
+      setChapterProgress(Math.round(chapterP * 100) / 100);
     };
 
     updateNavState();
@@ -361,6 +367,23 @@ export default function Navigation() {
                 >
                   {item.label}
                 </span>
+
+                {/* Rail: dotted leader after each label; the active chapter fills it as you read */}
+                {inRailState && (
+                  <span aria-hidden="true" className="relative ml-2.5 w-6 self-center h-px">
+                    <span
+                      className={`absolute inset-0 border-b border-dotted transition-colors duration-[250ms] ease-out ${
+                        dark ? "border-[#D5C9B8]/50" : "border-[#54473C]/45"
+                      }`}
+                    />
+                    {isActive && (
+                      <span
+                        className={`absolute left-0 top-0 h-px origin-left ${dark ? "bg-[#E88080]" : "bg-[#6B2D2D]"}`}
+                        style={{ width: "100%", transform: `scaleX(${chapterProgress})` }}
+                      />
+                    )}
+                  </span>
+                )}
 
                 {/* Active accent marker when in top header state */}
                 {!inRailState && isActive && (

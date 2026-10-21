@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, MotionValue, useScroll } from "motion/react";
 import ProofStage from "./ProofStage";
+import HotspotBrowser from "./HotspotBrowser";
 import { AnimatedTile } from "./MediaSlots";
 import { ProjectData } from "../../data/portfolio";
 import {
@@ -133,6 +134,13 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
         <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)]">
           Placeholder preview · {project.imagePlaceholder.label}
         </p>
+      )}
+
+      {/* WALKTHROUGH: browser with pulsing hotspots (Shopify feature-tour pattern) */}
+      {project.hotspots && project.hotspots.length > 0 && (
+        <div className={`mt-16 ${hasSlots ? "" : "pb-[clamp(5rem,11vw,10rem)]"}`}>
+          <HotspotBrowser title={project.title} hotspots={project.hotspots} />
+        </div>
       )}
 
       {/* DETAIL CARDS: art tile + title + text (Shopify card-grid pattern; tiles hold real images later) */}
