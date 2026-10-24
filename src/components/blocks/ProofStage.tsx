@@ -50,6 +50,10 @@ interface ProofStageProps {
   className?: string;
   /** Stage height classes. */
   heightClass?: string;
+  /** Desktop column template. Narrow it to keep the chips close to a small window. */
+  gridCols?: string;
+  /** Height of the side window's slot. Pass "" to let the side window size to its content. */
+  sideHeight?: string;
   /** When given (0 to 1), this drives the build and depth instead of the stage's own scroll position. */
   progress?: MotionValue<number>;
 }
@@ -65,6 +69,8 @@ export default function ProofStage({
   mainWidth = "lg:w-[min(100%,980px)]",
   className = "mt-[clamp(2.5rem,5vw,4.5rem)]",
   heightClass = "h-[clamp(360px,60vh,620px)]",
+  gridCols = "grid-cols-[minmax(150px,210px)_minmax(0,1fr)_minmax(150px,230px)]",
+  sideHeight = "h-[48%]",
   progress,
 }: ProofStageProps) {
   const stageRef = useRef<HTMLDivElement>(null);
@@ -112,14 +118,14 @@ export default function ProofStage({
   return (
     <div ref={stageRef} className={`relative ${className}`}>
       {/* desktop */}
-      <div className={`hidden lg:grid grid-cols-[minmax(150px,210px)_minmax(0,1fr)_minmax(150px,230px)] gap-8 ${heightClass}`}>
+      <div className={`hidden lg:grid ${gridCols} gap-8 ${heightClass}`}>
         <motion.div className="flex flex-col justify-evenly items-end gap-4" style={{ y: leftY }}>
           {left.map(chip)}
         </motion.div>
         <div className="relative min-w-0">{win}</div>
         <motion.div className="flex flex-col justify-evenly items-start gap-4" style={{ y: rightY }}>
           {Side && (
-            <div data-ps="side" className="w-full h-[48%] shrink-0" style={{ ["--win-shadow" as string]: "0 18px 44px rgba(31,27,22,0.22)" }}>
+            <div data-ps="side" className={`w-full ${sideHeight} shrink-0`} style={{ ["--win-shadow" as string]: "0 18px 44px rgba(31,27,22,0.22)" }}>
               <Side />
             </div>
           )}

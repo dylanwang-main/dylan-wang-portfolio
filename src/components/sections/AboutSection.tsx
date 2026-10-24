@@ -9,7 +9,8 @@ import CardFan from "../blocks/CardFan";
 import { TileGrid } from "../blocks/MediaSlots";
 import { fadeUp } from "../../lib/motion";
 
-const CARDS = ["UC San Diego", "Data Science", "Content Creator", "Mandarin Chinese"];
+// The school and degree live on the education card, so the chips carry what it does not.
+const CARDS = ["Content Creator", "Python", "Power BI", "Mandarin Chinese"];
 
 export default function AboutSection() {
   return (
@@ -31,7 +32,14 @@ export default function AboutSection() {
       </motion.div>
 
       {/* PROOF: portrait window + floating facts */}
-      <ProofStage Main={AboutMain} Side={AboutSide} cards={CARDS} mainWidth="lg:w-[min(100%,480px)]" />
+      <ProofStage
+        Main={AboutMain}
+        Side={AboutSide}
+        cards={CARDS}
+        mainWidth="lg:w-[min(100%,480px)]"
+        gridCols="grid-cols-[minmax(130px,190px)_minmax(0,480px)_minmax(150px,230px)] justify-center"
+        sideHeight=""
+      />
 
 
       {/* SUB-BLOCKS (placeholder copy and image slots; swap in real photos) */}

@@ -6,7 +6,6 @@ import {
   CONTACT_EMAIL,
   ABOUT_PROFILE,
   EDUCATION,
-  GRAD_YEAR_SHORT,
 } from "../../data/portfolio";
 
 /**
@@ -332,16 +331,19 @@ export function AboutMain({ build }: { build: V }) {
 
 export function AboutSide() {
   return (
-    <div className="w-full h-full rounded-xl p-5 flex flex-col" style={{ background: CREAM, boxShadow: "var(--win-shadow, 0 30px 90px rgba(0,0,0,0.6))" }}>
-      <span className="text-[10px] tracking-[0.22em] uppercase" style={{ color: "#8A7B6A" }}>Education</span>
-      <span className="mt-2 font-editorial-serif italic text-[1.15rem] leading-tight" style={{ color: "#6B2D2D" }}>{ABOUT_PROFILE.institution}</span>
-      <span className="my-auto flex flex-col items-center text-center py-3">
-        <span className="font-editorial-serif font-semibold text-[2.6rem] leading-none" style={{ color: "#1F1B16" }}>{GRAD_YEAR_SHORT}</span>
-        <span className="mt-2 block w-10 h-px" style={{ background: "#6B2D2D", opacity: 0.6 }} />
-        <span className="mt-2 font-editorial-serif text-[1.05rem] leading-tight" style={{ color: "#1F1B16" }}>{EDUCATION[0].title}</span>
-        <span className="mt-1 text-[10px] tracking-[0.18em] uppercase" style={{ color: "#8A7B6A" }}>{EDUCATION[0].dates}</span>
-      </span>
-      <span className="text-[10px] tracking-[0.2em] uppercase" style={{ color: "#1F1B16", opacity: 0.7 }}>San Diego, CA</span>
+    <div className="w-full rounded-xl p-5 flex flex-col items-center text-center" style={{ background: CREAM, boxShadow: "var(--win-shadow, 0 30px 90px rgba(0,0,0,0.6))" }}>
+      <span className="self-start text-[10px] tracking-[0.22em] uppercase" style={{ color: "#8A7B6A" }}>Education</span>
+      <img
+        src="/ucsd-seal.png"
+        alt={`${ABOUT_PROFILE.institution} seal`}
+        width={96}
+        height={96}
+        loading="lazy"
+        decoding="async"
+        className="mt-4 w-24 h-24 select-none"
+      />
+      <span className="mt-4 font-editorial-serif text-[1.1rem] leading-tight" style={{ color: "#1F1B16" }}>{EDUCATION[0].title}</span>
+      <span className="mt-1.5 text-[10px] tracking-[0.18em] uppercase" style={{ color: "#8A7B6A" }}>{EDUCATION[0].dates}</span>
     </div>
   );
 }
