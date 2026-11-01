@@ -150,50 +150,6 @@ export function DashboardMain({ build }: { build: V }) {
   );
 }
 
-/* ---------- RL research proposal: paper + learning-curve wireframe (no numbers) ---------- */
-export function ResearchMain({ build }: { build: V }) {
-  const doc = useRange(build, 0.05, 0.5);
-  const docY = useTransform(doc, [0, 1], [16, 0]);
-  const c1 = useRange(build, 0.2, 0.85);
-  const c2 = useRange(build, 0.3, 0.92);
-  const c3 = useRange(build, 0.4, 1);
-  return (
-    <Win title={projectTitle("rl-research-proposal")}>
-      <div className="absolute inset-0 flex gap-5 p-4">
-        <motion.div className="hidden md:flex w-[38%] flex-col gap-2.5 pt-1" style={{ opacity: doc, y: docY }}>
-          <span className="block h-3 w-4/5 rounded-full" style={{ background: CREAM, opacity: 0.75 }} />
-          <span className="block h-1.5 w-1/3 rounded-full mb-2" style={{ background: ROSE, opacity: 0.8 }} />
-          {[92, 86, 90, 70, 0, 40, 88, 82, 64, 0, 36, 90, 76].map((w, i) =>
-            w ? (
-              <span key={i} className="block h-1.5 rounded-full" style={{ width: `${w}%`, background: CREAM, opacity: w < 50 ? 0.45 : 0.18 }} />
-            ) : (
-              <span key={i} className="block h-2" />
-            )
-          )}
-        </motion.div>
-        <div className="flex-1 min-w-0 flex flex-col gap-3">
-          <svg viewBox="0 0 400 220" preserveAspectRatio="none" className="w-full flex-1 min-h-0">
-            {[44, 88, 132, 176].map((y) => (
-              <line key={y} x1="0" x2="400" y1={y} y2={y} stroke={LINE} strokeWidth="1" />
-            ))}
-            <motion.path d="M0 200 C60 196 90 170 140 140 S230 70 290 56 S370 40 400 38" fill="none" stroke={ROSE} strokeWidth="2.5" strokeLinecap="round" style={{ pathLength: c1 }} />
-            <motion.path d="M0 204 C70 200 110 186 160 168 S250 120 310 104 S380 92 400 90" fill="none" stroke={CREAM} strokeOpacity="0.55" strokeWidth="2" strokeLinecap="round" style={{ pathLength: c2 }} />
-            <motion.path d="M0 206 C80 204 130 198 190 188 S290 160 340 152 S390 146 400 145" fill="none" stroke={TAUPE} strokeWidth="2" strokeLinecap="round" strokeDasharray="5 5" style={{ pathLength: c3 }} />
-          </svg>
-          <div className="flex gap-4 shrink-0">
-            {[ROSE, CREAM, TAUPE].map((c, i) => (
-              <span key={i} className="flex items-center gap-2">
-                <i className="block w-4 h-[3px] rounded-full" style={{ background: c, opacity: i === 1 ? 0.55 : 1 }} />
-                <span className="block h-1.5 w-12 rounded-full" style={{ background: CREAM, opacity: 0.2 }} />
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-    </Win>
-  );
-}
-
 export function WorkSide() {
   return (
     <div className="w-full h-full rounded-xl overflow-hidden flex flex-col" style={{ background: CREAM, boxShadow: "var(--win-shadow, 0 30px 90px rgba(0,0,0,0.6))" }}>

@@ -6,7 +6,6 @@ import { AnimatedTile } from "./MediaSlots";
 import { ProjectData } from "../../data/portfolio";
 import {
   DashboardMain,
-  ResearchMain,
   WorkMain,
   WorkSide,
   SiteMain,
@@ -29,7 +28,6 @@ type Proof = {
 /** Which demo window proves each project. Wireframes only: no invented numbers. */
 const PROOFS: Record<string, Proof> = {
   "tusd-data-assessment": { Main: DashboardMain },
-  "rl-research-proposal": { Main: ResearchMain },
   "ds3-park-smart": { Main: WorkMain },
   "n10-dance-studios": { Main: SiteMain, Side: WorkSide },
   "personal-brand": { Main: ContentMain, Side: ContentSide },

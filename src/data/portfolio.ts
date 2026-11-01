@@ -338,8 +338,9 @@ export const WORK_PROJECTS: ProjectData[] = [
     screenshot: "/n10-homepage.jpg",
     hotspots: [
       { x: 37, y: 8, label: "Navigation", detail: "Dropdowns for Classes, Competitive Programs and Resources group the site into clear sections." },
-      { x: 50, y: 63, label: "Hero message", detail: "One line on what the studio offers, placed right above the call-to-action buttons." },
-      { x: 50, y: 74, label: "Paths to enroll", detail: "Register Now, Parent Portal and Download App take families to enrollment, their account and the studio app." },
+      { x: 50, y: 63, label: "Hero message", detail: "A first-time visitor knows in one line that classes and teams are here for them, right before the buttons." },
+      { x: 50, y: 74, label: "Paths to enroll", detail: "Register Now sits front and center, so a ready visitor can sign up without hunting for the next step." },
+      { x: 2.7, y: 95, label: "Accessibility", detail: "Keeps the site usable for every visitor, so no family drops off before they can enroll." },
     ],
     slots: [
       {
@@ -351,21 +352,6 @@ export const WORK_PROJECTS: ProjectData[] = [
     ],
     imagePlaceholder: {
       label: "WEBSITE INTERFACE: N10 responsive desktop & mobile screens",
-      aspectRatio: "16/10",
-      recommendedSize: "1600 × 1000",
-    },
-  },
-  {
-    id: "rl-research-proposal",
-    title: "Reinforcement Learning Research Proposal",
-    category: "AI Research",
-    year: "Jun to Aug 2024",
-    description:
-      "Wrote a research proposal for evaluating agent performance in simulated environments, synthesizing prior work into the evaluation framework, methodology, and performance metrics.",
-    meta: "Remote · Jun to Aug 2024 · Framework approved by a Caltech mentor",
-    tools: ["Reinforcement Learning", "Research Design", "Evaluation Metrics"],
-    imagePlaceholder: {
-      label: "PROPOSAL: framework, methodology and metrics",
       aspectRatio: "16/10",
       recommendedSize: "1600 × 1000",
     },
