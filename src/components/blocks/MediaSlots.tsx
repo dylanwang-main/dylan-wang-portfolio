@@ -121,7 +121,7 @@ const CARDS = [BarsCard, PromptCard, ListCard];
  * Shopify-style tile: textured backdrop, a UI card that rises in, drifts with scroll,
  * and animates its own contents. Swap the card for a real image later.
  */
-export function AnimatedTile({ index = 0, aspect = "4/3" }: { index?: number; aspect?: string }) {
+export function AnimatedTile({ index = 0, aspect = "4/3", image, alt = "" }: { index?: number; aspect?: string; image?: string; alt?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [26, -26]);
@@ -139,16 +139,16 @@ export function AnimatedTile({ index = 0, aspect = "4/3" }: { index?: number; as
         <div className="absolute inset-0 mix-blend-soft-light opacity-60" style={{ backgroundImage: GRAIN }} />
       </motion.div>
       <motion.div
-        className="absolute left-[9%] right-[9%] top-[13%] bottom-[-10%] rounded-xl overflow-hidden"
+        className={`absolute left-[9%] right-[9%] rounded-xl overflow-hidden ${image ? "top-[16%]" : "top-[13%] bottom-[-10%]"}`}
         style={{ ...CARD, y }}
         initial={{ opacity: 0, scale: 0.94 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true, amount: 0.4 }}
         transition={{ duration: 0.9, ease: EASE }}
       >
-        <Card />
+        {image ? <img src={image} alt={alt} loading="lazy" decoding="async" className="block w-full h-auto" /> : <Card />}
       </motion.div>
-      <span className="absolute left-4 top-3 text-[10px] tracking-[0.22em] uppercase text-[#F4EFE6]/55">Image slot</span>
+      {!image && <span className="absolute left-4 top-3 text-[10px] tracking-[0.22em] uppercase text-[#F4EFE6]/55">Image slot</span>}
     </div>
   );
 }

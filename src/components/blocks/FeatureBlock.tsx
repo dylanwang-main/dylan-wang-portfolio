@@ -173,7 +173,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
               {...fadeUp({ amount: 0.3, duration: 0.8, delay: i * 0.1 })}
               className="group"
             >
-              <AnimatedTile index={i} aspect="4/3" />
+              <AnimatedTile index={i} aspect="4/3" image={slot.image} alt={slot.label} />
               <span className="block mt-4 text-[15px] font-semibold text-[var(--text-ink)]">
                 {slot.label}
               </span>

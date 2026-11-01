@@ -274,7 +274,7 @@ export interface ProjectData {
   /** Headline results, straight from the resume. Real numbers only. */
   stats?: { value: string; label: string }[];
   tools: string[];
-  slots?: { label: string; prompt: string }[];
+  slots?: { label: string; prompt: string; /** Real image for the tile (a path under /public). */ image?: string }[];
   /** Real screenshot shown inside the browser walkthrough (a path under /public). */
   screenshot?: string;
   /** Optional browser walkthrough with pulsing hotspots (x, y in % of the page). */
@@ -318,8 +318,8 @@ export const WORK_PROJECTS: ProjectData[] = [
     meta: "N10 Dance Studios · Web Developer · Jun 2024 to Jul 2025",
     stats: [
       { value: "5.8K+", label: "organic Google clicks" },
-      { value: "86K+", label: "search impressions" },
-      { value: "6.8%", label: "click-through rate" },
+      { value: "91.7K", label: "search impressions" },
+      { value: "6.4%", label: "click-through rate" },
     ],
     tools: ["WordPress", "HTML", "CSS"],
     screenshot: "/n10-homepage.jpg",
@@ -339,7 +339,8 @@ export const WORK_PROJECTS: ProjectData[] = [
       },
       {
         label: "Outcome",
-        prompt: "5.8K+ organic clicks and 86K+ impressions at a 6.8% CTR.",
+        prompt: "5.8K+ organic clicks and 91.7K impressions at a 6.4% CTR (Google Search Console, Jun 2025 to Oct 2026).",
+        image: "/n10-search-console.png",
       },
     ],
     imagePlaceholder: {
