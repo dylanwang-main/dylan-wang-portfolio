@@ -318,28 +318,20 @@ export const WORK_PROJECTS: ProjectData[] = [
     meta: "N10 Dance Studios · Web Developer · Jun 2024 to Jul 2025",
     stats: [
       { value: "5.8K+", label: "organic Google clicks" },
-      { value: "91.7K", label: "search impressions" },
+      { value: "90K+", label: "search impressions" },
       { value: "6.4%", label: "click-through rate" },
     ],
     tools: ["WordPress", "HTML", "CSS"],
     screenshot: "/n10-homepage.jpg",
     hotspots: [
-      { x: 47, y: 8, label: "Site structure", detail: "Site structure improvements, part of the ongoing SEO work." },
-      { x: 50, y: 45, label: "Keyword targeting", detail: "Keyword targeting and content updates across the site." },
-      { x: 57, y: 74, label: "Content updates", detail: "Ongoing content and call-to-action updates, kept mobile friendly." },
+      { x: 37, y: 8, label: "Navigation", detail: "Dropdowns for Classes, Competitive Programs and Resources group the site into clear sections." },
+      { x: 50, y: 63, label: "Hero message", detail: "One line on what the studio offers, placed right above the call-to-action buttons." },
+      { x: 50, y: 74, label: "Paths to enroll", detail: "Register Now, Parent Portal and Download App take families to enrollment, their account and the studio app." },
     ],
     slots: [
       {
-        label: "Client Objective",
-        prompt: "Grow the studio's organic visibility on Google.",
-      },
-      {
-        label: "What I Did",
-        prompt: "On-page SEO, site structure, content updates, and ongoing site management.",
-      },
-      {
         label: "Outcome",
-        prompt: "5.8K+ organic clicks and 91.7K impressions at a 6.4% CTR (Google Search Console, Jun 2025 to Oct 2026).",
+        prompt: "5.8K+ organic clicks and 90K+ impressions at a 6.4% CTR (Google Search Console, Jul 2025 to Oct 2026).",
         image: "/n10-search-console.png",
       },
     ],

@@ -69,7 +69,7 @@ function Spot({ spot, index, open, onToggle }: { spot: Hotspot; index: number; o
           initial={{ opacity: 0, y: below ? -6 : 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: EASE }}
-          className={`absolute w-[min(240px,60vw)] rounded-lg p-3.5 text-left ${right ? "right-5" : "left-5"} ${below ? "top-4" : "bottom-4"}`}
+          className={`absolute hidden sm:block w-[240px] rounded-lg p-3.5 text-left ${right ? "right-5" : "left-5"} ${below ? "top-4" : "bottom-4"}`}
           style={{ background: "#FBF8F2", boxShadow: "0 14px 40px rgba(0,0,0,0.4)" }}
         >
           <span className="block text-[13px] font-semibold text-[var(--text-ink)]">{spot.label}</span>
@@ -112,6 +112,13 @@ export default function HotspotBrowser({ title, hotspots, image }: { title: stri
           ))}
         </div>
       </div>
+      {/* phones: the open note sits under the browser, where it can never be clipped */}
+      {open !== null && hotspots[open] && (
+        <div key={open} className="sm:hidden relative mx-auto mt-4 max-w-[980px] rounded-lg p-3.5" style={{ background: "#FBF8F2" }}>
+          <span className="block text-[13px] font-semibold text-[var(--text-ink)]">{hotspots[open].label}</span>
+          <span className="block mt-1 font-mono text-[12px] leading-snug italic text-[var(--accent-oxblood)]">{hotspots[open].detail}</span>
+        </div>
+      )}
     </motion.div>
   );
 }

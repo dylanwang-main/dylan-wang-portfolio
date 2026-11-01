@@ -51,7 +51,10 @@ function usePinned() {
 export default function FeatureBlock({ project, index }: FeatureBlockProps) {
   const proof = PROOFS[project.id] ?? PROOFS["ds3-park-smart"];
   const { Main, Side } = proof;
-  const pinned = usePinned();
+  // A project with a real screenshot is shown by its hotspot browser instead of a wireframe demo.
+  const hasDemo = !project.screenshot;
+  const roomy = usePinned();
+  const pinned = hasDemo && roomy;
   const wrapRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: pinP } = useScroll({ target: wrapRef, offset: ["start start", "end end"] });
 
@@ -111,7 +114,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
             )}
           </motion.div>
 
-          {pinned ? (
+          {!hasDemo ? null : pinned ? (
             <ProofStage
               Main={Main}
               Side={Side}
@@ -124,7 +127,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
             <ProofStage Main={Main} Side={Side} cards={project.tools} />
           )}
 
-          {!pinned && (
+          {hasDemo && !pinned && (
             <p className="mt-6 text-[11px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)]">
               Placeholder preview · {project.imagePlaceholder.label}
             </p>
@@ -132,7 +135,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
         </div>
       </div>
 
-      {pinned && (
+      {hasDemo && pinned && (
         <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)]">
           Placeholder preview · {project.imagePlaceholder.label}
         </p>
@@ -166,14 +169,14 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
 
       {/* DETAIL CARDS: art tile + title + text (Shopify card-grid pattern; tiles hold real images later) */}
       {project.slots && project.slots.length > 0 && (
-        <div className="mt-10 pb-[clamp(3.5rem,7vw,6rem)] grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+        <div className={`mt-10 pb-[clamp(3.5rem,7vw,6rem)] grid grid-cols-1 gap-6 md:gap-8 ${project.slots.length === 1 ? "md:max-w-[860px]" : project.slots.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
           {project.slots.map((slot, i) => (
             <motion.div
               key={slot.label}
               {...fadeUp({ amount: 0.3, duration: 0.8, delay: i * 0.1 })}
               className="group"
             >
-              <AnimatedTile index={i} aspect="4/3" image={slot.image} alt={slot.label} />
+              <AnimatedTile index={i} aspect={project.slots!.length === 1 ? "2/1" : "4/3"} image={slot.image} alt={slot.label} />
               <span className="block mt-4 text-[15px] font-semibold text-[var(--text-ink)]">
                 {slot.label}
               </span>

@@ -130,7 +130,7 @@ export function AnimatedTile({ index = 0, aspect = "4/3", image, alt = "" }: { i
   return (
     <div
       ref={ref}
-      className="relative overflow-hidden rounded-lg aspect-[4/3] md:[aspect-ratio:var(--ar)]"
+      className={`relative overflow-hidden rounded-lg md:[aspect-ratio:var(--ar)] ${image ? "aspect-[16/10]" : "aspect-[4/3]"}`}
       style={{ ["--ar" as string]: aspect.replace("/", " / "), background: TONES[index % TONES.length] }}
     >
       <motion.div className="absolute -inset-[8%]" style={{ y: bgY }}>
