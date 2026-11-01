@@ -184,7 +184,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
               {...fadeUp({ amount: 0.3, duration: 0.8, delay: i * 0.1 })}
               className={`group ${project.slots!.length === 1 ? "text-center" : ""}`}
             >
-              <AnimatedTile index={i} aspect={project.slots!.length === 1 ? "2/1" : "4/3"} image={slot.image} alt={slot.label} />
+              <AnimatedTile index={i} aspect={project.slots!.length === 1 ? "2/1" : "4/3"} image={slot.image} alt={slot.label} popups={slot.popups} />
               <span className="block mt-4 text-[15px] font-semibold text-[var(--text-ink)]">
                 {slot.label}
               </span>

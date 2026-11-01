@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import { fadeUp, EASE } from "../../lib/motion";
 import { PAINTINGS, PaintSpec, usePainting } from "../../lib/paint";
+import { useReducedMotion } from "../../lib/useReducedMotion";
 
 /** Dark, low-key painting for stages that hold UI on top (prompt bar, browser mockup). */
 export const STAGE_PAINTING: PaintSpec = { style: "foliage", palette: ["#120d0b", "#3a1d1d", "#7a4a3a"], seed: 53 };
@@ -121,7 +122,45 @@ const CARDS = [BarsCard, PromptCard, ListCard];
  * Shopify-style tile: textured backdrop, a UI card that rises in, drifts with scroll,
  * and animates its own contents. Swap the card for a real image later.
  */
-export function AnimatedTile({ index = 0, aspect = "4/3", image, alt = "" }: { index?: number; aspect?: string; image?: string; alt?: string }) {
+const POPUP_SPOTS: { style: React.CSSProperties; drift: number }[] = [
+  { style: { left: "1.5%", top: "30%" }, drift: -7 },
+  { style: { right: "1.5%", top: "22%" }, drift: 7 },
+  { style: { left: "4%", top: "80%" }, drift: 6 },
+  { style: { right: "4%", top: "82%" }, drift: -6 },
+];
+
+/** Small floating labels that fill the empty space around a screenshot card (md and up). */
+function Popups({ labels }: { labels: string[] }) {
+  const reduced = useReducedMotion();
+  return (
+    <>
+      {labels.slice(0, POPUP_SPOTS.length).map((label, i) => (
+        <motion.span
+          key={label}
+          aria-hidden="true"
+          className="hidden md:block absolute z-10 rounded-xl px-3.5 py-2 text-[13px] font-medium text-[var(--text-ink)] whitespace-nowrap"
+          style={{ ...CARD, ...POPUP_SPOTS[i].style }}
+          initial={{ opacity: 0, scale: 0.9, y: 12 }}
+          whileInView={reduced ? { opacity: 1, scale: 1, y: 0 } : { opacity: 1, scale: 1, y: [0, POPUP_SPOTS[i].drift, 0] }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={
+            reduced
+              ? { duration: 0.4 }
+              : {
+                  opacity: { duration: 0.6, delay: 0.5 + i * 0.15 },
+                  scale: { duration: 0.6, delay: 0.5 + i * 0.15, ease: EASE },
+                  y: { duration: 5 + i, delay: 0.5 + i * 0.15, repeat: Infinity, ease: "easeInOut" },
+                }
+          }
+        >
+          {label}
+        </motion.span>
+      ))}
+    </>
+  );
+}
+
+export function AnimatedTile({ index = 0, aspect = "4/3", image, alt = "", popups }: { index?: number; aspect?: string; image?: string; alt?: string; popups?: string[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [26, -26]);
@@ -148,6 +187,7 @@ export function AnimatedTile({ index = 0, aspect = "4/3", image, alt = "" }: { i
       >
         {image ? <img src={image} alt={alt} loading="lazy" decoding="async" className="block w-full h-auto" /> : <Card />}
       </motion.div>
+      {image && popups && popups.length > 0 && <Popups labels={popups} />}
       {!image && <span className="absolute left-4 top-3 text-[10px] tracking-[0.22em] uppercase text-[#F4EFE6]/55">Image slot</span>}
     </div>
   );

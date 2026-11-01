@@ -278,7 +278,14 @@ export interface ProjectData {
   /** Optional centered line of text under the bottom stats row. */
   statsNote?: string;
   tools: string[];
-  slots?: { label: string; prompt: string; /** Real image for the tile (a path under /public). */ image?: string }[];
+  slots?: {
+    label: string;
+    prompt: string;
+    /** Real image for the tile (a path under /public). */
+    image?: string;
+    /** Up to 4 short floating labels around the image (md and up). Real work only. */
+    popups?: string[];
+  }[];
   /** Real screenshot shown inside the browser walkthrough (a path under /public). */
   screenshot?: string;
   /** Optional browser walkthrough with pulsing hotspots (x, y in % of the page). */
@@ -339,6 +346,7 @@ export const WORK_PROJECTS: ProjectData[] = [
         label: "Outcome",
         prompt: "5.8K+ organic clicks and 90K+ impressions at a 6.4% CTR (Google Search Console, Jul 2025 to Oct 2026).",
         image: "/n10-search-console.png",
+        popups: ["Keyword targeting", "Site structure", "Content updates", "Mobile optimization"],
       },
     ],
     imagePlaceholder: {
