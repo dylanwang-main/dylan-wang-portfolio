@@ -273,6 +273,10 @@ export interface ProjectData {
   meta?: string;
   /** Headline results, straight from the resume. Real numbers only. */
   stats?: { value: string; label: string }[];
+  /** Show the stats row after the image slots, centered, instead of under the overview. */
+  statsAtBottom?: boolean;
+  /** Optional centered line of text under the bottom stats row. */
+  statsNote?: string;
   tools: string[];
   slots?: { label: string; prompt: string; /** Real image for the tile (a path under /public). */ image?: string }[];
   /** Real screenshot shown inside the browser walkthrough (a path under /public). */
@@ -321,6 +325,8 @@ export const WORK_PROJECTS: ProjectData[] = [
       { value: "90K+", label: "search impressions" },
       { value: "6.4%", label: "click-through rate" },
     ],
+    statsAtBottom: true,
+    statsNote: "Source: Google Search Console, Jul 2025 to Oct 2026",
     tools: ["WordPress", "HTML", "CSS"],
     screenshot: "/n10-homepage.jpg",
     hotspots: [

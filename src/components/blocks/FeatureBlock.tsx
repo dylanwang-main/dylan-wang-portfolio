@@ -70,6 +70,29 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
     <p className="mt-3 text-[12px] uppercase tracking-[0.16em] text-[var(--taupe-subtle)]">{project.meta}</p>
   ) : null;
   const hasSlots = !!project.slots && project.slots.length > 0;
+  const hasStats = !!project.stats && project.stats.length > 0;
+  const statsBottom = !!project.statsAtBottom && hasStats;
+
+  const statsRow = hasStats ? (
+    <motion.dl
+      {...fadeUp({ amount: 0.3, duration: 0.8 })}
+      className={
+        statsBottom
+          ? `w-full max-w-[860px] mx-auto pt-8 border-t border-[var(--border-hairline)] grid grid-cols-1 sm:grid-cols-3 gap-y-8 justify-items-center text-center`
+          : `mt-10 pt-6 border-t border-[var(--border-hairline)] grid grid-cols-2 gap-x-8 gap-y-6 ${project.stats!.length > 3 ? "md:grid-cols-4" : "md:grid-cols-3"}`
+      }
+    >
+      {project.stats!.map((st) => (
+        <div key={st.label}>
+          <dt className="sr-only">{st.label}</dt>
+          <dd className="font-editorial-serif italic text-[clamp(2.4rem,4.4vw,3.8rem)] leading-none tracking-[-0.02em] text-[var(--accent-oxblood)]">
+            {st.value}
+          </dd>
+          <dd aria-hidden="true" className="mt-2 text-[13px] text-[var(--text-ink)]/75">{st.label}</dd>
+        </div>
+      ))}
+    </motion.dl>
+  ) : null;
 
   return (
     <article className={`relative border-b border-[var(--border-hairline)] last:border-b-0 ${hasSlots ? "" : "pb-[clamp(2rem,4vw,3.5rem)]"}`}>
@@ -142,23 +165,8 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
       )}
 
       {/* RESULTS: headline numbers from the resume */}
-      {project.stats && project.stats.length > 0 && (
-        <motion.dl
-          {...fadeUp({ amount: 0.3, duration: 0.8 })}
-          className={`mt-10 pt-6 border-t border-[var(--border-hairline)] grid grid-cols-2 gap-x-8 gap-y-6 ${project.stats.length > 3 ? "md:grid-cols-4" : "md:grid-cols-3"}`}
-        >
-          {project.stats.map((st) => (
-            <div key={st.label}>
-              <dt className="sr-only">{st.label}</dt>
-              <dd className="font-editorial-serif italic text-[clamp(2.4rem,4.4vw,3.8rem)] leading-none tracking-[-0.02em] text-[var(--accent-oxblood)]">
-                {st.value}
-              </dd>
-              <dd aria-hidden="true" className="mt-2 text-[13px] text-[var(--text-ink)]/75">{st.label}</dd>
-            </div>
-          ))}
-        </motion.dl>
-      )}
-      {project.stats && project.stats.length > 0 && !project.hotspots && !hasSlots && <div className="pb-[clamp(2rem,4vw,3.5rem)]" />}
+      {!statsBottom && statsRow}
+      {hasStats && !statsBottom && !project.hotspots && !hasSlots && <div className="pb-[clamp(2rem,4vw,3.5rem)]" />}
 
       {/* WALKTHROUGH: browser with pulsing hotspots (Shopify feature-tour pattern) */}
       {project.hotspots && project.hotspots.length > 0 && (
@@ -169,12 +177,12 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
 
       {/* DETAIL CARDS: art tile + title + text (Shopify card-grid pattern; tiles hold real images later) */}
       {project.slots && project.slots.length > 0 && (
-        <div className={`mt-10 pb-[clamp(3.5rem,7vw,6rem)] grid grid-cols-1 gap-6 md:gap-8 ${project.slots.length === 1 ? "md:max-w-[860px]" : project.slots.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
+        <div className={`mt-10 ${statsBottom ? "pb-10" : "pb-[clamp(3.5rem,7vw,6rem)]"} grid grid-cols-1 gap-6 md:gap-8 ${project.slots.length === 1 ? "md:max-w-[860px] md:mx-auto" : project.slots.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
           {project.slots.map((slot, i) => (
             <motion.div
               key={slot.label}
               {...fadeUp({ amount: 0.3, duration: 0.8, delay: i * 0.1 })}
-              className="group"
+              className={`group ${project.slots!.length === 1 ? "text-center" : ""}`}
             >
               <AnimatedTile index={i} aspect={project.slots!.length === 1 ? "2/1" : "4/3"} image={slot.image} alt={slot.label} />
               <span className="block mt-4 text-[15px] font-semibold text-[var(--text-ink)]">
@@ -185,6 +193,16 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
               </span>
             </motion.div>
           ))}
+        </div>
+      )}
+
+      {/* RESULTS AT THE BOTTOM: centered stats row, then one centered line of text */}
+      {statsBottom && (
+        <div className="pb-[clamp(3.5rem,7vw,6rem)]">
+          {statsRow}
+          {project.statsNote && (
+            <p className="mt-8 text-center font-mono text-[13px] italic text-[var(--text-ink)]/70">{project.statsNote}</p>
+          )}
         </div>
       )}
     </article>
