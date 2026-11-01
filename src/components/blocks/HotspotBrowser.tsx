@@ -81,10 +81,11 @@ function Spot({ spot, index, open, onToggle }: { spot: Hotspot; index: number; o
 }
 
 /**
- * Shopify-style feature walkthrough: a browser on a painted stage with pulsing hotspots.
+ * Shopify-style feature walkthrough: a browser on a painted stage with pulsing hotspots. Shows a real
+ * screenshot when given one, otherwise a generic wireframe.
  * Hover or tap a ring to read what was built there.
  */
-export default function HotspotBrowser({ title, hotspots }: { title: string; hotspots: Hotspot[] }) {
+export default function HotspotBrowser({ title, hotspots, image }: { title: string; hotspots: Hotspot[]; image?: string }) {
   const [open, setOpen] = useState<number | null>(0);
   return (
     <motion.div {...fadeUp({ amount: 0.3 })} className="relative overflow-hidden rounded-xl p-[clamp(1rem,5vw,4.5rem)]">
@@ -100,8 +101,12 @@ export default function HotspotBrowser({ title, hotspots }: { title: string; hot
             {title}
           </span>
         </div>
-        <div className="relative aspect-[4/5] sm:aspect-[16/10]">
-          <SiteWireframe />
+        <div className={`relative ${image ? "aspect-[1600/795]" : "aspect-[4/5] sm:aspect-[16/10]"}`}>
+          {image ? (
+            <img src={image} alt={`${title} homepage`} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover object-top" />
+          ) : (
+            <SiteWireframe />
+          )}
           {hotspots.map((h, i) => (
             <Spot key={h.label} spot={h} index={i} open={open === i} onToggle={() => setOpen(open === i ? null : i)} />
           ))}

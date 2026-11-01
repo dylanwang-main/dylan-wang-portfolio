@@ -160,7 +160,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
       {/* WALKTHROUGH: browser with pulsing hotspots (Shopify feature-tour pattern) */}
       {project.hotspots && project.hotspots.length > 0 && (
         <div className={`mt-10 ${hasSlots ? "" : "pb-[clamp(3.5rem,7vw,6rem)]"}`}>
-          <HotspotBrowser title={project.title} hotspots={project.hotspots} />
+          <HotspotBrowser title={project.title} hotspots={project.hotspots} image={project.screenshot} />
         </div>
       )}
 

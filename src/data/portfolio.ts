@@ -275,6 +275,8 @@ export interface ProjectData {
   stats?: { value: string; label: string }[];
   tools: string[];
   slots?: { label: string; prompt: string }[];
+  /** Real screenshot shown inside the browser walkthrough (a path under /public). */
+  screenshot?: string;
   /** Optional browser walkthrough with pulsing hotspots (x, y in % of the page). */
   hotspots?: { x: number; y: number; label: string; detail: string }[];
   imagePlaceholder: {
@@ -320,10 +322,11 @@ export const WORK_PROJECTS: ProjectData[] = [
       { value: "6.8%", label: "click-through rate" },
     ],
     tools: ["WordPress", "HTML", "CSS"],
+    screenshot: "/n10-homepage.jpg",
     hotspots: [
-      { x: 22, y: 6, label: "Site structure", detail: "Site structure improvements, part of the ongoing SEO work." },
-      { x: 30, y: 52, label: "Keyword targeting", detail: "Keyword targeting and content updates across the site." },
-      { x: 76, y: 86, label: "Mobile optimization", detail: "Mobile optimization as part of on-page SEO." },
+      { x: 47, y: 8, label: "Site structure", detail: "Site structure improvements, part of the ongoing SEO work." },
+      { x: 50, y: 45, label: "Keyword targeting", detail: "Keyword targeting and content updates across the site." },
+      { x: 57, y: 74, label: "Content updates", detail: "Ongoing content and call-to-action updates, kept mobile friendly." },
     ],
     slots: [
       {
