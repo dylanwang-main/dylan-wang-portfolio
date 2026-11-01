@@ -326,7 +326,7 @@ export const WORK_PROJECTS: ProjectData[] = [
       { value: "6.4%", label: "click-through rate" },
     ],
     statsAtBottom: true,
-    statsNote: "Source: Google Search Console, Jul 2025 to Oct 2026",
+    statsNote: "About 1 in 16 people who saw the site in Google search clicked through (Google Search Console, Jul 2025 to Oct 2026).",
     tools: ["WordPress", "HTML", "CSS"],
     screenshot: "/n10-homepage.jpg",
     hotspots: [
