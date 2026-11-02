@@ -287,13 +287,13 @@ export default function SectionOpener({
                   href={RESUME_LINK.url}
                   target="_blank"
                   rel="noopener"
-                  className={`inline-block text-xs tracking-widest uppercase px-3 py-1.5 rounded-none border transition-colors ${
+                  className={`pop-btn inline-block text-xs tracking-widest uppercase px-3 py-1.5 rounded-none border ${
                     isDark
-                      ? "border-white/20 text-[#A89A8A] hover:text-[#F4EFE6] hover:border-white/40"
-                      : "border-[var(--border-hairline)] text-[var(--taupe-subtle)] hover:text-[var(--text-ink)]"
+                      ? "border-white/20 text-[#A89A8A]"
+                      : "border-[var(--border-hairline)] text-[var(--taupe-subtle)]"
                   }`}
                 >
-                  {RESUME_LINK.label} ↗
+                  {RESUME_LINK.label} <span aria-hidden="true" className="pop-arrow">↗</span>
                 </a>
               );
               return S ? (

@@ -11,8 +11,10 @@
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --swash-color: #6B2D2D;
   /* Pop color: cool and saturated against the warm, muted palette. One use per screen. */
-  --accent-pop: #2E5BFF;
-  --accent-pop-hover: #1F45E6;
+  --accent-pop: #1E3A9E;
+  --accent-pop-hover: #172E80;
+  /* lighter tint for thin lines on dark backgrounds, where the deep blue would vanish */
+  --accent-pop-line: #6F8CFF;
 }
 
 html,
@@ -140,3 +142,43 @@ body {
 .montage-col { animation: montage-up 80s linear infinite; will-change: transform; }
 .montage-col--down { animation-name: montage-down; }
 @media (prefers-reduced-motion: reduce) { .montage-col { animation: none; } }
+
+/* Hover: lift, fill with cobalt, glow, and nudge the arrow up-right */
+.pop-btn {
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.28s ease, background-color 0.28s ease,
+    color 0.28s ease, border-color 0.28s ease;
+}
+.pop-btn:hover {
+  transform: translateY(-2px);
+  background-color: var(--accent-pop);
+  border-color: var(--accent-pop);
+  color: #fff;
+  box-shadow: 0 10px 26px -8px rgba(30, 58, 158, 0.7);
+}
+.pop-btn:active { transform: translateY(0) scale(0.97); }
+.pop-arrow { display: inline-block; transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.pop-btn:hover .pop-arrow,
+.pop-host:hover .pop-arrow { transform: translate(2px, -2px); }
+
+/* Text links (nav, resume): a cobalt underline draws in from the left */
+.pop-line { position: relative; }
+.pop-line::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -3px;
+  height: 1.5px;
+  border-radius: 1px;
+  background: var(--accent-pop);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.pop-line[data-on="dark"]::after { background: var(--accent-pop-line); }
+.pop-host:hover .pop-line::after { transform: scaleX(1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pop-btn, .pop-btn:hover, .pop-btn:active, .pop-arrow { transform: none !important; }
+  .pop-line::after { transition: none; }
+}

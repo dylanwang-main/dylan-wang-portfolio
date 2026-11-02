@@ -312,7 +312,7 @@ export default function Navigation() {
                   transform: `translate3d(${curX}px, ${curY}px, 0) translate(${transX}%, -50%)`,
                   zIndex: 60,
                 }}
-                className={`group flex items-center select-none will-change-transform focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent-oxblood)] cursor-pointer ${
+                className={`group pop-host flex items-center select-none will-change-transform focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent-oxblood)] cursor-pointer ${
                   inRailState
                     ? "flex-row text-left"
                     : "flex-row items-baseline gap-1.5 text-center"
@@ -362,7 +362,7 @@ export default function Navigation() {
                         : "font-normal text-[#26201B] group-hover:text-[#161310]"
                   }`}
                 >
-                  {item.label}
+                  <span className="pop-line" data-on={dark ? "dark" : "light"}>{item.label}</span>
                 </span>
 
                 {/* Rail: dotted leader after each label; the active chapter fills it as you read */}
@@ -433,13 +433,14 @@ export default function Navigation() {
                   href={RESUME_LINK.url}
                   target="_blank"
                   rel="noopener"
-                  className={`text-[13px] lg:text-[13.5px] font-medium tracking-wide transition-colors duration-[250ms] ease-out focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent-oxblood)] ${
+                  className={`pop-host text-[13px] lg:text-[13.5px] font-medium tracking-wide transition-colors duration-[250ms] ease-out focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent-oxblood)] ${
                     dark
                       ? "text-[#D5C9B8] hover:text-[#FFFFFF]"
                       : "text-[#3D332A] hover:text-[#6B2D2D]"
                   }`}
                 >
-                  {RESUME_LINK.label} ↗
+                  <span className="pop-line" data-on={dark ? "dark" : "light"}>{RESUME_LINK.label}</span>{" "}
+                  <span aria-hidden="true" className="pop-arrow">↗</span>
                 </a>
               </div>
             );
@@ -447,6 +448,7 @@ export default function Navigation() {
 
           {/* Persistent call to action, top right (Shopify's "Start for free" slot) */}
           {(() => {
+            const dark = darkOf("cta");
             return (
               <button
                 ref={(el) => {
@@ -454,8 +456,10 @@ export default function Navigation() {
                 }}
                 onClick={() => scrollToSection("contact")}
                 style={{ position: "fixed", top: 18, right: 28, zIndex: 60 }}
-                // the site's one persistent pop of cobalt, same on dark and cream pages
-                className="rounded-full px-4 py-2 text-[13px] font-medium tracking-wide text-white bg-[var(--accent-pop)] hover:bg-[var(--accent-pop-hover)] shadow-[0_6px_20px_rgba(46,91,255,0.35)] transition-colors duration-[250ms] ease-out cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                // adapts to the page behind it; turns cobalt and lifts on hover
+                className={`pop-btn rounded-full px-4 py-2 text-[13px] font-medium tracking-wide cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent-oxblood)] ${
+                  dark ? "bg-[#F4EFE6] text-[#161310]" : "bg-[#161310] text-[#F4EFE6]"
+                }`}
               >
                 Get in touch
               </button>
