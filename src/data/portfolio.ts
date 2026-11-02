@@ -285,11 +285,17 @@ export interface ProjectData {
     prompt: string;
     /** Real image for the tile (a path under /public). */
     image?: string;
-    /** Up to 4 short floating labels around the image (md and up). Real work only. */
+    /** Up to 4 short floating labels beside the image (lg and up). Real work only. */
     popups?: string[];
+    /** Tile aspect ratio when popups are shown, e.g. "16/10". */
+    aspect?: string;
   }[];
   /** Real screenshot shown inside the browser walkthrough (a path under /public). */
   screenshot?: string;
+  /** Aspect ratio of the screenshot (width/height), e.g. "1375/762". */
+  screenshotAspect?: string;
+  /** Label in the browser bar above the screenshot (defaults to the title). */
+  screenshotTitle?: string;
   /** Optional browser walkthrough with pulsing hotspots (x, y in % of the page). */
   hotspots?: { x: number; y: number; label: string; detail: string }[];
   imagePlaceholder: {
@@ -314,7 +320,26 @@ export const WORK_PROJECTS: ProjectData[] = [
       { value: "~40%", label: "fewer reporting errors" },
       { value: "6", label: "administrators, 3 departments" },
     ],
+    statsAtBottom: true,
     tools: ["Power BI", "Python", "Excel"],
+    screenshot: "/tusd-overview.png",
+    screenshotAspect: "1375/762",
+    screenshotTitle: "CTE Dashboard · School Overview",
+    hotspots: [
+      { x: 23, y: 17, label: "Completer breakdowns", detail: "Splits completers by race/ethnicity, school and course, so gaps between groups show at a glance." },
+      { x: 67, y: 50, label: "Headline numbers", detail: "Completers, non-completers and completion rate update instantly with every filter." },
+      { x: 67, y: 80, label: "Student group filters", detail: "English Learner, Foster Youth, Free or Reduced Lunch and Homeless filters show how each group is doing." },
+      { x: 94, y: 19, label: "Student search", detail: "Type any student ID to jump to that student's full course history on the detail page." },
+    ],
+    slots: [
+      {
+        label: "Student detail view",
+        prompt: "Search one student ID to see every CTE course, term and grade, and whether they completed their pathway. Student details blurred for privacy.",
+        image: "/tusd-student-detail.png",
+        popups: ["Power BI", "Python", "Excel"],
+        aspect: "16/11",
+      },
+    ],
     imagePlaceholder: {
       label: "DASHBOARD: Power BI assessment overview (no student data)",
       aspectRatio: "16/10",
@@ -334,6 +359,7 @@ export const WORK_PROJECTS: ProjectData[] = [
       { value: "90K+", label: "search impressions" },
       { value: "6.4%", label: "click-through rate" },
     ],
+    link: { label: "Visit live site", url: "https://www.n10dancestudios.com/" },
     statsAtBottom: true,
     statsNote: "About 1 in 16 people who saw the site in Google search clicked through (Google Search Console, Jul 2025 to Oct 2026).",
     tools: ["WordPress", "HTML", "CSS"],

@@ -85,7 +85,7 @@ function Spot({ spot, index, open, onToggle }: { spot: Hotspot; index: number; o
  * screenshot when given one, otherwise a generic wireframe.
  * Hover or tap a ring to read what was built there.
  */
-export default function HotspotBrowser({ title, hotspots, image }: { title: string; hotspots: Hotspot[]; image?: string }) {
+export default function HotspotBrowser({ title, hotspots, image, aspect = "1600/795" }: { title: string; hotspots: Hotspot[]; image?: string; aspect?: string }) {
   const [open, setOpen] = useState<number | null>(0);
   return (
     <motion.div {...fadeUp({ amount: 0.3 })} className="relative overflow-hidden rounded-xl p-[clamp(1rem,5vw,4.5rem)]">
@@ -101,9 +101,9 @@ export default function HotspotBrowser({ title, hotspots, image }: { title: stri
             {title}
           </span>
         </div>
-        <div className={`relative ${image ? "aspect-[1600/795]" : "aspect-[4/5] sm:aspect-[16/10]"}`}>
+        <div className={`relative ${image ? "" : "aspect-[4/5] sm:aspect-[16/10]"}`} style={image ? { aspectRatio: aspect.replace("/", " / ") } : undefined}>
           {image ? (
-            <img src={image} alt={`${title} homepage`} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover object-top" />
+            <img src={image} alt={`${title} screenshot`} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover object-top" />
           ) : (
             <SiteWireframe />
           )}

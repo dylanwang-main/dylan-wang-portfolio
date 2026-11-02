@@ -88,7 +88,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
       {...fadeUp({ amount: 0.3, duration: 0.8 })}
       className={
         statsBottom
-          ? `w-full max-w-[860px] mx-auto pt-8 border-t border-[var(--border-hairline)] grid grid-cols-1 sm:grid-cols-3 gap-y-8 justify-items-center text-center`
+          ? `w-full mx-auto pt-8 border-t border-[var(--border-hairline)] grid gap-y-8 justify-items-center text-center ${project.stats!.length > 3 ? "max-w-[1000px] grid-cols-2 md:grid-cols-4" : "max-w-[860px] grid-cols-1 sm:grid-cols-3"}`
           : `mt-10 pt-6 border-t border-[var(--border-hairline)] grid grid-cols-2 gap-x-8 gap-y-6 ${project.stats!.length > 3 ? "md:grid-cols-4" : "md:grid-cols-3"}`
       }
     >
@@ -181,7 +181,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
       {/* WALKTHROUGH: browser with pulsing hotspots (Shopify feature-tour pattern) */}
       {project.hotspots && project.hotspots.length > 0 && (
         <div className={`mt-10 ${hasSlots ? "" : "pb-[clamp(3.5rem,7vw,6rem)]"}`}>
-          <HotspotBrowser title={project.title} hotspots={project.hotspots} image={project.screenshot} />
+          <HotspotBrowser title={project.screenshotTitle ?? project.title} hotspots={project.hotspots} image={project.screenshot} aspect={project.screenshotAspect} />
         </div>
       )}
 
@@ -197,7 +197,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
               {slot.popups && slot.popups.length > 0 ? (
                 <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,180px)_minmax(0,1fr)_minmax(0,180px)] lg:gap-6 items-stretch">
                   <SidePopups side="left" labels={slot.popups.filter((_, k) => k % 2 === 0)} />
-                  <AnimatedTile index={i} aspect="16/10" image={slot.image} alt={slot.label} />
+                  <AnimatedTile index={i} aspect={slot.aspect ?? "16/10"} image={slot.image} alt={slot.label} />
                   <SidePopups side="right" labels={slot.popups.filter((_, k) => k % 2 === 1)} offset={1} />
                 </div>
               ) : (
