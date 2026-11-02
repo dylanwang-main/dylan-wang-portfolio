@@ -386,8 +386,25 @@ export default function SectionOpener({
             : undefined
         }
       >
+        {scene.backgroundImage && (
+          <div className="absolute inset-0 overflow-hidden">
+            <motion.img
+              src={scene.backgroundImage}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              className="absolute inset-0 w-full h-full object-cover"
+              // light blur: objects stay recognisable, fine detail stops competing with the heading
+              style={{ filter: "blur(3px)", scale: 1.04, y: prefersReducedMotion ? 0 : bgY }}
+            />
+            <div className="absolute inset-0 bg-black/55" />
+            <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 55% 45% at 50% 38%, rgba(0,0,0,0.4), transparent 75%)" }} />
+          </div>
+        )}
         {scene.montage && <BlurMontage images={scene.montage} />}
         {scene.layers.map((layer, index) => {
+          // a photo background replaces the line-art and glow layers
+          if (scene.backgroundImage && layer.motifId !== "vignette-grain") return null;
           const layerY = index === 0 ? bgY : index === 1 ? midY : fgY;
           return (
             <LayerElement
@@ -401,7 +418,7 @@ export default function SectionOpener({
         })}
 
         {/* Colour world: chapters without a montage get a coloured glow until real artwork arrives */}
-        {!scene.montage && SCENE_TINT[scene.id] && (
+        {!scene.montage && !scene.backgroundImage && SCENE_TINT[scene.id] && (
           <div
             aria-hidden="true"
             className="absolute inset-0"

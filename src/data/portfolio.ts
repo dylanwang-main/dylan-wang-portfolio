@@ -98,7 +98,7 @@ export const SECTION_SCENES: Record<"work" | "content" | "about" | "contact", Sc
     heading: "Work",
     tagline:
       "Analytics, data science, web development, and SEO.",
-    montage: WORK_SHOTS,
+    backgroundImage: "/work-flatlay.jpg",
     theme: "dark",
     layers: [
       {
