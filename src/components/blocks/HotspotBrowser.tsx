@@ -42,11 +42,15 @@ function SiteWireframe() {
   );
 }
 
+/** Distance from the dot's center to the note's nearest corner. Same for every dot. */
+const NOTE_OFFSET = 24;
+
 function Spot({ spot, index, open, onToggle }: { spot: Hotspot; index: number; open: boolean; onToggle: () => void }) {
-  const right = spot.x > 55; // open the card toward the middle so it stays inside the browser
-  const below = spot.y < 30;
+  // Notes always open up and to the right of the dot. Dots near the right edge mirror to up-left
+  // with the same spacing, so the note never runs off the page.
+  const flip = spot.x > 70;
   return (
-    <div className="absolute" style={{ left: `${spot.x}%`, top: `${spot.y}%`, zIndex: open ? 20 : 10 }}>
+    <div className="absolute" style={{ left: `${spot.x}%`, top: `${spot.y}%`, zIndex: open ? 30 : 10 }}>
       <motion.button
         type="button"
         aria-expanded={open}
@@ -66,11 +70,17 @@ function Spot({ spot, index, open, onToggle }: { spot: Hotspot; index: number; o
       {open && (
         <motion.div
           role="note"
-          initial={{ opacity: 0, y: below ? -6 : 6 }}
+          initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: EASE }}
-          className={`absolute hidden sm:block w-[240px] rounded-lg p-3.5 text-left ${right ? "right-5" : "left-5"} ${below ? "top-4" : "bottom-4"}`}
-          style={{ background: "#FBF8F2", boxShadow: "0 14px 40px rgba(0,0,0,0.4)" }}
+          // pointer-events-none: the note can never cover or block a dot
+          className="absolute hidden sm:block w-[240px] rounded-lg p-3.5 text-left pointer-events-none"
+          style={{
+            bottom: NOTE_OFFSET,
+            ...(flip ? { right: NOTE_OFFSET } : { left: NOTE_OFFSET }),
+            background: "#FBF8F2",
+            boxShadow: "0 14px 40px rgba(0,0,0,0.4)",
+          }}
         >
           <span className="block text-[13px] font-semibold text-[var(--text-ink)]">{spot.label}</span>
           <span className="block mt-1 font-mono text-[12px] leading-snug italic text-[var(--accent-oxblood)]">{spot.detail}</span>
@@ -88,10 +98,13 @@ function Spot({ spot, index, open, onToggle }: { spot: Hotspot; index: number; o
 export default function HotspotBrowser({ title, hotspots, image, aspect = "1600/795" }: { title: string; hotspots: Hotspot[]; image?: string; aspect?: string }) {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <motion.div {...fadeUp({ amount: 0.3 })} className="relative overflow-hidden rounded-xl p-[clamp(1rem,5vw,4.5rem)]">
-      <PaintLayer spec={STAGE_PAINTING} />
-      <div className="relative mx-auto max-w-[980px] rounded-xl overflow-hidden shadow-[0_30px_80px_rgba(0,0,0,0.5)]" style={{ border: `1px solid ${LINE}` }}>
-        <div className="flex items-center gap-3 px-4 h-9 bg-[#221c17]" style={{ borderBottom: `1px solid ${LINE}` }}>
+    <motion.div {...fadeUp({ amount: 0.3 })} className="relative rounded-xl p-[clamp(1rem,5vw,4.5rem)]">
+      {/* Clip only the painted backdrop, so hotspot notes can extend past the frame */}
+      <div aria-hidden="true" className="absolute inset-0 rounded-xl overflow-hidden">
+        <PaintLayer spec={STAGE_PAINTING} />
+      </div>
+      <div className="relative mx-auto max-w-[980px] rounded-xl shadow-[0_30px_80px_rgba(0,0,0,0.5)]" style={{ border: `1px solid ${LINE}` }}>
+        <div className="flex items-center gap-3 px-4 h-9 rounded-t-xl bg-[#221c17]" style={{ borderBottom: `1px solid ${LINE}` }}>
           <span className="flex gap-1.5">
             {["#E88080", "#C9A46B", "#7FA38A"].map((c) => (
               <i key={c} className="block w-2.5 h-2.5 rounded-full" style={{ background: c, opacity: 0.8 }} />
@@ -103,9 +116,11 @@ export default function HotspotBrowser({ title, hotspots, image, aspect = "1600/
         </div>
         <div className={`relative ${image ? "" : "aspect-[4/5] sm:aspect-[16/10]"}`} style={image ? { aspectRatio: aspect.replace("/", " / ") } : undefined}>
           {image ? (
-            <img src={image} alt={`${title} screenshot`} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover object-top" />
+            <img src={image} alt={`${title} screenshot`} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover object-top rounded-b-xl" />
           ) : (
-            <SiteWireframe />
+            <div className="absolute inset-0 rounded-b-xl overflow-hidden">
+              <SiteWireframe />
+            </div>
           )}
           {hotspots.map((h, i) => (
             <Spot key={h.label} spot={h} index={i} open={open === i} onToggle={() => setOpen(open === i ? null : i)} />
