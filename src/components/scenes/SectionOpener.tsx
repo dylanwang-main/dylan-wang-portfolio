@@ -174,7 +174,7 @@ export default function SectionOpener({
                 decoding="async"
                 fetchPriority="high"
                 className="absolute inset-0 w-full h-full object-cover"
-                style={{ filter: "blur(6px)", scale: 1.06, y: prefersReducedMotion ? 0 : bgY }}
+                style={{ filter: `blur(${scene.backgroundBlur ?? 6}px)`, scale: 1.06, y: prefersReducedMotion ? 0 : bgY }}
               />
               {/* black wash + darker center so the white heading always pops */}
               <div className="absolute inset-0 bg-black/55" />
@@ -395,7 +395,7 @@ export default function SectionOpener({
               decoding="async"
               className="absolute inset-0 w-full h-full object-cover"
               // light blur: objects stay recognisable, fine detail stops competing with the heading
-              style={{ filter: "blur(3px)", scale: 1.04, y: prefersReducedMotion ? 0 : bgY }}
+              style={{ filter: `blur(${scene.backgroundBlur ?? 3}px)`, scale: 1.04, y: prefersReducedMotion ? 0 : bgY }}
             />
             <div className="absolute inset-0 bg-black/55" />
             <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 55% 45% at 50% 38%, rgba(0,0,0,0.4), transparent 75%)" }} />

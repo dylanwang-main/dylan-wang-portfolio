@@ -40,6 +40,8 @@ export interface SceneData {
   montage?: string[];
   /** Full-bleed background photo (blurred and darkened behind the text). */
   backgroundImage?: string;
+  /** Blur on the background photo, in px (lower keeps objects recognisable). */
+  backgroundBlur?: number;
   theme: "dark" | "light"; // "dark" = dark scene (light-on-dark nav), "light" = light scene
   layers: SceneLayer[];
 }
@@ -51,7 +53,8 @@ export const HERO_SCENE: SceneData = {
   id: "hero",
   heading: "Dylan Wang",
   tagline: "Data science student at UC San Diego and content creator.",
-  backgroundImage: "/hero-night-desk.jpg",
+  backgroundImage: "/work-flatlay.jpg",
+  backgroundBlur: 3,
   theme: "dark",
   layers: [
     {
@@ -98,7 +101,8 @@ export const SECTION_SCENES: Record<"work" | "content" | "about" | "contact", Sc
     heading: "Work",
     tagline:
       "Analytics, data science, web development, and SEO.",
-    backgroundImage: "/work-flatlay.jpg",
+    backgroundImage: "/hero-night-desk.jpg",
+    backgroundBlur: 6,
     theme: "dark",
     layers: [
       {
