@@ -122,45 +122,47 @@ const CARDS = [BarsCard, PromptCard, ListCard];
  * Shopify-style tile: textured backdrop, a UI card that rises in, drifts with scroll,
  * and animates its own contents. Swap the card for a real image later.
  */
-const POPUP_SPOTS: { style: React.CSSProperties; drift: number }[] = [
-  { style: { left: "1.5%", top: "30%" }, drift: -7 },
-  { style: { right: "1.5%", top: "22%" }, drift: 7 },
-  { style: { left: "4%", top: "80%" }, drift: 6 },
-  { style: { right: "4%", top: "82%" }, drift: -6 },
-];
+const POPUP_CARD = { background: "#FBF8F2", boxShadow: "0 12px 32px rgba(31,27,22,0.14)", border: "1px solid rgba(31,27,22,0.08)" };
 
-/** Small floating labels that fill the empty space around a screenshot card (md and up). */
-function Popups({ labels }: { labels: string[] }) {
+/**
+ * A column of floating labels that sits BESIDE a screenshot tile, never on top of it.
+ * Hidden below lg, where there is no room at the sides.
+ */
+export function SidePopups({ labels, side, offset = 0 }: { labels: string[]; side: "left" | "right"; offset?: number }) {
   const reduced = useReducedMotion();
   return (
-    <>
-      {labels.slice(0, POPUP_SPOTS.length).map((label, i) => (
-        <motion.span
-          key={label}
-          aria-hidden="true"
-          className="hidden md:block absolute z-10 rounded-xl px-3.5 py-2 text-[13px] font-medium text-[var(--text-ink)] whitespace-nowrap"
-          style={{ ...CARD, ...POPUP_SPOTS[i].style }}
-          initial={{ opacity: 0, scale: 0.9, y: 12 }}
-          whileInView={reduced ? { opacity: 1, scale: 1, y: 0 } : { opacity: 1, scale: 1, y: [0, POPUP_SPOTS[i].drift, 0] }}
-          viewport={{ once: true, amount: 0.4 }}
-          transition={
-            reduced
-              ? { duration: 0.4 }
-              : {
-                  opacity: { duration: 0.6, delay: 0.5 + i * 0.15 },
-                  scale: { duration: 0.6, delay: 0.5 + i * 0.15, ease: EASE },
-                  y: { duration: 5 + i, delay: 0.5 + i * 0.15, repeat: Infinity, ease: "easeInOut" },
-                }
-          }
-        >
-          {label}
-        </motion.span>
-      ))}
-    </>
+    <div aria-hidden="true" className={`hidden lg:flex flex-col justify-around h-full py-[12%] ${side === "left" ? "items-end" : "items-start"}`}>
+      {labels.map((label, j) => {
+        const i = offset + j;
+        const drift = i % 2 ? 6 : -6;
+        return (
+          <motion.span
+            key={label}
+            className="block rounded-xl px-3.5 py-2 text-[13px] font-medium text-[var(--text-ink)] whitespace-nowrap"
+            style={POPUP_CARD}
+            initial={{ opacity: 0, scale: 0.9, x: side === "left" ? 12 : -12 }}
+            whileInView={reduced ? { opacity: 1, scale: 1, x: 0 } : { opacity: 1, scale: 1, x: 0, y: [0, drift, 0] }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={
+              reduced
+                ? { duration: 0.4 }
+                : {
+                    opacity: { duration: 0.6, delay: 0.5 + i * 0.15 },
+                    scale: { duration: 0.6, delay: 0.5 + i * 0.15, ease: EASE },
+                    x: { duration: 0.6, delay: 0.5 + i * 0.15, ease: EASE },
+                    y: { duration: 5 + i, delay: 0.5 + i * 0.15, repeat: Infinity, ease: "easeInOut" },
+                  }
+            }
+          >
+            {label}
+          </motion.span>
+        );
+      })}
+    </div>
   );
 }
 
-export function AnimatedTile({ index = 0, aspect = "4/3", image, alt = "", popups }: { index?: number; aspect?: string; image?: string; alt?: string; popups?: string[] }) {
+export function AnimatedTile({ index = 0, aspect = "4/3", image, alt = "" }: { index?: number; aspect?: string; image?: string; alt?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], [26, -26]);
@@ -187,7 +189,6 @@ export function AnimatedTile({ index = 0, aspect = "4/3", image, alt = "", popup
       >
         {image ? <img src={image} alt={alt} loading="lazy" decoding="async" className="block w-full h-auto" /> : <Card />}
       </motion.div>
-      {image && popups && popups.length > 0 && <Popups labels={popups} />}
       {!image && <span className="absolute left-4 top-3 text-[10px] tracking-[0.22em] uppercase text-[#F4EFE6]/55">Image slot</span>}
     </div>
   );

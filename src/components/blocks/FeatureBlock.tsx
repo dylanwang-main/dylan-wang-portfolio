@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion, MotionValue, useScroll } from "motion/react";
 import ProofStage from "./ProofStage";
 import HotspotBrowser from "./HotspotBrowser";
-import { AnimatedTile } from "./MediaSlots";
+import { AnimatedTile, SidePopups } from "./MediaSlots";
 import { ProjectData } from "../../data/portfolio";
 import {
   DashboardMain,
@@ -64,8 +64,20 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
     </div>
   );
 
-  const meta = project.meta ? (
-    <p className="mt-3 text-[12px] uppercase tracking-[0.16em] text-[var(--taupe-subtle)]">{project.meta}</p>
+  const meta = project.meta || project.link ? (
+    <>
+      {project.meta && <p className="mt-3 text-[12px] uppercase tracking-[0.16em] text-[var(--taupe-subtle)]">{project.meta}</p>}
+      {project.link && (
+        <a
+          href={project.link.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-4 inline-flex items-center gap-2 rounded-full border border-[var(--text-ink)]/25 px-4 py-2 text-[13px] font-medium text-[var(--text-ink)] hover:bg-[var(--text-ink)] hover:text-[#F4EFE6] transition-colors"
+        >
+          {project.link.label} <span aria-hidden="true">↗</span>
+        </a>
+      )}
+    </>
   ) : null;
   const hasSlots = !!project.slots && project.slots.length > 0;
   const hasStats = !!project.stats && project.stats.length > 0;
@@ -175,14 +187,22 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
 
       {/* DETAIL CARDS: art tile + title + text (Shopify card-grid pattern; tiles hold real images later) */}
       {project.slots && project.slots.length > 0 && (
-        <div className={`mt-10 ${statsBottom ? "pb-10" : "pb-[clamp(3.5rem,7vw,6rem)]"} grid grid-cols-1 gap-6 md:gap-8 ${project.slots.length === 1 ? "md:max-w-[860px] md:mx-auto" : project.slots.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
+        <div className={`mt-10 ${statsBottom ? "pb-10" : "pb-[clamp(3.5rem,7vw,6rem)]"} grid grid-cols-1 gap-6 md:gap-8 ${project.slots.length === 1 ? (project.slots[0].popups?.length ? "" : "md:max-w-[860px] md:mx-auto") : project.slots.length === 2 ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
           {project.slots.map((slot, i) => (
             <motion.div
               key={slot.label}
               {...fadeUp({ amount: 0.3, duration: 0.8, delay: i * 0.1 })}
               className={`group ${project.slots!.length === 1 ? "text-center" : ""}`}
             >
-              <AnimatedTile index={i} aspect={project.slots!.length === 1 ? "2/1" : "4/3"} image={slot.image} alt={slot.label} popups={slot.popups} />
+              {slot.popups && slot.popups.length > 0 ? (
+                <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,180px)_minmax(0,1fr)_minmax(0,180px)] lg:gap-6 items-stretch">
+                  <SidePopups side="left" labels={slot.popups.filter((_, k) => k % 2 === 0)} />
+                  <AnimatedTile index={i} aspect="16/10" image={slot.image} alt={slot.label} />
+                  <SidePopups side="right" labels={slot.popups.filter((_, k) => k % 2 === 1)} offset={1} />
+                </div>
+              ) : (
+                <AnimatedTile index={i} aspect={project.slots!.length === 1 ? "2/1" : "4/3"} image={slot.image} alt={slot.label} />
+              )}
               <span className="block mt-4 text-[15px] font-semibold text-[var(--text-ink)]">
                 {slot.label}
               </span>

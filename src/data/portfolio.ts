@@ -273,6 +273,8 @@ export interface ProjectData {
   meta?: string;
   /** Headline results, straight from the resume. Real numbers only. */
   stats?: { value: string; label: string }[];
+  /** Optional link to the live project (shown under the title). */
+  link?: { label: string; url: string };
   /** Show the stats row after the image slots, centered, instead of under the overview. */
   statsAtBottom?: boolean;
   /** Optional centered line of text under the bottom stats row. */
