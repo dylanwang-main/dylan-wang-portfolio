@@ -166,9 +166,26 @@ export default function SectionOpener({
           className="absolute inset-0 pointer-events-none"
           style={S ? { transform: bgSwirl, opacity: bgFade, transformOrigin: `${S.ox}% ${S.oy}%` } : undefined}
         >
+          {scene.backgroundImage && (
+            <div className="absolute inset-0 overflow-hidden">
+              <motion.img
+                src={scene.backgroundImage}
+                alt=""
+                decoding="async"
+                fetchPriority="high"
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ filter: "blur(6px)", scale: 1.06, y: prefersReducedMotion ? 0 : bgY }}
+              />
+              {/* black wash + darker center so the white heading always pops */}
+              <div className="absolute inset-0 bg-black/55" />
+              <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 50% at 50% 48%, rgba(0,0,0,0.35), transparent 75%)" }} />
+            </div>
+          )}
           {scene.montage && <BlurMontage images={scene.montage} />}
           {scene.layers.map((layer, index) => {
             if (layer.motifId === "vignette-grain") return null;
+            // a photo background replaces the line-art temple and glow
+            if (scene.backgroundImage) return null;
             const layerY = index === 0 ? bgY : index === 1 ? midY : fgY;
             return (
               <LayerElement
