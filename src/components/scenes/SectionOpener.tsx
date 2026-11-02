@@ -306,9 +306,9 @@ export default function SectionOpener({
           >
             <span className="text-[10px] uppercase tracking-widest">
               {S ? (
-                <SuckText ctx={S} text="Scroll to begin · Roman I through IV" seed={400} />
+                <SuckText ctx={S} text="Scroll to begin" seed={400} />
               ) : (
-                "Scroll to begin · Roman I through IV"
+                "Scroll to begin"
               )}
             </span>
             {(() => {

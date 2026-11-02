@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { NAVIGATION_ITEMS, RESUME_LINK, GRAD_YEAR_SHORT } from "../../data/portfolio";
+import { NAVIGATION_ITEMS, RESUME_LINK } from "../../data/portfolio";
 import { edgeToneAt } from "../../lib/paperEdges";
 import { getLenis, scrollToId } from "../../lib/scroll";
 import { useReducedMotion } from "../../lib/useReducedMotion";
@@ -13,6 +13,8 @@ export default function Navigation() {
   const [isDarkSection, setIsDarkSection] = useState<boolean>(true);
   const [heroScroll, setHeroScroll] = useState<number>(0);
   const [viewport, setViewport] = useState({ width: 1200, height: 800 });
+  // Where the "Get in touch" button sits, so Resume can start centered right under it
+  const [cta, setCta] = useState({ centerX: 1200 - 90, bottom: 54 });
   const prefersReducedMotion = useReducedMotion();
   // Per-element contrast: the torn edge can pass under one nav item but not the next
   const elRefs = useRef<Record<string, HTMLElement | null>>({});
@@ -25,9 +27,13 @@ export default function Navigation() {
         width: window.innerWidth,
         height: window.innerHeight,
       });
+      const r = elRefs.current.cta?.getBoundingClientRect();
+      if (r && r.width) setCta({ centerX: r.left + r.width / 2, bottom: r.bottom });
     };
 
     updateMeasurements();
+    // re-measure once web fonts land, since they change the button's width
+    document.fonts?.ready.then(updateMeasurements);
 
     // Sections tag themselves light or dark; the torn edges (lib/paperEdges) refine that at the tear.
     const themedElements = Array.from(
@@ -266,15 +272,6 @@ export default function Navigation() {
                 >
                   DW
                 </span>
-                <span
-                  className={`text-[8.5px] tracking-[0.2em] uppercase font-semibold mt-0.5 transition-colors duration-[250ms] ease-out ${
-                    dark
-                      ? "text-[#D5C9B8]"
-                      : "text-[#54473C]"
-                  }`}
-                >
-                  UCSD {GRAD_YEAR_SHORT}
-                </span>
               </button>
             );
           })()}
@@ -319,7 +316,7 @@ export default function Navigation() {
                   inRailState
                     ? "flex-row text-left"
                     : "flex-row items-baseline gap-1.5 text-center"
-                } ${isActive ? "scale-105" : "hover:scale-105"}`}
+                }`}
                 aria-current={isActive ? "page" : undefined}
               >
                 {/* Active indicator bar when in rail state */}
@@ -406,8 +403,9 @@ export default function Navigation() {
                 ? 1
                 : 0
               : Math.min(1, Math.max(0, (heroScroll - 0.2) / 0.7));
-            const startX = viewport.width - 215;
-            const startY = 30;
+            // Top state: centered just under "Get in touch"
+            const startX = cta.centerX;
+            const startY = cta.bottom + 18;
             const endX = railX;
             const endY = viewport.height - 44;
             const curX = startX + (endX - startX) * t;

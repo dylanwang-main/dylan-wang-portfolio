@@ -42,10 +42,8 @@ export interface SceneData {
 
 export const HERO_SCENE: SceneData = {
   id: "hero",
-  kicker: "Portfolio · Monograph",
   heading: "Dylan Wang",
   tagline: "Data science student at UC San Diego and content creator.",
-  subtitle: "UC San Diego",
   theme: "dark",
   layers: [
     {
