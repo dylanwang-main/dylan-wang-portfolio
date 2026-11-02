@@ -358,7 +358,7 @@ export default function SectionOpener({
       id={`${scene.id}-opener`}
       ref={containerRef}
       data-nav-theme={scene.theme}
-      className={`relative w-full h-[100svh] min-h-[100svh] max-h-[100svh] flex flex-col justify-between items-center text-center px-6 md:pl-[170px] lg:pl-[190px] xl:pl-[210px] md:pr-10 lg:pr-14 py-8 md:py-12 select-none z-10 ${
+      className={`relative w-full h-[100svh] min-h-[100svh] max-h-[100svh] flex flex-col justify-between items-center text-center px-6 md:pl-[184px] lg:pl-[204px] xl:pl-[224px] md:pr-10 lg:pr-14 py-8 md:py-12 select-none z-10 ${
         isDark ? "bg-[#161310]" : "bg-[var(--bg-cream)]"
       }`}
     >

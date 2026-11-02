@@ -218,7 +218,7 @@ export default function Navigation() {
 
   const isDesktop = viewport.width >= 768;
   const centerX = viewport.width / 2;
-  const railX = 38; // Compact left inset for dedicated whitespace
+  const railX = 18; // Left inset: keeps a clear gutter between the rail (and its leader lines) and the page
   const railCenterY = viewport.height * 0.46;
 
   return (
