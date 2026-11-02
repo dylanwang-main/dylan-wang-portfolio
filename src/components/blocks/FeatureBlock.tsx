@@ -64,18 +64,23 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
     </div>
   );
 
-  const meta = project.meta || project.link ? (
+  const meta = project.meta || project.links?.length ? (
     <>
       {project.meta && <p className="mt-3 text-[12px] uppercase tracking-[0.16em] text-[var(--taupe-subtle)]">{project.meta}</p>}
-      {project.link && (
-        <a
-          href={project.link.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-4 inline-flex items-center gap-2 rounded-full border border-[var(--text-ink)]/25 px-4 py-2 text-[13px] font-medium text-[var(--text-ink)] hover:bg-[var(--text-ink)] hover:text-[#F4EFE6] transition-colors"
-        >
-          {project.link.label} <span aria-hidden="true">↗</span>
-        </a>
+      {project.links && project.links.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-2.5">
+          {project.links.map((l) => (
+            <a
+              key={l.url}
+              href={l.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-full border border-[var(--text-ink)]/25 px-4 py-2 text-[13px] font-medium text-[var(--text-ink)] hover:bg-[var(--text-ink)] hover:text-[#F4EFE6] transition-colors"
+            >
+              {l.label} <span aria-hidden="true">↗</span>
+            </a>
+          ))}
+        </div>
       )}
     </>
   ) : null;
@@ -194,7 +199,9 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
               {...fadeUp({ amount: 0.3, duration: 0.8, delay: i * 0.1 })}
               className={`group ${project.slots!.length === 1 ? "text-center" : ""}`}
             >
-              {slot.popups && slot.popups.length > 0 ? (
+              {project.slotsTextOnly ? (
+                <span aria-hidden="true" className="block w-8 h-px bg-[var(--accent-oxblood)]" />
+              ) : slot.popups && slot.popups.length > 0 ? (
                 <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,180px)_minmax(0,1fr)_minmax(0,180px)] lg:gap-6 items-stretch">
                   <SidePopups side="left" labels={slot.popups.filter((_, k) => k % 2 === 0)} />
                   <AnimatedTile index={i} aspect={slot.aspect ?? "16/10"} image={slot.image} alt={slot.label} />

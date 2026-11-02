@@ -273,8 +273,10 @@ export interface ProjectData {
   meta?: string;
   /** Headline results, straight from the resume. Real numbers only. */
   stats?: { value: string; label: string }[];
-  /** Optional link to the live project (shown under the title). */
-  link?: { label: string; url: string };
+  /** Optional links to the live project, repo or docs (shown under the title). */
+  links?: { label: string; url: string }[];
+  /** Render the slot cards as text-only cards (no image tile). */
+  slotsTextOnly?: boolean;
   /** Show the stats row after the image slots, centered, instead of under the overview. */
   statsAtBottom?: boolean;
   /** Optional centered line of text under the bottom stats row. */
@@ -359,7 +361,7 @@ export const WORK_PROJECTS: ProjectData[] = [
       { value: "90K+", label: "search impressions" },
       { value: "6.4%", label: "click-through rate" },
     ],
-    link: { label: "Visit live site", url: "https://www.n10dancestudios.com/" },
+    links: [{ label: "Visit live site", url: "https://www.n10dancestudios.com/" }],
     statsAtBottom: true,
     statsNote: "About 1 in 16 people who saw the site in Google search clicked through (Google Search Console, Jul 2025 to Oct 2026).",
     tools: ["WordPress", "HTML", "CSS"],
@@ -386,24 +388,37 @@ export const WORK_PROJECTS: ProjectData[] = [
   },
   {
     id: "ds3-park-smart",
-    title: "DS3 Park Smart",
+    title: "ParkSmart",
     category: "Data Science",
-    year: "Project",
+    year: "2026",
     description:
-      "A collaborative data science project to clean, analyze, and improve parking data using version control and team workflows.",
-    tools: ["Python", "Pandas", "Git", "GitHub", "VS Code"],
+      "A UCSD parking planner that recommends a first-choice lot and a backup for your permit, arrival time and destination, built on eight years of cleaned campus parking surveys.",
+    meta: "DS3 · Data Science Student Society at UCSD · Team project · 2026",
+    links: [
+      { label: "Visit live site", url: "https://parksmart-parking.ai.studio" },
+      { label: "View on GitHub", url: "https://github.com/yraclimaco/parksmart" },
+    ],
+    stats: [
+      { value: "76K+", label: "parking survey readings" },
+      { value: "86", label: "campus parking facilities" },
+      { value: "8 yrs", label: "of data, 2018 to 2026" },
+      { value: "86%", label: "readings matched to a verified capacity" },
+    ],
+    statsAtBottom: true,
+    tools: ["Python", "Pandas", "scikit-learn", "FastAPI", "React", "Git", "GitHub"],
+    slotsTextOnly: true,
     slots: [
       {
-        label: "Problem Context",
-        prompt: "[Add: what problem this solved]",
+        label: "The problem",
+        prompt: "Parking at UCSD is guesswork. ParkSmart turns past parking surveys into a clear first choice and a backup, so you know where to go before you leave.",
       },
       {
-        label: "Methods & Implementation",
-        prompt: "[Add: approach, data cleaning methods, and team workflow]",
+        label: "Data pipeline",
+        prompt: "Cleaned UCSD's public QPASS parking surveys, standardized lot labels and matched each reading to a capacity, flagging uncertain cases instead of guessing.",
       },
       {
-        label: "Impact & Learnings",
-        prompt: "[Add: key outcomes and learnings]",
+        label: "Model and app",
+        prompt: "Benchmarked historical averages against linear regression on a time-based holdout, then served recommendations through a FastAPI backend and a React map.",
       },
     ],
     imagePlaceholder: {
