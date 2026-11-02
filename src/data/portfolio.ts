@@ -324,6 +324,12 @@ export const WORK_PROJECTS: ProjectData[] = [
     ],
     statsAtBottom: true,
     tools: ["Power BI", "Python", "Excel"],
+    links: [
+      {
+        label: "Open live dashboard",
+        url: "https://app.powerbi.com/view?r=eyJrIjoiYjNhZjA3Y2QtZGQxOS00ZWQyLTliNDQtN2VjNGMwYWIwMGJiIiwidCI6IjhhMTk4ODczLTRmZWMtNGU3Ni04MTgyLWNhNDc5ZWRiYmQ2MCIsImMiOjZ9",
+      },
+    ],
     screenshot: "/tusd-overview.png",
     screenshotAspect: "1375/762",
     screenshotTitle: "CTE Dashboard · School Overview",
@@ -397,6 +403,16 @@ export const WORK_PROJECTS: ProjectData[] = [
     links: [
       { label: "Visit live site", url: "https://parksmart-parking.ai.studio" },
       { label: "View on GitHub", url: "https://github.com/yraclimaco/parksmart" },
+      { label: "Domain research", url: "https://docs.google.com/document/d/1lpHyE9cTH0iqYw4kmnmXNTDh7sUk0BO9z0p9bkKmwno/edit?tab=t.0" },
+      { label: "Project plan", url: "https://docs.google.com/document/d/1dDSm6jZc5wwOC4xdRUlwhj_73jfV3E_pX_eT0p6c6JA/edit?tab=t.0" },
+    ],
+    screenshot: "/parksmart-app.jpg",
+    screenshotAspect: "1910/970",
+    screenshotTitle: "ParkSmart · UCSD parking planner",
+    hotspots: [
+      { x: 12, y: 40, label: "Trip inputs", detail: "Pick a destination, arrival time and permit. Lots your permit can't use are filtered out before anything is ranked." },
+      { x: 12, y: 74, label: "First choice", detail: "Expected availability, walking time and a plain reason it beat the backup, so the pick is easy to trust." },
+      { x: 61.7, y: 41, label: "Campus map", detail: "First choice and backup are pinned beside your destination on a satellite map of campus." },
     ],
     stats: [
       { value: "76K+", label: "parking survey readings" },
