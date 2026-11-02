@@ -4,6 +4,7 @@ import { SceneData, SceneLayer, RESUME_LINK } from "../../data/portfolio";
 import PaperEdge from "../layout/PaperEdge";
 import SceneShowcase from "./SceneShowcase";
 import ArchitecturalMotif from "./ArchitecturalMotif";
+import BlurMontage from "./BlurMontage";
 import { filmGrain } from "../../lib/noise";
 import { scrollToId } from "../../lib/scroll";
 import { useReducedMotion } from "../../lib/useReducedMotion";
@@ -165,6 +166,7 @@ export default function SectionOpener({
           className="absolute inset-0 pointer-events-none"
           style={S ? { transform: bgSwirl, opacity: bgFade, transformOrigin: `${S.ox}% ${S.oy}%` } : undefined}
         >
+          {scene.montage && <BlurMontage images={scene.montage} />}
           {scene.layers.map((layer, index) => {
             if (layer.motifId === "vignette-grain") return null;
             const layerY = index === 0 ? bgY : index === 1 ? midY : fgY;
@@ -367,6 +369,7 @@ export default function SectionOpener({
             : undefined
         }
       >
+        {scene.montage && <BlurMontage images={scene.montage} />}
         {scene.layers.map((layer, index) => {
           const layerY = index === 0 ? bgY : index === 1 ? midY : fgY;
           return (
@@ -380,8 +383,8 @@ export default function SectionOpener({
           );
         })}
 
-        {/* Colour world: each chapter gets its own glow until real artwork arrives */}
-        {SCENE_TINT[scene.id] && (
+        {/* Colour world: chapters without a montage get a coloured glow until real artwork arrives */}
+        {!scene.montage && SCENE_TINT[scene.id] && (
           <div
             aria-hidden="true"
             className="absolute inset-0"

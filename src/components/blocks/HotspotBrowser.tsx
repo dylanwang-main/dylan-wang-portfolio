@@ -63,9 +63,10 @@ function Spot({ spot, index, open, onToggle }: { spot: Hotspot; index: number; o
         viewport={{ once: true, amount: 0.8 }}
         transition={{ duration: 0.6, delay: 0.5 + index * 0.18, ease: EASE }}
       >
-        <span className="hotspot-ring absolute inset-0 rounded-full border border-[#F4EFE6]" />
-        <span className="hotspot-ring absolute inset-0 rounded-full border border-[#F4EFE6]" style={{ animationDelay: "1.1s" }} />
-        <span className="relative block w-3 h-3 rounded-full bg-[#F4EFE6] shadow-[0_0_0_3px_rgba(232,128,128,0.55)]" />
+        {/* Oxblood (the site's accent red) with a white rim, so it reads on light and dark screenshots */}
+        <span className="hotspot-ring absolute inset-0 rounded-full border-2 border-[var(--accent-oxblood)]" />
+        <span className="hotspot-ring absolute inset-0 rounded-full border-2 border-[var(--accent-oxblood)]" style={{ animationDelay: "1.1s" }} />
+        <span className="relative block w-3.5 h-3.5 rounded-full bg-[var(--accent-oxblood)] shadow-[0_0_0_2.5px_#fff,0_2px_10px_rgba(0,0,0,0.45)]" />
       </motion.button>
       {open && (
         <motion.div
@@ -98,7 +99,7 @@ function Spot({ spot, index, open, onToggle }: { spot: Hotspot; index: number; o
 export default function HotspotBrowser({ title, hotspots, image, aspect = "1600/795" }: { title: string; hotspots: Hotspot[]; image?: string; aspect?: string }) {
   const [open, setOpen] = useState<number | null>(0);
   return (
-    <motion.div {...fadeUp({ amount: 0.3 })} className="relative rounded-xl p-[clamp(1rem,5vw,4.5rem)]">
+    <motion.div {...fadeUp({ amount: 0.3 })} className="relative rounded-xl p-[clamp(0.75rem,2.5vw,1.75rem)]">
       {/* Clip only the painted backdrop, so hotspot notes can extend past the frame */}
       <div aria-hidden="true" className="absolute inset-0 rounded-xl overflow-hidden">
         {image ? <BlurLayer src={image} /> : <PaintLayer spec={STAGE_PAINTING} />}

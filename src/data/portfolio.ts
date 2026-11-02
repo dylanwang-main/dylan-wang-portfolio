@@ -36,14 +36,20 @@ export interface SceneData {
   heading: string;
   tagline: string;
   subtitle?: string;
+  /** Real screenshots for the blurred, drifting background collage. */
+  montage?: string[];
   theme: "dark" | "light"; // "dark" = dark scene (light-on-dark nav), "light" = light scene
   layers: SceneLayer[];
 }
+
+/** Real work screenshots, reused for the blurred scene backgrounds. */
+const WORK_SHOTS = ["/tusd-overview.png", "/n10-homepage.jpg", "/parksmart-app.jpg", "/n10-search-console.png", "/tusd-student-detail.png"];
 
 export const HERO_SCENE: SceneData = {
   id: "hero",
   heading: "Dylan Wang",
   tagline: "Data science student at UC San Diego and content creator.",
+  montage: WORK_SHOTS,
   theme: "dark",
   layers: [
     {
@@ -89,7 +95,8 @@ export const SECTION_SCENES: Record<"work" | "content" | "about" | "contact", Sc
     kicker: "Work",
     heading: "Work",
     tagline:
-      "Analytics, web development, SEO, and research.",
+      "Analytics, data science, web development, and SEO.",
+    montage: WORK_SHOTS,
     theme: "dark",
     layers: [
       {
@@ -178,6 +185,7 @@ export const SECTION_SCENES: Record<"work" | "content" | "about" | "contact", Sc
     heading: "About",
     tagline:
       "Data science student at UC San Diego, expected class of 2030.",
+    montage: ["/dylan-wang-headshot.jpg", "/ucsd-seal.png", "/parksmart-app.jpg", "/tusd-overview.png"],
     theme: "dark",
     layers: [
       {
@@ -222,6 +230,7 @@ export const SECTION_SCENES: Record<"work" | "content" | "about" | "contact", Sc
     heading: "Contact",
     tagline:
       "Direct correspondence for student organizations, recruitment, and partnerships.",
+    montage: [...WORK_SHOTS, "/dylan-wang-headshot.jpg"],
     theme: "dark",
     layers: [
       {

@@ -186,6 +186,24 @@ export function AnimatedTile({ index = 0, aspect = "4/3", image, alt = "" }: { i
   const y = useTransform(scrollYProgress, [0, 1], [26, -26]);
   const bgY = useTransform(scrollYProgress, [0, 1], [-14, 14]);
   const Card = CARDS[index % CARDS.length];
+  if (image) {
+    // Real screenshot: the stage hugs the image with the same thin margin on every side
+    return (
+      <div ref={ref} className="relative overflow-hidden rounded-lg p-[clamp(0.75rem,2.5vw,1.75rem)]">
+        <BlurLayer src={image} />
+        <motion.div
+          className="relative rounded-xl overflow-hidden"
+          style={CARD}
+          initial={{ opacity: 0, scale: 0.96 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, amount: 0.4 }}
+          transition={{ duration: 0.9, ease: EASE }}
+        >
+          <img src={image} alt={alt} loading="lazy" decoding="async" className="block w-full h-auto" />
+        </motion.div>
+      </div>
+    );
+  }
   return (
     <div
       ref={ref}
