@@ -75,7 +75,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
               href={l.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-full border border-[var(--text-ink)]/25 px-4 py-2 text-[13px] font-medium text-[var(--text-ink)] hover:bg-[var(--text-ink)] hover:text-[#F4EFE6] transition-colors"
+              className="inline-flex items-center gap-2 rounded-full border border-[var(--text-ink)]/25 px-4 py-2 text-[13px] font-medium text-[var(--text-ink)] hover:bg-[var(--accent-pop)] hover:border-[var(--accent-pop)] hover:text-white transition-colors"
             >
               {l.label} <span aria-hidden="true">↗</span>
             </a>

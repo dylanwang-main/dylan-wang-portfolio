@@ -447,7 +447,6 @@ export default function Navigation() {
 
           {/* Persistent call to action, top right (Shopify's "Start for free" slot) */}
           {(() => {
-            const dark = darkOf("cta");
             return (
               <button
                 ref={(el) => {
@@ -455,11 +454,8 @@ export default function Navigation() {
                 }}
                 onClick={() => scrollToSection("contact")}
                 style={{ position: "fixed", top: 18, right: 28, zIndex: 60 }}
-                className={`rounded-full px-4 py-2 text-[13px] font-medium tracking-wide transition-colors duration-[250ms] ease-out cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-[var(--accent-oxblood)] ${
-                  dark
-                    ? "bg-[#F4EFE6] text-[#161310] hover:bg-white"
-                    : "bg-[#161310] text-[#F4EFE6] hover:bg-[#6B2D2D]"
-                }`}
+                // the site's one persistent pop of cobalt, same on dark and cream pages
+                className="rounded-full px-4 py-2 text-[13px] font-medium tracking-wide text-white bg-[var(--accent-pop)] hover:bg-[var(--accent-pop-hover)] shadow-[0_6px_20px_rgba(46,91,255,0.35)] transition-colors duration-[250ms] ease-out cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
               >
                 Get in touch
               </button>
