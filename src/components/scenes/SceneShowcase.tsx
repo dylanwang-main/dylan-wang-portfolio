@@ -423,9 +423,11 @@ export default function SceneShowcase({
   const layout = LAYOUTS[kind];
   const mainY = useTransform(() => `${(1 - build.get()) * 16 - exit.get() * 14}vh`);
   const mainRot = useTransform(() => 16 - 12 * build.get() + 8 * exit.get());
-  const mainScale = useTransform(() => 0.92 + 0.08 * build.get());
+  const mainScale = useTransform(() => 0.72 + 0.06 * build.get());
   const sideY = useTransform(() => `${(1 - build.get()) * 28 - exit.get() * 30}vh`);
-  const sideOpacity = useRange(build, 0.2, 0.7);
+  const sideOpacityIn = useRange(build, 0.2, 0.7);
+  // secondary element: the companion card never goes past half strength
+  const sideOpacity = useTransform(() => 0.5 * sideOpacityIn.get());
 
   if (!layout) return null;
   const { Main, Side, chips, mainClass } = layout;
@@ -434,10 +436,14 @@ export default function SceneShowcase({
   return (
     <div aria-hidden="true" className="absolute inset-0 overflow-hidden pointer-events-none select-none" style={{ zIndex: 22 }}>
       {/* hero window */}
-      <div className="absolute left-0 right-0 md:left-[190px] md:pr-[9vw] bottom-[-10vh] flex justify-center px-4 md:px-0" style={{ perspective: 1600 }}>
+      {/* Secondary element: scaled down, see-through and slightly soft so the heading stays the focus */}
+      <div
+        className="absolute left-0 right-0 md:left-[190px] md:pr-[9vw] bottom-[-16vh] flex justify-center px-4 md:px-0"
+        style={{ perspective: 1600, opacity: 0.55, filter: "blur(0.6px) saturate(0.85)" }}
+      >
         <motion.div
           className={`w-full ${mainClass}`}
-          style={still ?? { y: mainY, rotateX: mainRot, scale: mainScale, transformOrigin: "50% 100%" }}
+          style={still ? { ...still, scale: 0.75 } : { y: mainY, rotateX: mainRot, scale: mainScale, transformOrigin: "50% 100%" }}
         >
           <Main build={reduced ? ONE : build} />
         </motion.div>
@@ -446,8 +452,8 @@ export default function SceneShowcase({
       {/* companion card */}
       {Side && (
         <motion.div
-          className="absolute hidden md:block right-[3vw] bottom-[7vh] w-[15vw] min-w-[200px] max-w-[300px] h-[34vh]"
-          style={reduced ? { rotate: 3 } : { y: sideY, rotate: 3, opacity: sideOpacity }}
+          className="absolute hidden md:block right-[3vw] bottom-[4vh] w-[11vw] min-w-[150px] max-w-[220px] h-[26vh]"
+          style={reduced ? { rotate: 3, opacity: 0.5 } : { y: sideY, rotate: 3, opacity: sideOpacity }}
         >
           <Side />
         </motion.div>

@@ -58,20 +58,20 @@ function vn(x: number, y: number) {
   return mix(mix(h(xi, yi), h(xi + 1, yi), u), mix(h(xi, yi + 1), h(xi + 1, yi + 1), u), v);
 }
 
-/** Ember colour for a heat value 0..1: dull red, orange, then pale yellow at the hot front. */
+/** Ember colour for a heat value 0..1: deep cobalt, bright cobalt, then icy white at the hot front. */
 function heatColor(i: number) {
   const a = clamp01((i - 0.06) * 1.15);
   let r: number, g: number, b: number;
   if (i < 0.5) {
     const t = i / 0.5;
-    r = mix(150, 255, t);
-    g = mix(28, 110, t);
-    b = mix(12, 32, t);
+    r = mix(22, 58, t);
+    g = mix(40, 102, t);
+    b = mix(130, 255, t);
   } else {
     const t = Math.min(1, (i - 0.5) / 0.5);
-    r = 255;
-    g = mix(110, 232, t);
-    b = mix(32, 176, t);
+    r = mix(58, 214, t);
+    g = mix(102, 228, t);
+    b = 255;
   }
   return `rgba(${r | 0},${g | 0},${b | 0},${a.toFixed(3)})`;
 }
@@ -306,7 +306,7 @@ export default function PaperEdge({
             continue;
           }
           const k = (1 - s.age / s.life) ** 1.5;
-          ctx.fillStyle = `rgba(255,${(150 + 80 * k) | 0},70,${(0.9 * k).toFixed(3)})`;
+          ctx.fillStyle = `rgba(${(110 + 100 * k) | 0},${(150 + 80 * k) | 0},255,${(0.9 * k).toFixed(3)})`;
           ctx.beginPath();
           ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
           ctx.fill();
