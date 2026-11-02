@@ -334,7 +334,7 @@ export const WORK_PROJECTS: ProjectData[] = [
     slots: [
       {
         label: "Student detail view",
-        prompt: "Search one student ID to see every CTE course, term and grade, and whether they completed their pathway. Student details blurred for privacy.",
+        prompt: "Search one student ID to see every CTE course, term and grade, and whether they completed their pathway. All student data shown is fake sample data.",
         image: "/tusd-student-detail.png",
         popups: ["Power BI", "Python", "Excel"],
         aspect: "16/11",
