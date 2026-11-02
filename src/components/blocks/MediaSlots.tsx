@@ -19,6 +19,24 @@ export function PaintLayer({ spec, className = "" }: { spec: PaintSpec; classNam
   );
 }
 
+/** A heavily blurred copy of a screenshot, used as the stage behind that same screenshot. */
+export function BlurLayer({ src }: { src: string }) {
+  return (
+    <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
+      <img
+        src={src}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        className="absolute inset-0 w-full h-full object-cover"
+        style={{ filter: "blur(60px) saturate(1.35)", transform: "scale(1.35)" }}
+      />
+      {/* soft vignette so the sharp screenshot still separates from its blur */}
+      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 45%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.22) 100%)" }} />
+    </div>
+  );
+}
+
 const TONES = [
   "linear-gradient(135deg,#6B2D2D 0%,#1b1612 100%)",
   "linear-gradient(135deg,#3a2a20 0%,#8a6a5a 100%)",
@@ -175,9 +193,15 @@ export function AnimatedTile({ index = 0, aspect = "4/3", image, alt = "" }: { i
       style={{ ["--ar" as string]: aspect.replace("/", " / "), background: TONES[index % TONES.length] }}
     >
       <motion.div className="absolute -inset-[8%]" style={{ y: bgY }}>
-        <PaintLayer spec={PAINTINGS[index % PAINTINGS.length]} />
-        <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 70% 22%, rgba(255,240,225,0.24), transparent 55%)" }} />
-        <div className="absolute inset-0 mix-blend-soft-light opacity-60" style={{ backgroundImage: GRAIN }} />
+        {image ? (
+          <BlurLayer src={image} />
+        ) : (
+          <>
+            <PaintLayer spec={PAINTINGS[index % PAINTINGS.length]} />
+            <div className="absolute inset-0" style={{ background: "radial-gradient(circle at 70% 22%, rgba(255,240,225,0.24), transparent 55%)" }} />
+            <div className="absolute inset-0 mix-blend-soft-light opacity-60" style={{ backgroundImage: GRAIN }} />
+          </>
+        )}
       </motion.div>
       <motion.div
         className={`absolute left-[9%] right-[9%] rounded-xl overflow-hidden ${image ? "top-[16%]" : "top-[13%] bottom-[-10%]"}`}

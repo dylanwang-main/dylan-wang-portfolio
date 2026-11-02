@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { EASE, fadeUp } from "../../lib/motion";
-import { PaintLayer, STAGE_PAINTING } from "./MediaSlots";
+import { BlurLayer, PaintLayer, STAGE_PAINTING } from "./MediaSlots";
 
 export interface Hotspot {
   /** Position over the page, in % of the browser viewport. */
@@ -101,7 +101,7 @@ export default function HotspotBrowser({ title, hotspots, image, aspect = "1600/
     <motion.div {...fadeUp({ amount: 0.3 })} className="relative rounded-xl p-[clamp(1rem,5vw,4.5rem)]">
       {/* Clip only the painted backdrop, so hotspot notes can extend past the frame */}
       <div aria-hidden="true" className="absolute inset-0 rounded-xl overflow-hidden">
-        <PaintLayer spec={STAGE_PAINTING} />
+        {image ? <BlurLayer src={image} /> : <PaintLayer spec={STAGE_PAINTING} />}
       </div>
       <div className="relative mx-auto max-w-[980px] rounded-xl shadow-[0_30px_80px_rgba(0,0,0,0.5)]" style={{ border: `1px solid ${LINE}` }}>
         <div className="flex items-center gap-3 px-4 h-9 rounded-t-xl bg-[#221c17]" style={{ borderBottom: `1px solid ${LINE}` }}>
