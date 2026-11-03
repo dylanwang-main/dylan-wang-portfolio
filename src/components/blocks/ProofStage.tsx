@@ -121,6 +121,7 @@ export function TapSeal({ label, index }: { label: string; index: number }) {
       className={`seal w-9 h-9 shrink-0 -rotate-6 cursor-pointer ${flipped ? "is-flipped" : ""}`}
       style={{ filter: "drop-shadow(0 2px 3px rgba(63,22,22,0.3))" }}
     >
+      <span className="seal-hit" aria-hidden="true" />
       <span className="seal-inner block">
         <span className="seal-face block"><SealFace seed={label} glyph={label.charAt(0)} /></span>
         <span className="seal-face seal-back block"><SealFace seed={label + "b"} glyph={ROMAN[index] ?? "❧"} serif={false} /></span>
@@ -141,6 +142,7 @@ function WaxSeal({ label, index, build, s0 }: { label: string; index: number; bu
       className={`seal w-12 h-12 shrink-0 cursor-pointer ${flipped ? "is-flipped" : ""}`}
       style={{ scale, rotate, opacity, filter: "drop-shadow(0 3px 5px rgba(63,22,22,0.35))" }}
     >
+      <span className="seal-hit" aria-hidden="true" />
       <div className="seal-inner">
         <div className="seal-face"><SealFace seed={label} glyph={label.charAt(0)} /></div>
         <div className="seal-face seal-back"><SealFace seed={label + "b"} glyph={ROMAN[index] ?? "❧"} serif={false} /></div>
@@ -279,7 +281,10 @@ export default function ProofStage({
 
   return (
     <div ref={stageRef} className={`relative ${className}`}>
-      {/* desktop */}
+      {/* desktop: just the window, full width, when there is nothing to put beside it */}
+      {cards.length === 0 && !Side ? (
+        <div className={`hidden lg:block relative ${heightClass}`}>{win}</div>
+      ) : (
       <div
         className={`hidden lg:grid ${
           // margin notes (seal + name + note) need wider side columns than chips
@@ -299,6 +304,7 @@ export default function ProofStage({
           {right.map(chip)}
         </motion.div>
       </div>
+      )}
 
       {/* phones and tablets */}
       <div className="lg:hidden">

@@ -58,18 +58,38 @@ function SlotMarginalia({
   labels,
   notes,
   maxWidth,
+  targets,
 }: {
   index: number;
   image?: string;
   alt: string;
   aspect?: string;
   maxWidth?: number;
+  /** 0..1 height in the image that each note points at; pins the note's leader to that row. */
+  targets?: Record<string, number>;
   labels: string[];
   notes: Record<string, string>;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.95", "start 0.35"] });
-  const column = (side: "left" | "right") => (
+  // the tile's own padding: the image starts this far in from the tile's top and bottom
+  const PAD = "clamp(0.75rem, 2.5vw, 1.75rem)";
+  const column = (side: "left" | "right") =>
+    targets ? (
+      <div className="hidden lg:block relative">
+        {labels.map((l, k) =>
+          (k % 2 === 0) === (side === "left") ? (
+            <div
+              key={l}
+              className="absolute left-0 right-0 -translate-y-1/2"
+              style={{ top: `calc(${PAD} + ${targets[l] ?? 0.5} * (100% - 2 * ${PAD}))` }}
+            >
+              <MarginNote label={l} note={notes[l]} side={side} build={scrollYProgress} index={k} />
+            </div>
+          ) : null
+        )}
+      </div>
+    ) : (
     <div className="hidden lg:flex flex-col justify-evenly gap-6 py-[6%]">
       {labels.map((l, k) =>
         (k % 2 === 0) === (side === "left") ? (
@@ -77,12 +97,17 @@ function SlotMarginalia({
         ) : null
       )}
     </div>
-  );
+    );
   return (
     <div ref={ref}>
-      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,240px)_minmax(0,1fr)_minmax(0,240px)] lg:gap-5 items-stretch">
+      <div
+        className={`grid grid-cols-1 lg:gap-5 items-stretch ${
+          // a narrow (phone) screenshot sits at its own width with the notes hugging it
+          maxWidth ? "lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]" : "lg:grid-cols-[minmax(0,240px)_minmax(0,1fr)_minmax(0,240px)]"
+        }`}
+      >
         {column("left")}
-        <div className="w-full mx-auto self-center" style={maxWidth ? { maxWidth } : undefined}>
+        <div className="w-full mx-auto self-center" style={maxWidth ? { maxWidth, width: maxWidth } : undefined}>
           <AnimatedTile index={index} aspect={aspect ?? "16/10"} image={image} alt={alt} />
         </div>
         {column("right")}
@@ -110,7 +135,8 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
   // A project with a real screenshot is shown by its hotspot browser instead of a wireframe demo.
   const hasDemo = !project.screenshot;
   const roomy = usePinned();
-  const pinned = hasDemo && roomy;
+  // the reel cards read better as a normal block than pinned under the heading
+  const pinned = hasDemo && roomy && !project.reels;
   const wrapRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: pinP } = useScroll({ target: wrapRef, offset: ["start start", "end end"] });
 
@@ -221,8 +247,14 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
               className="mt-8"
             />
           ) : (
-            <ProofStage Main={Main} Side={Side} cards={project.tools}
-              notes={project.toolNotes} />
+            <ProofStage
+              Main={Main}
+              Side={Side}
+              // the reels speak for themselves: no tool notes around them
+              cards={project.reels ? [] : project.tools}
+              notes={project.reels ? undefined : project.toolNotes}
+              heightClass={project.reels ? "h-[clamp(440px,72vh,720px)]" : undefined}
+            />
           )}
 
           {hasDemo && !pinned && !project.reels && (
@@ -262,7 +294,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
               {project.slotsTextOnly ? (
                 <span aria-hidden="true" className="block w-8 h-px bg-[var(--accent-oxblood)]" />
               ) : slot.popups && slot.popups.length > 0 && slot.popupNotes ? (
-                <SlotMarginalia index={i} image={slot.image} alt={slot.label} aspect={slot.aspect} labels={slot.popups} notes={slot.popupNotes} maxWidth={slot.tileMaxWidth} />
+                <SlotMarginalia index={i} image={slot.image} alt={slot.label} aspect={slot.aspect} labels={slot.popups} notes={slot.popupNotes} maxWidth={slot.tileMaxWidth} targets={slot.popupTargets} />
               ) : slot.popups && slot.popups.length > 0 ? (
                 <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,180px)_minmax(0,1fr)_minmax(0,180px)] lg:gap-6 items-stretch">
                   <SidePopups side="left" labels={slot.popups.filter((_, k) => k % 2 === 0)} />

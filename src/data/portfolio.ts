@@ -311,6 +311,8 @@ export interface ProjectData {
     popups?: string[];
     /** One short line per popup label; turns the popups into margin notes with wax seals. */
     popupNotes?: Record<string, string>;
+    /** Where in the image (0 = top, 1 = bottom) each popup note points. */
+    popupTargets?: Record<string, number>;
     /** Cap the image width (px), for tall phone screenshots. */
     tileMaxWidth?: number;
     /** Tile aspect ratio when popups are shown, e.g. "16/10". */
@@ -527,6 +529,8 @@ export const CONTENT_PROJECT: ProjectData = {
       image: "/content/reel-insights.png",
       tileMaxWidth: 340,
       popups: ["Non-followers", "Reels tab", "Watch time", "Interactions"],
+      // rows in the screenshot each note points at
+      popupTargets: { "Non-followers": 0.76, "Reels tab": 0.945, "Watch time": 0.37, Interactions: 0.42 },
       popupNotes: {
         "Non-followers": "99.7% of views from people not following yet",
         "Reels tab": "85.8% of views came from the Reels tab",

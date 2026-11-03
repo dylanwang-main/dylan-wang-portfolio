@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { motion, useTransform, motionValue, MotionValue } from "motion/react";
 import {
   WORK_PROJECTS,
@@ -383,13 +383,22 @@ const LAYOUTS: Record<string, Layout> = {
 
 const CHIP_EXIT_VH = 48; // the orbit leaves at the same speed as the heading
 
+/** Orbit geometry, shared by the dashed path and the labels so they can never drift apart. */
+function orbitGeom(W: number, H: number) {
+  // centre on the heading block, which sits right of the nav rail and above the middle
+  const cx = W >= 768 ? (Math.min(224, W * 0.15) + W - 56) / 2 : W / 2;
+  return { cx, cy: H * 0.38, rx: Math.min(W * 0.37, 620), ry: Math.min(H * 0.2, 190) };
+}
+
 /**
- * Tools orbiting the section heading like planets on a tilted ellipse. The far side of the orbit
- * is smaller and dimmer, the near side bright, so the ring reads as 3D. Positions are written
- * straight to the DOM each frame (no React re-render), and the loop pauses when off screen.
+ * Tools orbiting the section heading like planets on a tilted ellipse. Each label's dot sits
+ * exactly on the dashed path. The far side is smaller and dimmer, the near side bright, and a
+ * label fades out while it would cross the heading or the tagline, so text never overlaps.
+ * Positions are written straight to the DOM each frame, and the loop pauses when off screen.
  */
 function Orbit({ labels, build, exit, reduced }: { labels: string[]; build: V; exit: V; reduced: boolean }) {
   const wrapRef = useRef<HTMLDivElement>(null);
+  const pathRef = useRef<SVGEllipseElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const prog = useRange(build, 0.3, 0.65);
   const y = useTransform(() => `${-exit.get() * CHIP_EXIT_VH}vh`);
@@ -398,16 +407,37 @@ function Orbit({ labels, build, exit, reduced }: { labels: string[]; build: V; e
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!wrap) return;
+    const scene = wrap.closest("[data-nav-theme]");
+    const heading = scene?.querySelector("h2") ?? null;
+    const tagline = scene?.querySelector("p") ?? null;
     let raf = 0;
     let visible = true;
-    const place = (t: number) => {
+    let sizes: { w: number; h: number }[] = [];
+    const fade = labels.map(() => 1);
+    const measure = () => {
+      sizes = itemRefs.current.map((el) => ({ w: el?.offsetWidth ?? 0, h: el?.offsetHeight ?? 0 }));
+    };
+    const DOT = 3; // half the dot's width: the dot's centre is the point on the path
+    const PAD = 14;
+
+    const place = (t: number, ease: number) => {
+      // reads first (layout), then writes, so the browser lays out once per frame
+      const box = wrap.getBoundingClientRect();
       const W = wrap.clientWidth;
       const H = wrap.clientHeight;
-      // centre on the heading block, which sits right of the nav rail and above the middle
-      const cx = W >= 768 ? (Math.min(224, W * 0.15) + W - 56) / 2 : W / 2;
-      const cy = H * 0.38;
-      const rx = Math.min(W * 0.37, 620);
-      const ry = Math.min(H * 0.2, 190);
+      const avoid = ([heading, tagline].filter(Boolean) as Element[]).map((el) => {
+          const r = el.getBoundingClientRect();
+          return { l: r.left - box.left - PAD, r: r.right - box.left + PAD, t: r.top - box.top - PAD, b: r.bottom - box.top + PAD };
+        });
+      const { cx, cy, rx, ry } = orbitGeom(W, H);
+      const p = pathRef.current;
+      if (p) {
+        p.setAttribute("cx", cx.toFixed(1));
+        p.setAttribute("cy", cy.toFixed(1));
+        p.setAttribute("rx", rx.toFixed(1));
+        p.setAttribute("ry", ry.toFixed(1));
+        p.setAttribute("transform", `rotate(${((TILT * 180) / Math.PI).toFixed(2)} ${cx.toFixed(1)} ${cy.toFixed(1)})`);
+      }
       labels.forEach((_, i) => {
         const el = itemRefs.current[i];
         if (!el) return;
@@ -417,13 +447,21 @@ function Orbit({ labels, build, exit, reduced }: { labels: string[]; build: V; e
         const x = cx + ex * Math.cos(TILT) - ey * Math.sin(TILT);
         const yy = cy + ex * Math.sin(TILT) + ey * Math.cos(TILT);
         const depth = (Math.sin(a) + 1) / 2; // 0 = far side (top), 1 = near side (bottom)
-        el.style.transform = `translate3d(${x.toFixed(1)}px, ${yy.toFixed(1)}px, 0) translate(-50%, -50%) scale(${(0.78 + 0.27 * depth).toFixed(3)})`;
-        el.style.opacity = (0.28 + 0.72 * depth).toFixed(3);
+        const s = 0.78 + 0.27 * depth;
+        const { w, h } = sizes[i] ?? { w: 0, h: 0 };
+        const L = x - DOT;
+        const R = L + w * s;
+        const T = yy - (h * s) / 2;
+        const B = yy + (h * s) / 2;
+        const hit = avoid.some((z) => L < z.r && R > z.l && T < z.b && B > z.t);
+        fade[i] += ((hit ? 0 : 1) - fade[i]) * ease;
+        el.style.transform = `translate3d(${(x - DOT).toFixed(1)}px, ${yy.toFixed(1)}px, 0) translateY(-50%) scale(${s.toFixed(3)})`;
+        el.style.opacity = ((0.28 + 0.72 * depth) * fade[i]).toFixed(3);
         el.style.filter = depth < 0.35 ? `blur(${((0.35 - depth) * 3).toFixed(2)}px)` : "none";
       });
     };
     const loop = (now: number) => {
-      place(now / 1000);
+      place(now / 1000, 0.14);
       raf = visible ? requestAnimationFrame(loop) : 0;
     };
     const io = new IntersectionObserver(([e]) => {
@@ -431,22 +469,27 @@ function Orbit({ labels, build, exit, reduced }: { labels: string[]; build: V; e
       if (visible && !raf && !reduced) raf = requestAnimationFrame(loop);
     });
     io.observe(wrap);
-    const onResize = () => place(performance.now() / 1000);
-    window.addEventListener("resize", onResize);
-    if (reduced) place(0);
+    const ro = new ResizeObserver(() => {
+      measure();
+      place(performance.now() / 1000, 1);
+    });
+    ro.observe(wrap);
+    measure();
+    document.fonts?.ready.then(measure);
+    if (reduced) place(0, 1);
     else raf = requestAnimationFrame(loop);
     return () => {
       cancelAnimationFrame(raf);
       io.disconnect();
-      window.removeEventListener("resize", onResize);
+      ro.disconnect();
     };
   }, [labels, reduced, TILT]);
 
   return (
     <motion.div ref={wrapRef} className="absolute inset-0 hidden lg:block" style={{ opacity: prog, y }}>
-      {/* the orbit path itself: a faint tilted ellipse */}
+      {/* the orbit path itself: a faint tilted ellipse, positioned by the same geometry */}
       <svg className="absolute inset-0 w-full h-full overflow-visible" aria-hidden="true">
-        <OrbitPath tilt={TILT} />
+        <ellipse ref={pathRef} fill="none" stroke="rgba(244,239,230,0.12)" strokeWidth="1" strokeDasharray="2 6" />
       </svg>
       {labels.map((label, i) => (
         <div
@@ -455,9 +498,10 @@ function Orbit({ labels, build, exit, reduced }: { labels: string[]; build: V; e
             itemRefs.current[i] = el;
           }}
           className="absolute left-0 top-0 flex items-center gap-2 whitespace-nowrap will-change-transform"
+          style={{ transformOrigin: "3px 50%" }}
         >
           <span
-            className="block w-1.5 h-1.5 rounded-full"
+            className="block w-1.5 h-1.5 rounded-full shrink-0"
             style={{ background: i % 3 === 0 ? "#E88080" : CREAM, boxShadow: `0 0 10px ${i % 3 === 0 ? "rgba(232,128,128,0.9)" : "rgba(244,239,230,0.8)"}` }}
           />
           <span className="text-[11px] uppercase tracking-[0.24em]" style={{ color: CREAM, textShadow: "0 1px 12px rgba(0,0,0,0.85)" }}>
@@ -509,37 +553,6 @@ function ToolTicker({ labels, build, exit, reduced }: { labels: string[]; build:
   );
 }
 
-/** Draws the orbit ellipse at the same centre, radii and tilt the labels use. */
-function OrbitPath({ tilt }: { tilt: number }) {
-  const [box, setBox] = useState({ W: 0, H: 0 });
-  const ref = useRef<SVGEllipseElement>(null);
-  useEffect(() => {
-    const svg = ref.current?.ownerSVGElement;
-    if (!svg) return;
-    const f = () => setBox({ W: svg.clientWidth, H: svg.clientHeight });
-    f();
-    window.addEventListener("resize", f);
-    return () => window.removeEventListener("resize", f);
-  }, []);
-  const { W, H } = box;
-  const cx = W >= 768 ? (Math.min(224, W * 0.15) + W - 56) / 2 : W / 2;
-  const cy = H * 0.38;
-  return (
-    <ellipse
-      ref={ref}
-      cx={cx}
-      cy={cy}
-      rx={Math.min(W * 0.37, 620)}
-      ry={Math.min(H * 0.2, 190)}
-      fill="none"
-      stroke="rgba(244,239,230,0.12)"
-      strokeWidth="1"
-      strokeDasharray="2 6"
-      transform={`rotate(${((tilt * 180) / Math.PI).toFixed(2)} ${cx} ${cy})`}
-    />
-  );
-}
-
 export default function SceneShowcase({
   kind,
   build,
@@ -552,45 +565,12 @@ export default function SceneShowcase({
   reduced: boolean;
 }) {
   const layout = LAYOUTS[kind];
-  const mainY = useTransform(() => `${(1 - build.get()) * 16 - exit.get() * 14}vh`);
-  const mainRot = useTransform(() => 16 - 12 * build.get() + 8 * exit.get());
-  const mainScale = useTransform(() => 0.72 + 0.06 * build.get());
-  const sideY = useTransform(() => `${(1 - build.get()) * 28 - exit.get() * 30}vh`);
-  const sideOpacityIn = useRange(build, 0.2, 0.7);
-  // fades in as it builds, then stays fully opaque in front of the background
-  const sideOpacity = sideOpacityIn;
-
   if (!layout) return null;
-  const { Main, Side, chips, mainClass } = layout;
-  const still = reduced ? { y: 0, rotateX: 0, scale: 1 } : undefined;
+  const { chips } = layout;
 
   return (
     <div aria-hidden="true" className="absolute inset-0 overflow-hidden pointer-events-none select-none" style={{ zIndex: 22 }}>
-      {/* hero window */}
-      {/* Secondary element: scaled down and slightly dimmed (but fully opaque, so the background never shows through) */}
-      <div
-        className="absolute left-0 right-0 md:left-[190px] md:pr-[9vw] bottom-[-16vh] flex justify-center px-4 md:px-0"
-        style={{ perspective: 1600, filter: "brightness(0.82) saturate(0.85)" }}
-      >
-        <motion.div
-          className={`w-full ${mainClass}`}
-          style={still ? { ...still, scale: 0.75 } : { y: mainY, rotateX: mainRot, scale: mainScale, transformOrigin: "50% 100%" }}
-        >
-          <Main build={reduced ? ONE : build} />
-        </motion.div>
-      </div>
-
-      {/* companion card */}
-      {Side && (
-        <motion.div
-          className="absolute hidden md:block right-[3vw] bottom-[4vh] w-[11vw] min-w-[150px] max-w-[220px] h-[26vh]"
-          style={reduced ? { rotate: 3, filter: "brightness(0.82)" } : { y: sideY, rotate: 3, opacity: sideOpacity, filter: "brightness(0.82)" }}
-        >
-          <Side />
-        </motion.div>
-      )}
-
-      {/* floating labels, each at its own depth */}
+      {/* tools around the heading: an orbit on desktop, a ticker on phones */}
       <Orbit labels={chips.slice(0, 12)} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} reduced={reduced} />
       <ToolTicker labels={chips.slice(0, 12)} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} reduced={reduced} />
     </div>
