@@ -118,12 +118,12 @@ export function TapSeal({ label, index }: { label: string; index: number }) {
       aria-label={`${label}: tap to flip`}
       aria-pressed={flipped}
       onClick={() => setFlipped((f) => !f)}
-      className={`seal w-9 h-9 shrink-0 -rotate-6 cursor-pointer ${flipped ? "is-flipped" : ""}`}
+      className={`seal w-9 h-9 shrink-0 cursor-pointer ${flipped ? "is-flipped" : ""}`}
       style={{ filter: "drop-shadow(0 2px 3px rgba(63,22,22,0.3))" }}
     >
       <span className="seal-hit" aria-hidden="true" />
       <span className="seal-inner block">
-        <span className="seal-face block"><SealFace seed={label} glyph={label.charAt(0)} /></span>
+        <span className="seal-face block" style={{ rotate: "-6deg" }}><SealFace seed={label} glyph={label.charAt(0)} /></span>
         <span className="seal-face seal-back block"><SealFace seed={label + "b"} glyph={ROMAN[index] ?? "❧"} serif={false} /></span>
       </span>
     </button>
@@ -140,11 +140,12 @@ function WaxSeal({ label, index, build, s0 }: { label: string; index: number; bu
       // tap flips it too (tablets in the wide layout); mouse users get the hover flip
       onClick={() => setFlipped((f) => !f)}
       className={`seal w-12 h-12 shrink-0 cursor-pointer ${flipped ? "is-flipped" : ""}`}
-      style={{ scale, rotate, opacity, filter: "drop-shadow(0 3px 5px rgba(63,22,22,0.35))" }}
+      style={{ scale, opacity, filter: "drop-shadow(0 3px 5px rgba(63,22,22,0.35))" }}
     >
       <span className="seal-hit" aria-hidden="true" />
       <div className="seal-inner">
-        <div className="seal-face"><SealFace seed={label} glyph={label.charAt(0)} /></div>
+        {/* only the front is tilted (the stamp lands at an angle); the back stays upright */}
+        <motion.div className="seal-face" style={{ rotate }}><SealFace seed={label} glyph={label.charAt(0)} /></motion.div>
         <div className="seal-face seal-back"><SealFace seed={label + "b"} glyph={ROMAN[index] ?? "❧"} serif={false} /></div>
       </div>
     </motion.div>

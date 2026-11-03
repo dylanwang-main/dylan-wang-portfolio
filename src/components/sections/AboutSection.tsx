@@ -1,11 +1,9 @@
 import { PAGE_COLUMN } from "../../lib/layout";
 import { motion } from "motion/react";
-import { ABOUT_PROFILE, EXPERIENCE, EDUCATION, LEADERSHIP, SKILLS, RESUME_LINK } from "../../data/portfolio";
-import IndexPanel, { IndexList, SkillList } from "../blocks/IndexPanel";
+import { ABOUT_PROFILE } from "../../data/portfolio";
 import ProofStage from "../blocks/ProofStage";
 import { AboutMain, AboutSide } from "../scenes/SceneShowcase";
 import SubBlock from "../blocks/SubBlock";
-import CardFan from "../blocks/CardFan";
 import { TileGrid } from "../blocks/MediaSlots";
 import { fadeUp } from "../../lib/motion";
 
@@ -55,26 +53,8 @@ export default function AboutSection() {
           />
         </SubBlock>
 
-        <SubBlock label="Leadership" headline="Mentoring five students. Teaching twenty more.">
-          <CardFan
-            cards={[
-              { label: "PHOTO: mentorship cohort", recommendedSize: "4:5 / 1080 × 1350" },
-              { label: "PHOTO: coding workshop", recommendedSize: "4:5 / 1080 × 1350" },
-              { label: "PHOTO: Discovery Cube volunteering", recommendedSize: "4:5 / 1080 × 1350" },
-            ]}
-          />
-        </SubBlock>
       </div>
 
-      {/* INDEX: the resume at a glance */}
-      <SubBlock label="At a glance" headline="Experience, education, and the rest." linkLabel="Download resume" href={RESUME_LINK.url}>
-        <IndexPanel>
-          <IndexList heading="Experience" entries={EXPERIENCE} />
-          <IndexList heading="Education" entries={EDUCATION} />
-          <IndexList heading="Leadership & Volunteering" entries={LEADERSHIP} />
-          <SkillList groups={SKILLS} />
-        </IndexPanel>
-      </SubBlock>
     </section>
   );
 }

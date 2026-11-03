@@ -191,7 +191,7 @@ body {
 @media (hover: hover) { .seal-hit:hover ~ .seal-inner { transform: rotateY(180deg); } }
 .seal.is-flipped .seal-inner { transform: rotateY(180deg); }
 .seal-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-.seal-back { transform: rotateY(180deg) rotate(-6deg); }
+.seal-back { transform: rotateY(180deg); }
 @media (prefers-reduced-motion: reduce) { .seal-inner { transition: none; } }
 
 /* Phone tool ticker under each section heading: two copies of the row, so -50% loops seamlessly */

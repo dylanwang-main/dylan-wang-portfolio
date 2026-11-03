@@ -418,17 +418,24 @@ function Orbit({ labels, build, exit, reduced }: { labels: string[]; build: V; e
       sizes = itemRefs.current.map((el) => ({ w: el?.offsetWidth ?? 0, h: el?.offsetHeight ?? 0 }));
     };
     const DOT = 3; // half the dot's width: the dot's centre is the point on the path
-    const PAD = 14;
+    const PAD = 2;
+    // ranges over the actual text, so collisions use the letters' line boxes, not the element boxes
+    const ranges = ([heading, tagline].filter(Boolean) as Element[]).map((el) => {
+      const r = document.createRange();
+      r.selectNodeContents(el);
+      return r;
+    });
 
     const place = (t: number, ease: number) => {
       // reads first (layout), then writes, so the browser lays out once per frame
       const box = wrap.getBoundingClientRect();
       const W = wrap.clientWidth;
       const H = wrap.clientHeight;
-      const avoid = ([heading, tagline].filter(Boolean) as Element[]).map((el) => {
-          const r = el.getBoundingClientRect();
-          return { l: r.left - box.left - PAD, r: r.right - box.left + PAD, t: r.top - box.top - PAD, b: r.bottom - box.top + PAD };
-        });
+      const avoid = ranges.flatMap((rg) =>
+        Array.from(rg.getClientRects())
+          .filter((r) => r.width > 2)
+          .map((r) => ({ l: r.left - box.left - PAD, r: r.right - box.left + PAD, t: r.top - box.top - PAD, b: r.bottom - box.top + PAD }))
+      );
       const { cx, cy, rx, ry } = orbitGeom(W, H);
       const p = pathRef.current;
       if (p) {
@@ -454,7 +461,8 @@ function Orbit({ labels, build, exit, reduced }: { labels: string[]; build: V; e
         const T = yy - (h * s) / 2;
         const B = yy + (h * s) / 2;
         const hit = avoid.some((z) => L < z.r && R > z.l && T < z.b && B > z.t);
-        fade[i] += ((hit ? 0 : 1) - fade[i]) * ease;
+        // behind text: fade into the background, never fully away
+        fade[i] += ((hit ? 0.22 : 1) - fade[i]) * ease;
         el.style.transform = `translate3d(${(x - DOT).toFixed(1)}px, ${yy.toFixed(1)}px, 0) translateY(-50%) scale(${s.toFixed(3)})`;
         el.style.opacity = ((0.28 + 0.72 * depth) * fade[i]).toFixed(3);
         el.style.filter = depth < 0.35 ? `blur(${((0.35 - depth) * 3).toFixed(2)}px)` : "none";
