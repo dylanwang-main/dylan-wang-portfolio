@@ -149,7 +149,7 @@ export function MarginNote({
   const line = useTransform(build, [s0 + 0.04, s0 + 0.26], [0, 1]);
   const toWindow = side === "left";
   return (
-    <motion.div data-ps="note" style={{ opacity, x }} className={`group flex items-center gap-3 w-full ${toWindow ? "justify-end" : "justify-start flex-row-reverse"}`}>
+    <motion.div data-ps="note" style={{ opacity, x }} className={`seal-host flex items-center gap-3 max-w-full ${toWindow ? "ml-auto" : "mr-auto flex-row-reverse"}`}>
       <WaxSeal label={label} index={index} build={build} s0={s0} />
       <div className={toWindow ? "text-right" : "text-left"}>
         <span className="block font-editorial-serif italic text-[21px] leading-tight text-[var(--text-ink)] whitespace-nowrap">

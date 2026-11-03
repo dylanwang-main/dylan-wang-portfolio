@@ -354,7 +354,18 @@ const LAYOUTS: Record<string, Layout> = {
   content: {
     Main: ContentMain,
     Side: ContentSide,
-    chips: CONTENT_PROJECT.tools,
+    // editing tools plus every platform the content goes out on
+    chips: [
+      ...CONTENT_PROJECT.tools,
+      "YouTube",
+      "TikTok",
+      "Instagram",
+      "Facebook",
+      "Snapchat",
+      "YouTube Studio",
+      "TikTok Studio",
+      "Edits",
+    ],
     mainClass: "h-[42vh] md:h-[48vh] md:w-[min(62vw,1100px)]",
   },
   about: {
@@ -540,7 +551,7 @@ export default function SceneShowcase({
       )}
 
       {/* floating labels, each at its own depth */}
-      <Orbit labels={chips.slice(0, 10)} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} reduced={reduced} />
+      <Orbit labels={chips.slice(0, 12)} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} reduced={reduced} />
     </div>
   );
 }
