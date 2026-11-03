@@ -306,28 +306,37 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
         </div>
       )}
 
-      {/* FROM THE DMS: real message bubbles (names and photos cropped out), scattered like pinned notes */}
+      {/* FROM THE DMS: real message bubbles (names and photos cropped out), laid out straight in a masonry grid */}
       {project.dmShots && project.dmShots.length > 0 && (
         <div className="pb-[clamp(3rem,6vw,5rem)]">
           <span className="block text-[12px] uppercase tracking-[0.22em] text-[var(--taupe-subtle)]">From the DMs</span>
-          <div className="mt-8 columns-1 md:columns-2 xl:columns-3 gap-8">
-            {project.dmShots.map((src, i) => {
-              const tilt = [-2.2, 1.6, -1, 2.4, -1.8][i % 5];
-              return (
-                <motion.figure
-                  key={src}
-                  initial={{ opacity: 0, y: 24, rotate: tilt * 2 }}
-                  whileInView={{ opacity: 1, y: 0, rotate: tilt }}
-                  whileHover={{ rotate: 0, scale: 1.03 }}
-                  viewport={{ once: true, amount: 0.5 }}
-                  transition={{ duration: 0.7, delay: i * 0.08, ease: [0.2, 0.8, 0.2, 1] }}
-                  className="mb-8 break-inside-avoid rounded-2xl overflow-hidden bg-[#0d0f12]"
-                  style={{ boxShadow: "0 18px 40px rgba(31,27,22,0.28)" }}
-                >
-                  <img src={src} alt="Message from a viewer" loading="lazy" decoding="async" className="block w-full h-auto" />
-                </motion.figure>
-              );
-            })}
+          <div className="mt-8 columns-1 md:columns-2 xl:columns-3 gap-6">
+            {project.dmShots.map((src, i) => (
+              <motion.figure
+                key={src}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.5 }}
+                transition={{ duration: 0.7, delay: (i % 3) * 0.08, ease: [0.2, 0.8, 0.2, 1] }}
+                className="mb-6 break-inside-avoid"
+              >
+                {/* transparent rounded PNG: the shadow follows the bubble's own shape */}
+                <img
+                  src={src}
+                  alt="Message from a viewer"
+                  loading="lazy"
+                  decoding="async"
+                  // same scale for every bubble: width relative to the widest one (490px), so text
+                  // size matches across cards instead of short bubbles being stretched
+                  onLoad={(e) => {
+                    const img = e.currentTarget;
+                    img.style.width = `${Math.min(100, (img.naturalWidth / 490) * 100)}%`;
+                  }}
+                  className="block w-full max-w-full h-auto transition-transform duration-300 ease-out hover:-translate-y-1"
+                  style={{ filter: "drop-shadow(0 12px 22px rgba(31,27,22,0.28))" }}
+                />
+              </motion.figure>
+            ))}
           </div>
           <p className="mt-2 text-[12px] italic text-[var(--taupe-subtle)]">Real messages from viewers. Names and photos removed for their privacy.</p>
         </div>
