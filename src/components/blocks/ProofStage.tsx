@@ -1,4 +1,4 @@
-import { useId, useRef } from "react";
+import { useId, useRef, useState } from "react";
 import { motion, useScroll, useTransform, MotionValue } from "motion/react";
 import { EASE } from "../../lib/motion";
 
@@ -109,13 +109,36 @@ export function SealFace({ seed, glyph, serif = true }: { seed: string; glyph: s
 /**
  * Wax seal for a tool: stamped in as the note appears, flips on hover to show its Roman numeral.
  */
+/** Small seal for phone lists: tap to flip between the initial and the Roman numeral. */
+export function TapSeal({ label, index }: { label: string; index: number }) {
+  const [flipped, setFlipped] = useState(false);
+  return (
+    <button
+      type="button"
+      aria-label={`${label}: tap to flip`}
+      aria-pressed={flipped}
+      onClick={() => setFlipped((f) => !f)}
+      className={`seal w-9 h-9 shrink-0 -rotate-6 cursor-pointer ${flipped ? "is-flipped" : ""}`}
+      style={{ filter: "drop-shadow(0 2px 3px rgba(63,22,22,0.3))" }}
+    >
+      <span className="seal-inner block">
+        <span className="seal-face block"><SealFace seed={label} glyph={label.charAt(0)} /></span>
+        <span className="seal-face seal-back block"><SealFace seed={label + "b"} glyph={ROMAN[index] ?? "❧"} serif={false} /></span>
+      </span>
+    </button>
+  );
+}
+
 function WaxSeal({ label, index, build, s0 }: { label: string; index: number; build: MotionValue<number>; s0: number }) {
   const scale = useTransform(build, [s0 + 0.02, s0 + 0.12, s0 + 0.18], [1.7, 0.9, 1]);
   const rotate = useTransform(build, [s0 + 0.02, s0 + 0.18], [-28, -6]);
   const opacity = useTransform(build, [s0 + 0.02, s0 + 0.08], [0, 1]);
+  const [flipped, setFlipped] = useState(false);
   return (
     <motion.div
-      className="seal w-12 h-12 shrink-0"
+      // tap flips it too (tablets in the wide layout); mouse users get the hover flip
+      onClick={() => setFlipped((f) => !f)}
+      className={`seal w-12 h-12 shrink-0 cursor-pointer ${flipped ? "is-flipped" : ""}`}
       style={{ scale, rotate, opacity, filter: "drop-shadow(0 3px 5px rgba(63,22,22,0.35))" }}
     >
       <div className="seal-inner">
@@ -282,11 +305,9 @@ export default function ProofStage({
         <div className={`relative ${heightClass}`}>{win}</div>
         {cards.length > 0 && notes && (
           <ul className="mt-6 space-y-2">
-            {cards.map((c) => (
+            {cards.map((c, i) => (
               <li key={c} className="flex items-center gap-3 font-editorial-serif italic text-[17px] text-[var(--text-ink)]">
-                <span className="w-7 h-7 shrink-0 -rotate-6" style={{ filter: "drop-shadow(0 2px 3px rgba(63,22,22,0.3))" }}>
-                  <SealFace seed={c} glyph={c.charAt(0)} />
-                </span>
+                <TapSeal label={c} index={i} />
                 <span>
                 <span className="text-[var(--accent-oxblood)]">{c.charAt(0)}</span>
                 {c.slice(1)}

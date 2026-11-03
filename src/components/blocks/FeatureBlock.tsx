@@ -3,7 +3,7 @@ import { motion, MotionValue, useScroll } from "motion/react";
 import ProofStage from "./ProofStage";
 import HotspotBrowser from "./HotspotBrowser";
 import { AnimatedTile, SidePopups } from "./MediaSlots";
-import { MarginNote, SealFace } from "./ProofStage";
+import { MarginNote, TapSeal } from "./ProofStage";
 import ReelCards from "./ReelCards";
 import { ProjectData } from "../../data/portfolio";
 import {
@@ -89,11 +89,9 @@ function SlotMarginalia({
       </div>
       {/* phones: italic list with a small seal per line */}
       <ul className="lg:hidden mt-5 space-y-2 text-left">
-        {labels.map((l) => (
+        {labels.map((l, k) => (
           <li key={l} className="flex items-center gap-3 font-editorial-serif italic text-[17px] text-[var(--text-ink)]">
-            <span className="w-7 h-7 shrink-0 -rotate-6" style={{ filter: "drop-shadow(0 2px 3px rgba(63,22,22,0.3))" }}>
-              <SealFace seed={l} glyph={l.charAt(0)} />
-            </span>
+            <TapSeal label={l} index={k} />
             <span>
               <span className="text-[var(--accent-oxblood)]">{l.charAt(0)}</span>
               {l.slice(1)}
@@ -309,36 +307,30 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
       {/* FROM THE DMS: real message bubbles (names and photos cropped out), laid out straight in a masonry grid */}
       {project.dmShots && project.dmShots.length > 0 && (
         <div className="pb-[clamp(3rem,6vw,5rem)]">
-          <span className="block text-[12px] uppercase tracking-[0.22em] text-[var(--taupe-subtle)]">From the DMs</span>
-          <div className="mt-8 columns-1 md:columns-2 xl:columns-3 gap-6">
-            {project.dmShots.map((src, i) => (
-              <motion.figure
-                key={src}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.5 }}
-                transition={{ duration: 0.7, delay: (i % 3) * 0.08, ease: [0.2, 0.8, 0.2, 1] }}
-                className="mb-6 break-inside-avoid"
-              >
-                {/* transparent rounded PNG: the shadow follows the bubble's own shape */}
-                <img
-                  src={src}
-                  alt="Message from a viewer"
-                  loading="lazy"
-                  decoding="async"
-                  // same scale for every bubble: width relative to the widest one (490px), so text
-                  // size matches across cards instead of short bubbles being stretched
-                  onLoad={(e) => {
-                    const img = e.currentTarget;
-                    img.style.width = `${Math.min(100, (img.naturalWidth / 490) * 100)}%`;
-                  }}
-                  className="block w-full max-w-full h-auto transition-transform duration-300 ease-out hover:-translate-y-1"
-                  style={{ filter: "drop-shadow(0 12px 22px rgba(31,27,22,0.28))" }}
-                />
-              </motion.figure>
+          <span className="block text-center text-[12px] uppercase tracking-[0.22em] text-[var(--taupe-subtle)]">From the DMs</span>
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start max-w-[860px] mx-auto">
+            {project.dmShots.map((col, c) => (
+              <div key={c} className="flex flex-col gap-6">
+                {col.map((src, i) => (
+                  <motion.img
+                    key={src}
+                    src={src}
+                    alt="Message from a viewer"
+                    loading="lazy"
+                    decoding="async"
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.5 }}
+                    transition={{ duration: 0.7, delay: (c * 0.08 + i * 0.06), ease: [0.2, 0.8, 0.2, 1] }}
+                    // every bubble image is the same width, so w-full keeps text size identical
+                    className="block w-full h-auto"
+                    style={{ filter: "drop-shadow(0 12px 22px rgba(31,27,22,0.26))" }}
+                  />
+                ))}
+              </div>
             ))}
           </div>
-          <p className="mt-2 text-[12px] italic text-[var(--taupe-subtle)]">Real messages from viewers. Names and photos removed for their privacy.</p>
+          <p className="mt-6 text-center text-[12px] italic text-[var(--taupe-subtle)]">Real messages from viewers. Names and photos removed for their privacy.</p>
         </div>
       )}
 

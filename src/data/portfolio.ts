@@ -322,8 +322,8 @@ export interface ProjectData {
   pillars?: { title: string; when: string; note: string }[];
   /** Short viewer quotes (anonymised). */
   quotes?: string[];
-  /** Cropped DM screenshots (message bubble only, no names or photos). */
-  dmShots?: string[];
+  /** Cropped DM screenshots (message bubble only, no names or photos), as two balanced columns. */
+  dmShots?: string[][];
   /** Real screenshot shown inside the browser walkthrough (a path under /public). */
   screenshot?: string;
   /** Aspect ratio of the screenshot (width/height), e.g. "1375/762". */
@@ -509,7 +509,11 @@ export const CONTENT_PROJECT: ProjectData = {
     { cover: "/content/reel-top-2.jpg", url: "https://www.instagram.com/dylanwang.main/reel/DYq9Iq5tZCa/", views: "776K", likes: "33.2K", engagement: "4.3%", vsMedian: "192×" },
     { cover: "/content/reel-top-3.jpg", url: "https://www.instagram.com/dylanwang.main/reel/DX3gglwNAi4/", views: "160K", likes: "8.9K", engagement: "5.6%", vsMedian: "40×" },
   ],
-  dmShots: [1, 3, 2, 6, 4, 7, 5].map((n) => `/content/dms/dm-${n}.png`),
+  // all bubbles share one width; columns are balanced by height (1+3 ~ 2+6+4+5)
+  dmShots: [
+    ["/content/dms/dm-1.png", "/content/dms/dm-3.png"],
+    ["/content/dms/dm-2.png", "/content/dms/dm-6.png", "/content/dms/dm-4.png", "/content/dms/dm-5.png"],
+  ],
   tools: ["DaVinci Resolve", "Buffer", "Canva"],
   toolNotes: {
     "DaVinci Resolve": "cuts, pacing and color",

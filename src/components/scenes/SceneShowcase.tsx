@@ -469,6 +469,46 @@ function Orbit({ labels, build, exit, reduced }: { labels: string[]; build: V; e
   );
 }
 
+/**
+ * Phones: no room for an orbit around the heading, so the same tools drift past in a slow
+ * ticker under the tagline, with faded edges. Same dots and spaced capitals as the orbit.
+ */
+function ToolTicker({ labels, build, exit, reduced }: { labels: string[]; build: V; exit: V; reduced: boolean }) {
+  const prog = useRange(build, 0.3, 0.65);
+  const y = useTransform(() => `${-exit.get() * CHIP_EXIT_VH}vh`);
+  const row = (key: string) => (
+    <div key={key} className="flex shrink-0 items-center gap-7 pr-7">
+      {labels.map((label, i) => (
+        <span key={label} className="flex items-center gap-2 whitespace-nowrap">
+          <span
+            className="block w-1.5 h-1.5 rounded-full"
+            style={{ background: i % 3 === 0 ? "#E88080" : CREAM, boxShadow: `0 0 8px ${i % 3 === 0 ? "rgba(232,128,128,0.9)" : "rgba(244,239,230,0.7)"}` }}
+          />
+          <span className="text-[10px] uppercase tracking-[0.24em]" style={{ color: CREAM, textShadow: "0 1px 10px rgba(0,0,0,0.85)" }}>
+            {label}
+          </span>
+        </span>
+      ))}
+    </div>
+  );
+  return (
+    <motion.div
+      className="absolute left-0 right-0 bottom-[19svh] lg:hidden overflow-hidden"
+      style={{
+        opacity: prog,
+        y,
+        WebkitMaskImage: "linear-gradient(to right, transparent, #000 14%, #000 86%, transparent)",
+        maskImage: "linear-gradient(to right, transparent, #000 14%, #000 86%, transparent)",
+      }}
+    >
+      <div className={`flex w-max ${reduced ? "" : "tool-ticker"}`}>
+        {row("a")}
+        {row("b")}
+      </div>
+    </motion.div>
+  );
+}
+
 /** Draws the orbit ellipse at the same centre, radii and tilt the labels use. */
 function OrbitPath({ tilt }: { tilt: number }) {
   const [box, setBox] = useState({ W: 0, H: 0 });
@@ -552,6 +592,7 @@ export default function SceneShowcase({
 
       {/* floating labels, each at its own depth */}
       <Orbit labels={chips.slice(0, 12)} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} reduced={reduced} />
+      <ToolTicker labels={chips.slice(0, 12)} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} reduced={reduced} />
     </div>
   );
 }

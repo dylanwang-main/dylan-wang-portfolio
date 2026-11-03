@@ -81,7 +81,7 @@ function ReelCard({
       </div>
       <span
         aria-hidden="true"
-        className="absolute right-3 bottom-3 w-7 h-7 rounded-full grid place-items-center text-[13px] text-white bg-[var(--accent-pop)] opacity-0 translate-y-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0"
+        className="absolute right-3 bottom-3 w-7 h-7 rounded-full grid place-items-center text-[13px] text-white bg-[var(--accent-pop)] opacity-0 translate-y-1 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 [@media(hover:none)]:opacity-100 [@media(hover:none)]:translate-y-0"
       >
         ↗
       </span>
