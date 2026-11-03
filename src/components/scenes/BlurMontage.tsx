@@ -29,9 +29,23 @@ export default function BlurMontage({
         {cols.map((col, c) => (
           <div key={c} className="relative flex-1 max-w-[28vw] overflow-visible">
             <div className={`montage-col flex flex-col gap-[2.2vw] ${c % 2 ? "montage-col--down" : ""}`} style={{ animationDuration: `${70 + c * 12}s` }}>
-              {[...col, ...col].map((src, i) => (
-                <img key={i} src={src} alt="" loading="lazy" decoding="async" className="block w-full h-auto rounded-xl" />
-              ))}
+              {[...col, ...col].map((src, i) =>
+                /\.(mp4|webm|mov)$/i.test(src) ? (
+                  // short muted clips play on loop, like a film reel running behind the heading
+                  <video
+                    key={i}
+                    src={src}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    preload="metadata"
+                    className="block w-full h-auto rounded-xl aspect-[9/16] object-cover"
+                  />
+                ) : (
+                  <img key={i} src={src} alt="" loading="lazy" decoding="async" className="block w-full h-auto rounded-xl" />
+                )
+              )}
             </div>
           </div>
         ))}
