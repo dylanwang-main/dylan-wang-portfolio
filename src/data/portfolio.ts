@@ -507,11 +507,6 @@ export const CONTENT_PROJECT: ProjectData = {
     { cover: "/content/reel-top-2.jpg", url: "https://www.instagram.com/dylanwang.main/reel/DYq9Iq5tZCa/", views: "776K", likes: "33.2K", engagement: "4.3%", vsMedian: "192×" },
     { cover: "/content/reel-top-3.jpg", url: "https://www.instagram.com/dylanwang.main/reel/DX3gglwNAi4/", views: "160K", likes: "8.9K", engagement: "5.6%", vsMedian: "40×" },
   ],
-  pillars: [
-    { title: "Day in the life", when: "Now", note: "Vlogging my days as they happen." },
-    { title: "Mindset", when: "Earlier", note: "Videos on mentality and mindset." },
-    { title: "Business × gaming", when: "Earlier", note: "Mixing business with gaming." },
-  ],
   quotes: [
     "Just saw your video about \u201cwasting\u201d 4 years of life. I feel like I had a similar experience and would love to connect.",
     "Just saw your day one vid, I like how you\u2019re thinking. I\u2019m about to start something myself.",

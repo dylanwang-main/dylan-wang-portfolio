@@ -6,7 +6,6 @@ import { INTRO_VH, SCENE_DWELL_VH } from "./lib/timeline";
 import Chapter, { ChapterPage } from "./components/layout/Chapter";
 import FeatureBlock from "./components/blocks/FeatureBlock";
 import SubBlock from "./components/blocks/SubBlock";
-import { TileGrid } from "./components/blocks/MediaSlots";
 import AboutSection from "./components/sections/AboutSection";
 import ContactSection from "./components/sections/ContactSection";
 import Footer from "./components/layout/Footer";
@@ -55,15 +54,6 @@ export default function App() {
               <ChapterPage>
                 <FeatureBlock project={CONTENT_PROJECT} index={0} />
 
-                <SubBlock label="Process" headline="Ideate, edit, test, iterate.">
-                  <TileGrid
-                    tiles={[
-                      { title: "Ideation", note: "[Add: idea board or notes]" },
-                      { title: "Editing", note: "[Add: DaVinci Resolve timeline]" },
-                      { title: "Testing formats", note: "[Add: two versions compared]" },
-                    ]}
-                  />
-                </SubBlock>
 
               </ChapterPage>
             </Chapter>
