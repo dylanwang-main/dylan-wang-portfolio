@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { motion, useTransform, motionValue, MotionValue } from "motion/react";
 import {
   WORK_PROJECTS,
@@ -369,43 +370,122 @@ const LAYOUTS: Record<string, Layout> = {
   },
 };
 
+const CHIP_EXIT_VH = 48; // the orbit leaves at the same speed as the heading
+
 /**
- * Tool labels sit in two tidy columns in the margins either side of the title (never over it),
- * evenly spaced, with a small zigzag so it feels designed rather than stacked. Left and right
- * alternate, and they enter one after another with identical motion.
+ * Tools orbiting the section heading like planets on a tilted ellipse. The far side of the orbit
+ * is smaller and dimmer, the near side bright, so the ring reads as 3D. Positions are written
+ * straight to the DOM each frame (no React re-render), and the loop pauses when off screen.
  */
-const COL_TOP = 18; // % of scene height
-const COL_BOTTOM = 54;
-const LEFT_X: [number, number] = [19, 22.5]; // zigzag, % of scene width (centres)
-const RIGHT_X: [number, number] = [90, 93.5];
-const CHIP_EXIT_VH = 48; // every label leaves at the same speed, so spacing stays even
+function Orbit({ labels, build, exit, reduced }: { labels: string[]; build: V; exit: V; reduced: boolean }) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const prog = useRange(build, 0.3, 0.65);
+  const y = useTransform(() => `${-exit.get() * CHIP_EXIT_VH}vh`);
+  const TILT = (-9 * Math.PI) / 180;
 
-function rowY(row: number, rows: number) {
-  return rows <= 1 ? (COL_TOP + COL_BOTTOM) / 2 : COL_TOP + (row * (COL_BOTTOM - COL_TOP)) / (rows - 1);
-}
+  useEffect(() => {
+    const wrap = wrapRef.current;
+    if (!wrap) return;
+    let raf = 0;
+    let visible = true;
+    const place = (t: number) => {
+      const W = wrap.clientWidth;
+      const H = wrap.clientHeight;
+      // centre on the heading block, which sits right of the nav rail and above the middle
+      const cx = W >= 768 ? (Math.min(224, W * 0.15) + W - 56) / 2 : W / 2;
+      const cy = H * 0.38;
+      const rx = Math.min(W * 0.37, 620);
+      const ry = Math.min(H * 0.2, 190);
+      labels.forEach((_, i) => {
+        const el = itemRefs.current[i];
+        if (!el) return;
+        const a = (i / labels.length) * Math.PI * 2 + t * ((Math.PI * 2) / 70); // one lap per 70s
+        const ex = Math.cos(a) * rx;
+        const ey = Math.sin(a) * ry;
+        const x = cx + ex * Math.cos(TILT) - ey * Math.sin(TILT);
+        const yy = cy + ex * Math.sin(TILT) + ey * Math.cos(TILT);
+        const depth = (Math.sin(a) + 1) / 2; // 0 = far side (top), 1 = near side (bottom)
+        el.style.transform = `translate3d(${x.toFixed(1)}px, ${yy.toFixed(1)}px, 0) translate(-50%, -50%) scale(${(0.78 + 0.27 * depth).toFixed(3)})`;
+        el.style.opacity = (0.28 + 0.72 * depth).toFixed(3);
+        el.style.filter = depth < 0.35 ? `blur(${((0.35 - depth) * 3).toFixed(2)}px)` : "none";
+      });
+    };
+    const loop = (now: number) => {
+      place(now / 1000);
+      raf = visible ? requestAnimationFrame(loop) : 0;
+    };
+    const io = new IntersectionObserver(([e]) => {
+      visible = e.isIntersecting;
+      if (visible && !raf && !reduced) raf = requestAnimationFrame(loop);
+    });
+    io.observe(wrap);
+    const onResize = () => place(performance.now() / 1000);
+    window.addEventListener("resize", onResize);
+    if (reduced) place(0);
+    else raf = requestAnimationFrame(loop);
+    return () => {
+      cancelAnimationFrame(raf);
+      io.disconnect();
+      window.removeEventListener("resize", onResize);
+    };
+  }, [labels, reduced, TILT]);
 
-function chipSlot(i: number, n: number): [number, number] {
-  const left = i % 2 === 0;
-  const row = Math.floor(i / 2);
-  const rows = left ? Math.ceil(n / 2) : Math.floor(n / 2);
-  const xs = left ? LEFT_X : RIGHT_X;
-  return [xs[row % 2], rowY(row, rows)];
-}
-
-function Chip({ label, index, total, build, exit }: { label: string; index: number; total: number; build: V; exit: V }) {
-  const [l, t] = chipSlot(index, total);
-  const start = 0.3 + index * 0.035;
-  const prog = useRange(build, start, start + 0.3);
-  const y = useTransform(() => `${(1 - prog.get()) * 5 - exit.get() * CHIP_EXIT_VH}vh`);
   return (
-    <motion.div className="absolute hidden xl:block" style={{ left: `${l}%`, top: `${t}%`, x: "-50%", y, opacity: prog }}>
-      <span
-        className="block px-3 py-1.5 text-[12px] tracking-[0.12em] whitespace-nowrap"
-        style={{ color: CREAM, border: `1px solid rgba(244,239,230,0.3)`, background: "rgba(22,19,16,0.55)", backdropFilter: "blur(6px)" }}
-      >
-        {label}
-      </span>
+    <motion.div ref={wrapRef} className="absolute inset-0 hidden lg:block" style={{ opacity: prog, y }}>
+      {/* the orbit path itself: a faint tilted ellipse */}
+      <svg className="absolute inset-0 w-full h-full overflow-visible" aria-hidden="true">
+        <OrbitPath tilt={TILT} />
+      </svg>
+      {labels.map((label, i) => (
+        <div
+          key={label}
+          ref={(el) => {
+            itemRefs.current[i] = el;
+          }}
+          className="absolute left-0 top-0 flex items-center gap-2 whitespace-nowrap will-change-transform"
+        >
+          <span
+            className="block w-1.5 h-1.5 rounded-full"
+            style={{ background: i % 3 === 0 ? "#E88080" : CREAM, boxShadow: `0 0 10px ${i % 3 === 0 ? "rgba(232,128,128,0.9)" : "rgba(244,239,230,0.8)"}` }}
+          />
+          <span className="text-[11px] uppercase tracking-[0.24em]" style={{ color: CREAM, textShadow: "0 1px 12px rgba(0,0,0,0.85)" }}>
+            {label}
+          </span>
+        </div>
+      ))}
     </motion.div>
+  );
+}
+
+/** Draws the orbit ellipse at the same centre, radii and tilt the labels use. */
+function OrbitPath({ tilt }: { tilt: number }) {
+  const [box, setBox] = useState({ W: 0, H: 0 });
+  const ref = useRef<SVGEllipseElement>(null);
+  useEffect(() => {
+    const svg = ref.current?.ownerSVGElement;
+    if (!svg) return;
+    const f = () => setBox({ W: svg.clientWidth, H: svg.clientHeight });
+    f();
+    window.addEventListener("resize", f);
+    return () => window.removeEventListener("resize", f);
+  }, []);
+  const { W, H } = box;
+  const cx = W >= 768 ? (Math.min(224, W * 0.15) + W - 56) / 2 : W / 2;
+  const cy = H * 0.38;
+  return (
+    <ellipse
+      ref={ref}
+      cx={cx}
+      cy={cy}
+      rx={Math.min(W * 0.37, 620)}
+      ry={Math.min(H * 0.2, 190)}
+      fill="none"
+      stroke="rgba(244,239,230,0.12)"
+      strokeWidth="1"
+      strokeDasharray="2 6"
+      transform={`rotate(${((tilt * 180) / Math.PI).toFixed(2)} ${cx} ${cy})`}
+    />
   );
 }
 
@@ -460,9 +540,7 @@ export default function SceneShowcase({
       )}
 
       {/* floating labels, each at its own depth */}
-      {chips.slice(0, 9).map((c, i, all) => (
-        <Chip key={c} label={c} index={i} total={all.length} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} />
-      ))}
+      <Orbit labels={chips.slice(0, 10)} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} reduced={reduced} />
     </div>
   );
 }
