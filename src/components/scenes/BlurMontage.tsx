@@ -27,7 +27,7 @@ export default function BlurMontage({
         style={{ transform: "rotate(-8deg)", filter: `blur(${blur}px) saturate(1.25)` }}
       >
         {cols.map((col, c) => (
-          <div key={c} className="relative flex-1 max-w-[28vw] overflow-visible">
+          <div key={c} className="relative flex-1 max-w-[28vw] min-w-0 overflow-visible">
             <div className={`montage-col flex flex-col gap-[2.2vw] ${c % 2 ? "montage-col--down" : ""}`} style={{ animationDuration: `${70 + c * 12}s` }}>
               {[...col, ...col].map((src, i) =>
                 /\.(mp4|webm|mov)$/i.test(src) ? (

@@ -181,7 +181,7 @@ export default function SectionOpener({
               <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 50% at 50% 48%, rgba(0,0,0,0.35), transparent 75%)" }} />
             </div>
           )}
-          {scene.montage && <BlurMontage images={scene.montage} />}
+          {scene.montage && <BlurMontage images={scene.montage} columns={scene.montageColumns} />}
           {scene.layers.map((layer, index) => {
             if (layer.motifId === "vignette-grain") return null;
             // a photo background replaces the line-art temple and glow
@@ -401,7 +401,7 @@ export default function SectionOpener({
             <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 55% 45% at 50% 38%, rgba(0,0,0,0.4), transparent 75%)" }} />
           </div>
         )}
-        {scene.montage && <BlurMontage images={scene.montage} />}
+        {scene.montage && <BlurMontage images={scene.montage} columns={scene.montageColumns} />}
         {scene.layers.map((layer, index) => {
           // a photo background replaces the line-art and glow layers
           if (scene.backgroundImage && layer.motifId !== "vignette-grain") return null;

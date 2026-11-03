@@ -38,6 +38,8 @@ export interface SceneData {
   subtitle?: string;
   /** Real screenshots for the blurred, drifting background collage. */
   montage?: string[];
+  /** Columns in the montage (more columns = narrower tiles, good for 9:16 clips). */
+  montageColumns?: number;
   /** Full-bleed background photo (blurred and darkened behind the text). */
   backgroundImage?: string;
   /** Blur on the background photo, in px (lower keeps objects recognisable). */
@@ -147,6 +149,9 @@ export const SECTION_SCENES: Record<"work" | "content" | "about" | "contact", Sc
     heading: "Content",
     tagline:
       "Short-form content, growth analytics, and audience building.",
+    // stand-in 9:16 reel frames; swap for real reel covers or .mp4 clips any time
+    montage: Array.from({ length: 8 }, (_, k) => `/reels/reel-${k + 1}.jpg`),
+    montageColumns: 6,
     theme: "dark",
     layers: [
       {
