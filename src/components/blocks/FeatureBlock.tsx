@@ -4,14 +4,13 @@ import ProofStage from "./ProofStage";
 import HotspotBrowser from "./HotspotBrowser";
 import { AnimatedTile, SidePopups } from "./MediaSlots";
 import { MarginNote, SealFace } from "./ProofStage";
+import ReelCards from "./ReelCards";
 import { ProjectData } from "../../data/portfolio";
 import {
   DashboardMain,
   WorkMain,
   WorkSide,
   SiteMain,
-  ContentMain,
-  ContentSide,
 } from "../scenes/SceneShowcase";
 import { fadeUp } from "../../lib/motion";
 import { useReducedMotion } from "../../lib/useReducedMotion";
@@ -31,7 +30,7 @@ const PROOFS: Record<string, Proof> = {
   "tusd-data-assessment": { Main: DashboardMain },
   "ds3-park-smart": { Main: WorkMain },
   "n10-dance-studios": { Main: SiteMain, Side: WorkSide },
-  "personal-brand": { Main: ContentMain, Side: ContentSide },
+  "personal-brand": { Main: ReelCards },
 };
 
 /** Pin the demo on tall, wide screens; fall back to normal flow elsewhere. */
@@ -58,11 +57,13 @@ function SlotMarginalia({
   aspect,
   labels,
   notes,
+  maxWidth,
 }: {
   index: number;
   image?: string;
   alt: string;
   aspect?: string;
+  maxWidth?: number;
   labels: string[];
   notes: Record<string, string>;
 }) {
@@ -81,7 +82,9 @@ function SlotMarginalia({
     <div ref={ref}>
       <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,240px)_minmax(0,1fr)_minmax(0,240px)] lg:gap-5 items-stretch">
         {column("left")}
-        <AnimatedTile index={index} aspect={aspect ?? "16/10"} image={image} alt={alt} />
+        <div className="w-full mx-auto self-center" style={maxWidth ? { maxWidth } : undefined}>
+          <AnimatedTile index={index} aspect={aspect ?? "16/10"} image={image} alt={alt} />
+        </div>
         {column("right")}
       </div>
       {/* phones: italic list with a small seal per line */}
@@ -224,7 +227,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
               notes={project.toolNotes} />
           )}
 
-          {hasDemo && !pinned && (
+          {hasDemo && !pinned && !project.reels && (
             <p className="mt-6 text-[11px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)]">
               Placeholder preview · {project.imagePlaceholder.label}
             </p>
@@ -232,7 +235,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
         </div>
       </div>
 
-      {hasDemo && pinned && (
+      {hasDemo && pinned && !project.reels && (
         <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)]">
           Placeholder preview · {project.imagePlaceholder.label}
         </p>
@@ -261,7 +264,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
               {project.slotsTextOnly ? (
                 <span aria-hidden="true" className="block w-8 h-px bg-[var(--accent-oxblood)]" />
               ) : slot.popups && slot.popups.length > 0 && slot.popupNotes ? (
-                <SlotMarginalia index={i} image={slot.image} alt={slot.label} aspect={slot.aspect} labels={slot.popups} notes={slot.popupNotes} />
+                <SlotMarginalia index={i} image={slot.image} alt={slot.label} aspect={slot.aspect} labels={slot.popups} notes={slot.popupNotes} maxWidth={slot.tileMaxWidth} />
               ) : slot.popups && slot.popups.length > 0 ? (
                 <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,180px)_minmax(0,1fr)_minmax(0,180px)] lg:gap-6 items-stretch">
                   <SidePopups side="left" labels={slot.popups.filter((_, k) => k % 2 === 0)} />
@@ -279,6 +282,43 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
               </span>
             </motion.div>
           ))}
+        </div>
+      )}
+
+      {/* PILLARS: what the posts are about, now and before */}
+      {project.pillars && project.pillars.length > 0 && (
+        <div className="pb-[clamp(2.5rem,5vw,4rem)]">
+          <span className="block text-[12px] uppercase tracking-[0.22em] text-[var(--taupe-subtle)]">Content pillars</span>
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
+            {project.pillars.map((pl, i) => (
+              <motion.div key={pl.title} {...fadeUp({ amount: 0.4, duration: 0.8, delay: i * 0.1 })} className="border-t border-[var(--border-hairline)] pt-5">
+                <span className={`text-[11px] uppercase tracking-[0.2em] ${pl.when === "Now" ? "text-[var(--accent-oxblood)] font-semibold" : "text-[var(--taupe-subtle)]"}`}>
+                  {String(i + 1).padStart(2, "0")} · {pl.when}
+                </span>
+                <h4 className="mt-3 font-editorial-serif italic text-[clamp(1.8rem,2.6vw,2.4rem)] leading-tight text-[var(--text-ink)]">
+                  <span className="text-[var(--accent-oxblood)]">{pl.title.charAt(0)}</span>
+                  {pl.title.slice(1)}
+                </h4>
+                <p className="mt-2 text-[15px] text-[var(--text-ink)]/75">{pl.note}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* VIEWER QUOTES: anonymised DMs */}
+      {project.quotes && project.quotes.length > 0 && (
+        <div className="pb-[clamp(3rem,6vw,5rem)]">
+          <span className="block text-[12px] uppercase tracking-[0.22em] text-[var(--taupe-subtle)]">From the DMs</span>
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+            {project.quotes.map((q, i) => (
+              <motion.blockquote key={i} {...fadeUp({ amount: 0.4, duration: 0.8, delay: i * 0.12 })} className="relative pl-10">
+                <span aria-hidden="true" className="absolute left-0 -top-3 font-editorial-serif text-[64px] leading-none text-[var(--accent-oxblood)]">&ldquo;</span>
+                <p className="font-editorial-serif italic text-[clamp(1.3rem,1.9vw,1.7rem)] leading-snug text-[var(--text-ink)]">{q}</p>
+                <footer className="mt-3 text-[12px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)]">A viewer, by DM</footer>
+              </motion.blockquote>
+            ))}
+          </div>
         </div>
       )}
 

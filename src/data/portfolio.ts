@@ -311,9 +311,17 @@ export interface ProjectData {
     popups?: string[];
     /** One short line per popup label; turns the popups into margin notes with wax seals. */
     popupNotes?: Record<string, string>;
+    /** Cap the image width (px), for tall phone screenshots. */
+    tileMaxWidth?: number;
     /** Tile aspect ratio when popups are shown, e.g. "16/10". */
     aspect?: string;
   }[];
+  /** Top-performing short-form posts, shown as phone cards in place of a wireframe demo. */
+  reels?: { cover: string; url: string; views: string; likes: string; engagement: string; vsMedian: string }[];
+  /** Content pillars: what the posts are about, now and before. */
+  pillars?: { title: string; when: string; note: string }[];
+  /** Short viewer quotes (anonymised). */
+  quotes?: string[];
   /** Real screenshot shown inside the browser walkthrough (a path under /public). */
   screenshot?: string;
   /** Aspect ratio of the screenshot (width/height), e.g. "1375/762". */
@@ -492,6 +500,22 @@ export const CONTENT_PROJECT: ProjectData = {
     { value: "~48K", label: "average views per post" },
     { value: "~2.1K", label: "average likes per post" },
   ],
+  statsAtBottom: true,
+  links: [{ label: "View on Instagram", url: "https://www.instagram.com/dylanwang.main/" }],
+  reels: [
+    { cover: "/content/reel-top-1.jpg", url: "https://www.instagram.com/dylanwang.main/reel/DOkmc-5DmJX/", views: "1.1M", likes: "60.3K", engagement: "5.5%", vsMedian: "271×" },
+    { cover: "/content/reel-top-2.jpg", url: "https://www.instagram.com/dylanwang.main/reel/DYq9Iq5tZCa/", views: "776K", likes: "33.2K", engagement: "4.3%", vsMedian: "192×" },
+    { cover: "/content/reel-top-3.jpg", url: "https://www.instagram.com/dylanwang.main/reel/DX3gglwNAi4/", views: "160K", likes: "8.9K", engagement: "5.6%", vsMedian: "40×" },
+  ],
+  pillars: [
+    { title: "Day in the life", when: "Now", note: "Vlogging my days as they happen." },
+    { title: "Mindset", when: "Earlier", note: "Videos on mentality and mindset." },
+    { title: "Business × gaming", when: "Earlier", note: "Mixing business with gaming." },
+  ],
+  quotes: [
+    "Just saw your video about \u201cwasting\u201d 4 years of life. I feel like I had a similar experience and would love to connect.",
+    "Just saw your day one vid, I like how you\u2019re thinking. I\u2019m about to start something myself.",
+  ],
   tools: ["DaVinci Resolve", "Buffer", "Canva"],
   toolNotes: {
     "DaVinci Resolve": "cuts, pacing and color",
@@ -500,12 +524,17 @@ export const CONTENT_PROJECT: ProjectData = {
   },
   slots: [
     {
-      label: "Content Pillars & Themes",
-      prompt: "[Add: content strategy, formats, and topics covered]",
-    },
-    {
-      label: "Workflow & Distribution",
-      prompt: "Ideation, editing, iterative testing, and trend-based experimentation, guided by post performance.",
+      label: "Reel insights",
+      prompt: "One reel's first stretch, straight from Instagram: almost every view came from people who didn't follow yet.",
+      image: "/content/reel-insights.png",
+      tileMaxWidth: 340,
+      popups: ["Non-followers", "Reels tab", "Watch time", "Interactions"],
+      popupNotes: {
+        "Non-followers": "99.7% of views from people not following yet",
+        "Reels tab": "85.8% of views came from the Reels tab",
+        "Watch time": "over 24 days of total watch time",
+        Interactions: "8,930 likes, comments, shares and saves",
+      },
     },
   ],
   imagePlaceholder: {
