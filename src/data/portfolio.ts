@@ -309,6 +309,8 @@ export interface ProjectData {
     image?: string;
     /** Up to 4 short floating labels beside the image (lg and up). Real work only. */
     popups?: string[];
+    /** One short line per popup label; turns the popups into margin notes with wax seals. */
+    popupNotes?: Record<string, string>;
     /** Tile aspect ratio when popups are shown, e.g. "16/10". */
     aspect?: string;
   }[];
@@ -365,6 +367,11 @@ export const WORK_PROJECTS: ProjectData[] = [
         prompt: "Search one student ID to see every CTE course, term and grade, and whether they completed their pathway. All student data shown is fake sample data.",
         image: "/tusd-student-detail.png",
         popups: ["Power BI", "Python", "Excel"],
+        popupNotes: {
+          "Power BI": "dashboards for 30+ schools",
+          Python: "cleaning and shaping the data",
+          Excel: "source tables and quick checks",
+        },
         aspect: "16/11",
       },
     ],
@@ -404,6 +411,12 @@ export const WORK_PROJECTS: ProjectData[] = [
         prompt: "5.8K+ organic clicks and 90K+ impressions at a 6.4% CTR (Google Search Console, Jul 2025 to Oct 2026).",
         image: "/n10-search-console.png",
         popups: ["Keyword targeting", "Site structure", "Content updates", "Mobile optimization"],
+        popupNotes: {
+          "Keyword targeting": "pages built around what families search",
+          "Site structure": "clear paths to classes and enrollment",
+          "Content updates": "class info kept fresh each season",
+          "Mobile optimization": "fast and readable on phones",
+        },
       },
     ],
     imagePlaceholder: {

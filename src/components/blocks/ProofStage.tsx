@@ -60,7 +60,7 @@ function waxPath(seed: string) {
 }
 
 /** One face of a wax seal: melted edge, pressed inner ring, embossed glyph. */
-function SealFace({ seed, glyph, serif = true }: { seed: string; glyph: string; serif?: boolean }) {
+export function SealFace({ seed, glyph, serif = true }: { seed: string; glyph: string; serif?: boolean }) {
   // unique per instance: the desktop and phone layouts both render seals, and a gradient defined
   // inside a hidden (display:none) copy would leave the visible copy unfilled
   const id = `wax-${useId().replace(/:/g, "")}`;
@@ -130,7 +130,7 @@ function WaxSeal({ label, index, build, s0 }: { label: string; index: number; bu
  * Marginalia: a tool written in the margin like a note in Leonardo's notebook, with a hairline
  * leader that draws in toward the window and a short line on what the tool was used for.
  */
-function MarginNote({
+export function MarginNote({
   label,
   note,
   side,

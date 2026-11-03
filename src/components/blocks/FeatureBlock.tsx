@@ -3,6 +3,7 @@ import { motion, MotionValue, useScroll } from "motion/react";
 import ProofStage from "./ProofStage";
 import HotspotBrowser from "./HotspotBrowser";
 import { AnimatedTile, SidePopups } from "./MediaSlots";
+import { MarginNote, SealFace } from "./ProofStage";
 import { ProjectData } from "../../data/portfolio";
 import {
   DashboardMain,
@@ -44,6 +45,62 @@ function usePinned() {
     return () => window.removeEventListener("resize", f);
   }, []);
   return roomy && !reduced;
+}
+
+/**
+ * Screenshot with margin notes and wax seals on either side (desktop), or an italic list with
+ * small seals under it (phones). The notes stamp in as the tile scrolls into view.
+ */
+function SlotMarginalia({
+  index,
+  image,
+  alt,
+  aspect,
+  labels,
+  notes,
+}: {
+  index: number;
+  image?: string;
+  alt: string;
+  aspect?: string;
+  labels: string[];
+  notes: Record<string, string>;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.95", "start 0.35"] });
+  const column = (side: "left" | "right") => (
+    <div className="hidden lg:flex flex-col justify-evenly gap-6 py-[6%]">
+      {labels.map((l, k) =>
+        (k % 2 === 0) === (side === "left") ? (
+          <MarginNote key={l} label={l} note={notes[l]} side={side} build={scrollYProgress} index={k} />
+        ) : null
+      )}
+    </div>
+  );
+  return (
+    <div ref={ref}>
+      <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,240px)_minmax(0,1fr)_minmax(0,240px)] lg:gap-5 items-stretch">
+        {column("left")}
+        <AnimatedTile index={index} aspect={aspect ?? "16/10"} image={image} alt={alt} />
+        {column("right")}
+      </div>
+      {/* phones: italic list with a small seal per line */}
+      <ul className="lg:hidden mt-5 space-y-2 text-left">
+        {labels.map((l) => (
+          <li key={l} className="flex items-center gap-3 font-editorial-serif italic text-[17px] text-[var(--text-ink)]">
+            <span className="w-7 h-7 shrink-0 -rotate-6" style={{ filter: "drop-shadow(0 2px 3px rgba(63,22,22,0.3))" }}>
+              <SealFace seed={l} glyph={l.charAt(0)} />
+            </span>
+            <span>
+              <span className="text-[var(--accent-oxblood)]">{l.charAt(0)}</span>
+              {l.slice(1)}
+              <span className="text-[var(--taupe-subtle)]"> · {notes[l]}</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 export default function FeatureBlock({ project, index }: FeatureBlockProps) {
@@ -203,6 +260,8 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
             >
               {project.slotsTextOnly ? (
                 <span aria-hidden="true" className="block w-8 h-px bg-[var(--accent-oxblood)]" />
+              ) : slot.popups && slot.popups.length > 0 && slot.popupNotes ? (
+                <SlotMarginalia index={i} image={slot.image} alt={slot.label} aspect={slot.aspect} labels={slot.popups} notes={slot.popupNotes} />
               ) : slot.popups && slot.popups.length > 0 ? (
                 <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,180px)_minmax(0,1fr)_minmax(0,180px)] lg:gap-6 items-stretch">
                   <SidePopups side="left" labels={slot.popups.filter((_, k) => k % 2 === 0)} />
