@@ -4,11 +4,18 @@ import { ABOUT_PROFILE } from "../../data/portfolio";
 import ProofStage from "../blocks/ProofStage";
 import { AboutMain, AboutSide } from "../scenes/SceneShowcase";
 import SubBlock from "../blocks/SubBlock";
-import { TileGrid } from "../blocks/MediaSlots";
+import SealReveal from "../blocks/SealReveal";
 import { fadeUp } from "../../lib/motion";
 
 // The school and degree live on the education card, so the chips carry what it does not.
 const CARDS = ["Content Creator", "Python", "Power BI", "Mandarin Chinese"];
+
+const HOBBIES = [
+  { title: "Rock climbing", img: "/about/climbing.jpg", alt: "Climbing shoes" },
+  { title: "Tennis", img: "/about/tennis.jpg", alt: "Tennis racket and ball" },
+  { title: "Travel", img: "/about/travel.jpg", alt: "Boarding pass to Japan" },
+  { title: "Hiking", img: "/about/hiking.jpg", alt: "Worn hiking boots" },
+];
 
 export default function AboutSection() {
   return (
@@ -40,21 +47,27 @@ export default function AboutSection() {
       />
 
 
-      {/* SUB-BLOCKS (placeholder copy and image slots; swap in real photos) */}
+      {/* OUTSIDE OF WORK */}
       <div className="mt-[clamp(2rem,4vw,3.5rem)]">
-        <SubBlock label="Background" headline="Data science student. Content creator.">
-          <TileGrid
-            aspect="4/3"
-            tiles={[
-              { title: "UC San Diego", note: "[Add: campus photo]" },
-              { title: "Data Science", note: "[Add: project or classroom photo]" },
-              { title: "Content creator", note: "[Add: filming photo]" },
-            ]}
-          />
+        <SubBlock label="Outside of work" headline="Climbing, tennis, travel, hiking.">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {HOBBIES.map((h, i) => (
+              <motion.figure key={h.title} {...fadeUp({ amount: 0.3, duration: 0.8, delay: i * 0.08 })}>
+                <div className="overflow-hidden rounded-lg aspect-square shadow-[0_14px_34px_rgba(31,27,22,0.22)]">
+                  <img src={h.img} alt={h.alt} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 ease-out hover:scale-[1.05]" />
+                </div>
+                <figcaption className="mt-3 font-editorial-serif italic text-[clamp(1.25rem,1.8vw,1.6rem)] text-[var(--text-ink)]">
+                  <span className="text-[var(--accent-oxblood)]">{h.title.charAt(0)}</span>
+                  {h.title.slice(1)}
+                </figcaption>
+              </motion.figure>
+            ))}
+          </div>
         </SubBlock>
 
       </div>
 
+      <SealReveal />
     </section>
   );
 }

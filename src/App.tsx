@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import LenisProvider from "./components/layout/LenisProvider";
 import Navigation from "./components/layout/Navigation";
+import SealTracker from "./components/blocks/SealTracker";
 import IntroBurst from "./components/intro/IntroBurst";
 import { INTRO_VH, SCENE_DWELL_VH } from "./lib/timeline";
 import Chapter, { ChapterPage } from "./components/layout/Chapter";
@@ -18,6 +19,7 @@ export default function App() {
     <LenisProvider>
       <div className="min-h-screen w-full bg-[#161310] text-[var(--text-ink)] selection:bg-[var(--accent-oxblood)] selection:text-[var(--bg-cream)]">
         <Navigation />
+        <SealTracker />
 
         <div className="w-full">
           <main className="w-full">
