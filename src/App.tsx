@@ -5,7 +5,6 @@ import IntroBurst from "./components/intro/IntroBurst";
 import { INTRO_VH, SCENE_DWELL_VH } from "./lib/timeline";
 import Chapter, { ChapterPage } from "./components/layout/Chapter";
 import FeatureBlock from "./components/blocks/FeatureBlock";
-import CardFan from "./components/blocks/CardFan";
 import SubBlock from "./components/blocks/SubBlock";
 import { TileGrid } from "./components/blocks/MediaSlots";
 import AboutSection from "./components/sections/AboutSection";
@@ -55,16 +54,6 @@ export default function App() {
             <Chapter id="content" scene={SECTION_SCENES.content} zClass="z-30" edgeSeed={201} pageSeed={202}>
               <ChapterPage>
                 <FeatureBlock project={CONTENT_PROJECT} index={0} />
-
-                <SubBlock label="Short-form" headline="3M+ views across 42 posts.">
-                  <CardFan
-                    cards={[
-                      { label: "STILL: short-form video concept & hook", recommendedSize: "9:16 vertical / 1080 × 1920" },
-                      { label: "WORKFLOW: DaVinci Resolve editing timeline", recommendedSize: "16:9 cinematic / 1920 × 1080" },
-                      { label: "METRIC / STORYBOARD: audience insight deck", recommendedSize: "4:5 editorial / 1080 × 1350" },
-                    ]}
-                  />
-                </SubBlock>
 
                 <SubBlock label="Process" headline="Ideate, edit, test, iterate.">
                   <TileGrid
