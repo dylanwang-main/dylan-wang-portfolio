@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useId, useRef } from "react";
 import { motion, useScroll, useTransform, MotionValue } from "motion/react";
 import { EASE } from "../../lib/motion";
 
@@ -40,6 +40,92 @@ function ToolCard({
   );
 }
 
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+
+/** Irregular wax outline: a circle whose radius wobbles like melted wax, seeded per tool. */
+function waxPath(seed: string) {
+  let h = 0;
+  for (const ch of seed) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const a1 = (h % 7) + 5;
+  const a2 = ((h >> 3) % 5) + 9;
+  const p1 = (h % 360) * (Math.PI / 180);
+  const N = 72;
+  let d = "";
+  for (let i = 0; i <= N; i++) {
+    const t = (i / N) * Math.PI * 2;
+    const r = 1 + 0.045 * Math.sin(a1 * t + p1) + 0.03 * Math.sin(a2 * t - p1 * 1.7) + 0.02 * Math.sin(19 * t);
+    d += `${i ? "L" : "M"}${(Math.cos(t) * r).toFixed(3)} ${(Math.sin(t) * r).toFixed(3)}`;
+  }
+  return d + "Z";
+}
+
+/** One face of a wax seal: melted edge, pressed inner ring, embossed glyph. */
+function SealFace({ seed, glyph, serif = true }: { seed: string; glyph: string; serif?: boolean }) {
+  // unique per instance: the desktop and phone layouts both render seals, and a gradient defined
+  // inside a hidden (display:none) copy would leave the visible copy unfilled
+  const id = `wax-${useId().replace(/:/g, "")}`;
+  return (
+    <svg viewBox="-1.15 -1.15 2.3 2.3" className="w-full h-full">
+      <defs>
+        <radialGradient id={`${id}-g`} cx="35%" cy="30%" r="80%">
+          <stop offset="0%" stopColor="#9b3b3b" />
+          <stop offset="55%" stopColor="#6B2D2D" />
+          <stop offset="100%" stopColor="#3f1616" />
+        </radialGradient>
+        <radialGradient id={`${id}-in`} cx="60%" cy="65%" r="70%">
+          <stop offset="0%" stopColor="#5a2222" />
+          <stop offset="100%" stopColor="#7a3030" />
+        </radialGradient>
+      </defs>
+      <path d={waxPath(seed)} fill={`url(#${id}-g)`} />
+      {/* pressed ring: dark inner edge, light outer lip */}
+      <circle r="0.72" fill={`url(#${id}-in)`} />
+      <circle r="0.72" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="0.05" />
+      <circle r="0.77" fill="none" stroke="rgba(255,220,210,0.22)" strokeWidth="0.03" />
+      {/* embossed glyph: light highlight offset up-left, dark shadow down-right */}
+      {[
+        ["rgba(0,0,0,0.45)", 0.03],
+        ["rgba(255,225,215,0.35)", -0.025],
+        ["#c9817a", 0],
+      ].map(([fill, o], i) => (
+        <text
+          key={i}
+          x={o as number}
+          y={(o as number) + 0.02}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize={glyph.length > 2 ? 0.62 : 0.95}
+          fontStyle={serif ? "italic" : "normal"}
+          fontFamily="'Cormorant Garamond', Garamond, Georgia, serif"
+          fill={fill as string}
+        >
+          {glyph}
+        </text>
+      ))}
+    </svg>
+  );
+}
+
+/**
+ * Wax seal for a tool: stamped in as the note appears, flips on hover to show its Roman numeral.
+ */
+function WaxSeal({ label, index, build, s0 }: { label: string; index: number; build: MotionValue<number>; s0: number }) {
+  const scale = useTransform(build, [s0 + 0.02, s0 + 0.12, s0 + 0.18], [1.7, 0.9, 1]);
+  const rotate = useTransform(build, [s0 + 0.02, s0 + 0.18], [-28, -6]);
+  const opacity = useTransform(build, [s0 + 0.02, s0 + 0.08], [0, 1]);
+  return (
+    <motion.div
+      className="seal w-12 h-12 shrink-0"
+      style={{ scale, rotate, opacity, filter: "drop-shadow(0 3px 5px rgba(63,22,22,0.35))" }}
+    >
+      <div className="seal-inner">
+        <div className="seal-face"><SealFace seed={label} glyph={label.charAt(0)} /></div>
+        <div className="seal-face seal-back"><SealFace seed={label + "b"} glyph={ROMAN[index] ?? "❧"} serif={false} /></div>
+      </div>
+    </motion.div>
+  );
+}
+
 /**
  * Marginalia: a tool written in the margin like a note in Leonardo's notebook, with a hairline
  * leader that draws in toward the window and a short line on what the tool was used for.
@@ -63,9 +149,10 @@ function MarginNote({
   const line = useTransform(build, [s0 + 0.04, s0 + 0.26], [0, 1]);
   const toWindow = side === "left";
   return (
-    <motion.div data-ps="note" style={{ opacity, x }} className={`flex items-center gap-3 w-full ${toWindow ? "justify-end" : "justify-start flex-row-reverse"}`}>
+    <motion.div data-ps="note" style={{ opacity, x }} className={`group flex items-center gap-3 w-full ${toWindow ? "justify-end" : "justify-start flex-row-reverse"}`}>
+      <WaxSeal label={label} index={index} build={build} s0={s0} />
       <div className={toWindow ? "text-right" : "text-left"}>
-        <span className="block font-editorial-serif italic text-[21px] leading-tight text-[var(--text-ink)]">
+        <span className="block font-editorial-serif italic text-[21px] leading-tight text-[var(--text-ink)] whitespace-nowrap">
           <span className="text-[var(--accent-oxblood)]">{label.charAt(0)}</span>
           {label.slice(1)}
         </span>
@@ -170,7 +257,12 @@ export default function ProofStage({
   return (
     <div ref={stageRef} className={`relative ${className}`}>
       {/* desktop */}
-      <div className={`hidden lg:grid ${gridCols} gap-8 ${heightClass}`}>
+      <div
+        className={`hidden lg:grid ${
+          // margin notes (seal + name + note) need wider side columns than chips
+          notes ? "grid-cols-[minmax(230px,290px)_minmax(0,1fr)_minmax(230px,290px)]" : gridCols
+        } gap-6 ${heightClass}`}
+      >
         <motion.div className={`flex flex-col justify-evenly gap-4 ${notes ? "items-stretch" : "items-end"}`} style={{ y: leftY }}>
           {left.map(chip)}
         </motion.div>
@@ -191,10 +283,15 @@ export default function ProofStage({
         {cards.length > 0 && notes && (
           <ul className="mt-6 space-y-2">
             {cards.map((c) => (
-              <li key={c} className="font-editorial-serif italic text-[17px] text-[var(--text-ink)]">
+              <li key={c} className="flex items-center gap-3 font-editorial-serif italic text-[17px] text-[var(--text-ink)]">
+                <span className="w-7 h-7 shrink-0 -rotate-6" style={{ filter: "drop-shadow(0 2px 3px rgba(63,22,22,0.3))" }}>
+                  <SealFace seed={c} glyph={c.charAt(0)} />
+                </span>
+                <span>
                 <span className="text-[var(--accent-oxblood)]">{c.charAt(0)}</span>
                 {c.slice(1)}
                 {notes[c] && <span className="text-[var(--taupe-subtle)]"> · {notes[c]}</span>}
+                </span>
               </li>
             ))}
           </ul>
