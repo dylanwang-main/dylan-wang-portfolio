@@ -426,8 +426,8 @@ export default function SceneShowcase({
   const mainScale = useTransform(() => 0.72 + 0.06 * build.get());
   const sideY = useTransform(() => `${(1 - build.get()) * 28 - exit.get() * 30}vh`);
   const sideOpacityIn = useRange(build, 0.2, 0.7);
-  // secondary element: the companion card never goes past half strength
-  const sideOpacity = useTransform(() => 0.5 * sideOpacityIn.get());
+  // fades in as it builds, then stays fully opaque in front of the background
+  const sideOpacity = sideOpacityIn;
 
   if (!layout) return null;
   const { Main, Side, chips, mainClass } = layout;
@@ -436,10 +436,10 @@ export default function SceneShowcase({
   return (
     <div aria-hidden="true" className="absolute inset-0 overflow-hidden pointer-events-none select-none" style={{ zIndex: 22 }}>
       {/* hero window */}
-      {/* Secondary element: scaled down, see-through and slightly soft so the heading stays the focus */}
+      {/* Secondary element: scaled down and slightly dimmed (but fully opaque, so the background never shows through) */}
       <div
         className="absolute left-0 right-0 md:left-[190px] md:pr-[9vw] bottom-[-16vh] flex justify-center px-4 md:px-0"
-        style={{ perspective: 1600, opacity: 0.55, filter: "blur(0.6px) saturate(0.85)" }}
+        style={{ perspective: 1600, filter: "brightness(0.82) saturate(0.85)" }}
       >
         <motion.div
           className={`w-full ${mainClass}`}
@@ -453,7 +453,7 @@ export default function SceneShowcase({
       {Side && (
         <motion.div
           className="absolute hidden md:block right-[3vw] bottom-[4vh] w-[11vw] min-w-[150px] max-w-[220px] h-[26vh]"
-          style={reduced ? { rotate: 3, opacity: 0.5 } : { y: sideY, rotate: 3, opacity: sideOpacity }}
+          style={reduced ? { rotate: 3, filter: "brightness(0.82)" } : { y: sideY, rotate: 3, opacity: sideOpacity, filter: "brightness(0.82)" }}
         >
           <Side />
         </motion.div>
