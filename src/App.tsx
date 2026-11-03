@@ -5,7 +5,6 @@ import IntroBurst from "./components/intro/IntroBurst";
 import { INTRO_VH, SCENE_DWELL_VH } from "./lib/timeline";
 import Chapter, { ChapterPage } from "./components/layout/Chapter";
 import FeatureBlock from "./components/blocks/FeatureBlock";
-import SubBlock from "./components/blocks/SubBlock";
 import AboutSection from "./components/sections/AboutSection";
 import ContactSection from "./components/sections/ContactSection";
 import Footer from "./components/layout/Footer";
