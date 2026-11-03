@@ -306,19 +306,30 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
         </div>
       )}
 
-      {/* VIEWER QUOTES: anonymised DMs */}
-      {project.quotes && project.quotes.length > 0 && (
+      {/* FROM THE DMS: real message bubbles (names and photos cropped out), scattered like pinned notes */}
+      {project.dmShots && project.dmShots.length > 0 && (
         <div className="pb-[clamp(3rem,6vw,5rem)]">
           <span className="block text-[12px] uppercase tracking-[0.22em] text-[var(--taupe-subtle)]">From the DMs</span>
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
-            {project.quotes.map((q, i) => (
-              <motion.blockquote key={i} {...fadeUp({ amount: 0.4, duration: 0.8, delay: i * 0.12 })} className="relative pl-10">
-                <span aria-hidden="true" className="absolute left-0 -top-3 font-editorial-serif text-[64px] leading-none text-[var(--accent-oxblood)]">&ldquo;</span>
-                <p className="font-editorial-serif italic text-[clamp(1.3rem,1.9vw,1.7rem)] leading-snug text-[var(--text-ink)]">{q}</p>
-                <footer className="mt-3 text-[12px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)]">A viewer, by DM</footer>
-              </motion.blockquote>
-            ))}
+          <div className="mt-8 columns-1 md:columns-2 xl:columns-3 gap-8">
+            {project.dmShots.map((src, i) => {
+              const tilt = [-2.2, 1.6, -1, 2.4, -1.8][i % 5];
+              return (
+                <motion.figure
+                  key={src}
+                  initial={{ opacity: 0, y: 24, rotate: tilt * 2 }}
+                  whileInView={{ opacity: 1, y: 0, rotate: tilt }}
+                  whileHover={{ rotate: 0, scale: 1.03 }}
+                  viewport={{ once: true, amount: 0.5 }}
+                  transition={{ duration: 0.7, delay: i * 0.08, ease: [0.2, 0.8, 0.2, 1] }}
+                  className="mb-8 break-inside-avoid rounded-2xl overflow-hidden bg-[#0d0f12]"
+                  style={{ boxShadow: "0 18px 40px rgba(31,27,22,0.28)" }}
+                >
+                  <img src={src} alt="Message from a viewer" loading="lazy" decoding="async" className="block w-full h-auto" />
+                </motion.figure>
+              );
+            })}
           </div>
+          <p className="mt-2 text-[12px] italic text-[var(--taupe-subtle)]">Real messages from viewers. Names and photos removed for their privacy.</p>
         </div>
       )}
 
