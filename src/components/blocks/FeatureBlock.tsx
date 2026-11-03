@@ -157,12 +157,14 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
               Main={Main}
               Side={Side}
               cards={project.tools}
+              notes={project.toolNotes}
               progress={pinP}
               heightClass="h-[min(46vh,470px)]"
               className="mt-8"
             />
           ) : (
-            <ProofStage Main={Main} Side={Side} cards={project.tools} />
+            <ProofStage Main={Main} Side={Side} cards={project.tools}
+              notes={project.toolNotes} />
           )}
 
           {hasDemo && !pinned && (

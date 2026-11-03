@@ -40,7 +40,55 @@ function ToolCard({
   );
 }
 
+/**
+ * Marginalia: a tool written in the margin like a note in Leonardo's notebook, with a hairline
+ * leader that draws in toward the window and a short line on what the tool was used for.
+ */
+function MarginNote({
+  label,
+  note,
+  side,
+  build,
+  index,
+}: {
+  label: string;
+  note?: string;
+  side: "left" | "right";
+  build: MotionValue<number>;
+  index: number;
+}) {
+  const s0 = Math.min(0.2 + index * 0.13, 0.78);
+  const opacity = useTransform(build, [s0, s0 + 0.12], [0, 1]);
+  const x = useTransform(build, [s0, s0 + 0.18], [side === "left" ? -10 : 10, 0]);
+  const line = useTransform(build, [s0 + 0.04, s0 + 0.26], [0, 1]);
+  const toWindow = side === "left";
+  return (
+    <motion.div data-ps="note" style={{ opacity, x }} className={`flex items-center gap-3 w-full ${toWindow ? "justify-end" : "justify-start flex-row-reverse"}`}>
+      <div className={toWindow ? "text-right" : "text-left"}>
+        <span className="block font-editorial-serif italic text-[21px] leading-tight text-[var(--text-ink)]">
+          <span className="text-[var(--accent-oxblood)]">{label.charAt(0)}</span>
+          {label.slice(1)}
+        </span>
+        {note && <span className="block mt-1 font-editorial-serif italic text-[15px] leading-snug text-[var(--taupe-subtle)]">{note}</span>}
+      </div>
+      {/* leader: hairline with a small dot where it meets the window */}
+      <div className="relative w-[clamp(28px,4vw,64px)] h-px shrink-0">
+        <motion.span
+          className="absolute inset-0 bg-[var(--text-ink)]/35"
+          style={{ scaleX: line, transformOrigin: toWindow ? "left" : "right" }}
+        />
+        <motion.span
+          className={`absolute top-1/2 -translate-y-1/2 ${toWindow ? "right-0" : "left-0"} w-1.5 h-1.5 rounded-full bg-[var(--accent-oxblood)]`}
+          style={{ opacity: line }}
+        />
+      </div>
+    </motion.div>
+  );
+}
+
 interface ProofStageProps {
+  /** One-line "what it was used for", keyed by tool. When given, tools render as marginalia notes. */
+  notes?: Record<string, string>;
   Main: React.ComponentType<{ build: MotionValue<number> }>;
   Side?: React.ComponentType;
   /** Skill chips. Real data only (tools, school, discipline, platforms). */
@@ -66,6 +114,7 @@ export default function ProofStage({
   Main,
   Side,
   cards,
+  notes,
   mainWidth = "lg:w-[min(100%,980px)]",
   className = "mt-[clamp(2.5rem,5vw,4.5rem)]",
   heightClass = "h-[clamp(360px,60vh,620px)]",
@@ -97,6 +146,9 @@ export default function ProofStage({
   const right = cards.filter((_, i) => i % 2 === 1);
   const chip = (label: string) => {
     const i = cards.indexOf(label);
+    if (notes) {
+      return <MarginNote key={label} label={label} note={notes[label]} side={i % 2 === 0 ? "left" : "right"} build={build} index={i} />;
+    }
     return <ToolCard key={label} label={label} build={build} index={i} glow={i === 1} delay={(i * 0.9) % 3} />;
   };
 
@@ -119,11 +171,11 @@ export default function ProofStage({
     <div ref={stageRef} className={`relative ${className}`}>
       {/* desktop */}
       <div className={`hidden lg:grid ${gridCols} gap-8 ${heightClass}`}>
-        <motion.div className="flex flex-col justify-evenly items-end gap-4" style={{ y: leftY }}>
+        <motion.div className={`flex flex-col justify-evenly gap-4 ${notes ? "items-stretch" : "items-end"}`} style={{ y: leftY }}>
           {left.map(chip)}
         </motion.div>
         <div className="relative min-w-0">{win}</div>
-        <motion.div className="flex flex-col justify-evenly items-start gap-4" style={{ y: rightY }}>
+        <motion.div className={`flex flex-col justify-evenly gap-4 ${notes ? "items-stretch" : "items-start"}`} style={{ y: rightY }}>
           {Side && (
             <div data-ps="side" className={`w-full ${sideHeight} shrink-0`} style={{ ["--win-shadow" as string]: "0 18px 44px rgba(31,27,22,0.22)" }}>
               <Side />
@@ -136,7 +188,18 @@ export default function ProofStage({
       {/* phones and tablets */}
       <div className="lg:hidden">
         <div className={`relative ${heightClass}`}>{win}</div>
-        {cards.length > 0 && (
+        {cards.length > 0 && notes && (
+          <ul className="mt-6 space-y-2">
+            {cards.map((c) => (
+              <li key={c} className="font-editorial-serif italic text-[17px] text-[var(--text-ink)]">
+                <span className="text-[var(--accent-oxblood)]">{c.charAt(0)}</span>
+                {c.slice(1)}
+                {notes[c] && <span className="text-[var(--taupe-subtle)]"> · {notes[c]}</span>}
+              </li>
+            ))}
+          </ul>
+        )}
+        {cards.length > 0 && !notes && (
           <div className="mt-6 flex flex-wrap gap-2">
             {cards.map((c, i) => (
               <motion.span

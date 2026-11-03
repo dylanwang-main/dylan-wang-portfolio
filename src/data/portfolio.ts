@@ -300,6 +300,8 @@ export interface ProjectData {
   /** Optional centered line of text under the bottom stats row. */
   statsNote?: string;
   tools: string[];
+  /** What each tool was used for, one short line. Turns the tool chips into margin notes. */
+  toolNotes?: Record<string, string>;
   slots?: {
     label: string;
     prompt: string;
@@ -478,6 +480,11 @@ export const CONTENT_PROJECT: ProjectData = {
     { value: "~2.1K", label: "average likes per post" },
   ],
   tools: ["DaVinci Resolve", "Buffer", "Canva"],
+  toolNotes: {
+    "DaVinci Resolve": "cuts, pacing and color",
+    Buffer: "scheduling and posting rhythm",
+    Canva: "covers and on-screen text",
+  },
   slots: [
     {
       label: "Content Pillars & Themes",
