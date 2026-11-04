@@ -371,7 +371,7 @@ const LAYOUTS: Record<string, Layout> = {
   about: {
     Main: AboutMain,
     Side: AboutSide,
-    chips: ["Data Science", "Content Creator", "UC San Diego"],
+    chips: ["Data Science", "Content Creator", "UC San Diego", "Rock Climbing", "Tennis", "Basketball", "Hiking", "Travel"],
     mainClass: "h-[44vh] md:h-[56vh] md:w-[min(46vw,640px)]",
   },
   contact: {
