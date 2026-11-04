@@ -536,9 +536,11 @@ export const CONTENT_PROJECT: ProjectData = {
       prompt: "One reel's first stretch, straight from Instagram: almost every view came from people who didn't follow yet.",
       image: "/content/reel-insights.png",
       tileMaxWidth: 340,
-      popups: ["Non-followers", "Reels tab", "Watch time", "Interactions"],
-      // rows in the screenshot each note points at
-      popupTargets: { "Non-followers": 0.76, "Reels tab": 0.945, "Watch time": 0.37, Interactions: 0.42 },
+      // left: Watch time, Reels tab (their labels sit on the left of the screenshot);
+      // right: Interactions, Non-followers (their numbers sit on the right)
+      popups: ["Watch time", "Interactions", "Reels tab", "Non-followers"],
+      // rows in the screenshot each note points at (0 = top, 1 = bottom)
+      popupTargets: { "Watch time": 0.367, Interactions: 0.417, "Reels tab": 0.941, "Non-followers": 0.762 },
       popupNotes: {
         "Non-followers": "99.7% of views from people not following yet",
         "Reels tab": "85.8% of views came from the Reels tab",

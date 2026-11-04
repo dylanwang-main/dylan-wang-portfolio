@@ -76,7 +76,7 @@ function SlotMarginalia({
   const PAD = "clamp(0.75rem, 2.5vw, 1.75rem)";
   const column = (side: "left" | "right") =>
     targets ? (
-      <div className="hidden lg:block relative">
+      <div className="hidden lg:block relative z-10">
         {labels.map((l, k) =>
           (k % 2 === 0) === (side === "left") ? (
             <div
@@ -84,7 +84,8 @@ function SlotMarginalia({
               className="absolute left-0 right-0 -translate-y-1/2"
               style={{ top: `calc(${PAD} + ${targets[l] ?? 0.5} * (100% - 2 * ${PAD}))` }}
             >
-              <MarginNote label={l} note={notes[l]} side={side} build={scrollYProgress} index={k} />
+              {/* the leader runs across the gap and the tile's margin, ending on the row it describes */}
+              <MarginNote label={l} note={notes[l]} side={side} build={scrollYProgress} index={k} reach={`calc(1.25rem + ${PAD} + 14px)`} />
             </div>
           ) : null
         )}

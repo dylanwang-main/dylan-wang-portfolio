@@ -3,7 +3,6 @@ import { motion, useTransform, motionValue, MotionValue } from "motion/react";
 import {
   WORK_PROJECTS,
   CONTENT_PROJECT,
-  SOCIAL_LINKS,
   CONTACT_EMAIL,
   ABOUT_PROFILE,
   EDUCATION,
@@ -421,7 +420,7 @@ const LAYOUTS: Record<string, Layout> = {
   },
   contact: {
     Main: ContactMain,
-    chips: SOCIAL_LINKS.map((s) => s.platform),
+    chips: ["LinkedIn", "Instagram", "Snapchat", "Facebook", "GitHub", "Discord", "Email", "Texting"],
     mainClass: "h-[40vh] md:h-[44vh] md:w-[min(52vw,860px)]",
   },
 };

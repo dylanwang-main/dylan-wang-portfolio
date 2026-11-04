@@ -192,6 +192,7 @@ export function MarginNote({
   index,
   seal = true,
   sealId,
+  reach,
 }: {
   label: string;
   note?: string;
@@ -202,6 +203,8 @@ export function MarginNote({
   seal?: boolean;
   /** Key for the collectible seal, when the same tool name appears in more than one place. */
   sealId?: string;
+  /** Stretch the leader to fill the column and run this far past it (CSS length), into the image. */
+  reach?: string;
 }) {
   const s0 = Math.min(0.2 + index * 0.13, 0.78);
   const opacity = useTransform(build, [s0, s0 + 0.12], [0, 1]);
@@ -209,7 +212,7 @@ export function MarginNote({
   const line = useTransform(build, [s0 + 0.04, s0 + 0.26], [0, 1]);
   const toWindow = side === "left";
   return (
-    <motion.div data-ps="note" style={{ opacity, x }} className={`seal-host flex items-center gap-3 max-w-full ${toWindow ? "ml-auto" : "mr-auto flex-row-reverse"}`}>
+    <motion.div data-ps="note" style={{ opacity, x }} className={`seal-host flex items-center gap-3 max-w-full ${reach ? "w-full" : ""} ${toWindow ? "ml-auto" : "mr-auto flex-row-reverse"}`}>
       {seal && <WaxSeal label={sealId ?? label} index={index} build={build} s0={s0} />}
       <div className={toWindow ? "text-right" : "text-left"}>
         <span className="block font-editorial-serif italic text-[21px] leading-tight text-[var(--text-ink)] whitespace-nowrap">
@@ -219,7 +222,10 @@ export function MarginNote({
         {note && <span className="block mt-1 font-editorial-serif italic text-[15px] leading-snug text-[var(--taupe-subtle)]">{note}</span>}
       </div>
       {/* leader: hairline with a small dot where it meets the window */}
-      <div className="relative w-[clamp(28px,4vw,64px)] h-px shrink-0">
+      <div
+        className={`relative h-px ${reach ? "flex-1 min-w-[28px]" : "w-[clamp(28px,4vw,64px)] shrink-0"}`}
+        style={reach ? (toWindow ? { marginRight: `calc(-1 * ${reach})` } : { marginLeft: `calc(-1 * ${reach})` }) : undefined}
+      >
         <motion.span
           className="absolute inset-0 bg-[var(--text-ink)]/35"
           style={{ scaleX: line, transformOrigin: toWindow ? "left" : "right" }}
