@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { SEAL_ORDER, SEAL_PHRASE, resetSeals, useSeals } from "../../lib/seals";
+import { SEAL_DONE_TEXT, SEAL_ORDER, resetSeals, useSeals } from "../../lib/seals";
 import { PhraseSlots } from "./SealTracker";
 
 /** End of About: the phrase the seals spell, blank until every seal is collected. */
@@ -18,7 +18,7 @@ export default function SealReveal() {
           transition={{ duration: 0.7, ease: [0.2, 0.8, 0.2, 1] }}
           className="mt-6 font-editorial-serif italic text-[clamp(3rem,8vw,7rem)] leading-none text-[var(--accent-oxblood)]"
         >
-          {SEAL_PHRASE.charAt(0) + SEAL_PHRASE.slice(1).toLowerCase()}?
+          {SEAL_DONE_TEXT}
         </motion.p>
       ) : null}
       <div className="mt-8 flex justify-center">

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { SEAL_LETTERS, SEAL_ORDER, SEAL_PHRASE, labelForSlot, landSeal, sealIndex, useFlights, useSeals, type Flight } from "../../lib/seals";
+import { SEAL_DONE_TEXT, SEAL_LETTERS, SEAL_ORDER, SEAL_PHRASE, labelForSlot, landSeal, sealIndex, useFlights, useSeals, type Flight } from "../../lib/seals";
 import { SealFace } from "./ProofStage";
 
 /**
@@ -161,7 +161,7 @@ export default function SealTracker() {
           >
             {party && <Confetti w={box.w} h={box.h} />}
             <span className="text-[10px] uppercase tracking-[0.22em] text-[#8A7B6A]">
-              {done ? "Stay curious?" : `Seals ${n} / ${total}`}
+              {done ? SEAL_DONE_TEXT : `Seals ${n} / ${total}`}
             </span>
             <PhraseSlots size={20} track />
           </motion.button>

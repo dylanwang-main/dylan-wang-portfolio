@@ -110,3 +110,6 @@ const subFlights = (f: () => void) => {
 export function useFlights() {
   return useSyncExternalStore(subFlights, () => flights, () => flights);
 }
+
+/** How the finished phrase is written once every seal is found. */
+export const SEAL_DONE_TEXT = "Stay Curious!";
