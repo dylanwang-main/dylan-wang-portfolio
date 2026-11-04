@@ -4,7 +4,7 @@ import { useSyncExternalStore } from "react";
 export const SEAL_PHRASE = "STAY CURIOUS";
 export const SEAL_LETTERS = SEAL_PHRASE.replace(/ /g, "").split("");
 
-/** Every collectible seal, in the order it appears on the page. Its index is its letter's slot. */
+/** Every collectible seal, in the order it appears on the page. */
 export const SEAL_ORDER = [
   "Power BI",
   "Python",
@@ -19,7 +19,19 @@ export const SEAL_ORDER = [
   "Interactions",
 ];
 
-export const sealIndex = (label: string) => SEAL_ORDER.indexOf(label);
+/**
+ * Which letter slot each seal fills, by page order. Shuffled on purpose, so reading the seals top
+ * to bottom does not give the phrase away (the page reads R A U · S C S T · I Y O U).
+ */
+const SLOT_FOR_PAGE = [6, 2, 9, 0, 4, 10, 1, 7, 3, 8, 5];
+
+/** The phrase slot a seal fills, or -1 if the label is not a collectible seal. */
+export const sealIndex = (label: string) => {
+  const p = SEAL_ORDER.indexOf(label);
+  return p < 0 ? -1 : SLOT_FOR_PAGE[p];
+};
+/** The seal that fills a given phrase slot. */
+export const labelForSlot = (slot: number) => SEAL_ORDER[SLOT_FOR_PAGE.indexOf(slot)];
 
 const KEY = "dw-seals-v1";
 let collected: string[] = [];

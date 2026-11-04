@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { SEAL_LETTERS, SEAL_ORDER, SEAL_PHRASE, landSeal, useFlights, useSeals, type Flight } from "../../lib/seals";
+import { SEAL_LETTERS, SEAL_ORDER, SEAL_PHRASE, labelForSlot, landSeal, sealIndex, useFlights, useSeals, type Flight } from "../../lib/seals";
 import { SealFace } from "./ProofStage";
 
 /**
- * The phrase as a row of seal slots: collected seals sit in their slot, the rest are a faint
- * dotted ring with the letter ghosted inside. Each slot carries data-seal-slot so a flying seal
+ * The phrase as a row of seal slots: collected seals sit in their slot, the rest are an empty
+ * dashed ring. Each slot carries data-seal-slot so a flying seal
  * knows where to land.
  */
 export function PhraseSlots({ size = 22, track = false }: { size?: number; track?: boolean }) {
@@ -16,7 +16,7 @@ export function PhraseSlots({ size = 22, track = false }: { size?: number; track
       {SEAL_PHRASE.split("").map((ch, i) => {
         if (ch === " ") return <span key={i} style={{ width: size * 0.45 }} />;
         const slot = k++;
-        const label = SEAL_ORDER[slot];
+        const label = labelForSlot(slot);
         const on = got.includes(label);
         return (
           <span
@@ -36,12 +36,8 @@ export function PhraseSlots({ size = 22, track = false }: { size?: number; track
                 <SealFace seed={label} glyph={SEAL_LETTERS[slot]} />
               </motion.span>
             ) : (
-              <span
-                className="absolute inset-[8%] rounded-full grid place-items-center font-editorial-serif italic text-[#8A7B6A]/60"
-                style={{ border: "1px dashed rgba(138,123,106,0.55)", fontSize: size * 0.48 }}
-              >
-                {SEAL_LETTERS[slot]}
-              </span>
+              // empty slot: just the dashed impression, no letter, so the phrase stays a surprise
+              <span className="absolute inset-[8%] rounded-full" style={{ border: "1px dashed rgba(138,123,106,0.55)" }} />
             )}
           </span>
         );
@@ -52,7 +48,7 @@ export function PhraseSlots({ size = 22, track = false }: { size?: number; track
 
 /** A seal copy flying from where it was clicked to its slot, along an arc, shrinking as it goes. */
 function FlyingSeal({ f }: { f: Flight }) {
-  const slot = SEAL_ORDER.indexOf(f.label);
+  const slot = sealIndex(f.label);
   const [to, setTo] = useState<{ x: number; y: number; size: number } | null>(null);
   useEffect(() => {
     // wait a frame so the tracker (and its slot) has mounted
@@ -85,35 +81,42 @@ function FlyingSeal({ f }: { f: Flight }) {
   );
 }
 
-/** A small burst of confetti from the tracker when the last seal lands. */
-function Confetti() {
+/** Confetti bursting outward from every side of the tracker box when the last seal lands. */
+function Confetti({ w, h }: { w: number; h: number }) {
   const bits = useMemo(
     () =>
-      Array.from({ length: 46 }, (_, i) => {
-        const a = Math.PI * (0.6 + Math.random() * 0.8); // mostly up and to the left
-        const v = 120 + Math.random() * 220;
+      Array.from({ length: 72 }, (_, i) => {
+        // start on a random point of the box's edge, then fly outward from the centre
+        const side = i % 4;
+        const t = Math.random();
+        const x = side === 0 ? t * w : side === 1 ? w : side === 2 ? t * w : 0;
+        const y = side === 0 ? 0 : side === 1 ? t * h : side === 2 ? h : t * h;
+        const a = Math.atan2(y - h / 2, x - w / 2) + (Math.random() - 0.5) * 0.9;
+        const v = 70 + Math.random() * 170;
         return {
           i,
+          x,
+          y,
           dx: Math.cos(a) * v,
-          dy: -Math.abs(Math.sin(a) * v) - 40,
+          dy: Math.sin(a) * v,
           rot: (Math.random() - 0.5) * 720,
           color: ["#6B2D2D", "#1E3A9E", "#D9B26F", "#F4EFE6", "#E88080"][i % 5],
-          w: 5 + Math.random() * 5,
-          h: 3 + Math.random() * 4,
+          sw: 5 + Math.random() * 5,
+          sh: 3 + Math.random() * 4,
         };
       }),
-    []
+    [w, h]
   );
   return (
-    <span className="absolute right-1/2 top-1/2 pointer-events-none" aria-hidden="true">
+    <span className="absolute inset-0 pointer-events-none overflow-visible" aria-hidden="true">
       {bits.map((b) => (
         <motion.span
           key={b.i}
           className="absolute block rounded-[1px]"
-          style={{ width: b.w, height: b.h, background: b.color }}
-          initial={{ x: 0, y: 0, opacity: 1, rotate: 0 }}
-          animate={{ x: b.dx, y: [0, b.dy, b.dy + 260], opacity: [1, 1, 0], rotate: b.rot }}
-          transition={{ duration: 1.8, ease: "easeOut", times: [0, 0.35, 1] }}
+          style={{ left: b.x, top: b.y, width: b.sw, height: b.sh, background: b.color }}
+          initial={{ x: 0, y: 0, opacity: 1, rotate: 0, scale: 0.4 }}
+          animate={{ x: b.dx, y: [0, b.dy, b.dy + 140], opacity: [1, 1, 0], rotate: b.rot, scale: 1 }}
+          transition={{ duration: 1.6, ease: "easeOut", times: [0, 0.4, 1] }}
         />
       ))}
     </span>
@@ -138,6 +141,7 @@ export default function SealTracker() {
     return () => window.clearTimeout(t);
   }, [done]);
   const show = n > 0 || flights.length > 0;
+  const [box, setBox] = useState({ w: 240, h: 64 });
   return (
     <>
       <AnimatePresence>
@@ -150,11 +154,14 @@ export default function SealTracker() {
             exit={{ opacity: 0, y: 12 }}
             transition={{ duration: 0.3 }}
             aria-label={`${n} of ${total} wax seals collected. Go to the hidden phrase.`}
+            ref={(el) => {
+              if (el && (el.offsetWidth !== box.w || el.offsetHeight !== box.h)) setBox({ w: el.offsetWidth, h: el.offsetHeight });
+            }}
             className="fixed z-[60] right-3 bottom-3 md:right-7 md:bottom-6 flex flex-col items-end gap-2 rounded-xl px-3 py-2.5 cursor-pointer text-[#1F1B16] bg-[#F4EFE6]/92 backdrop-blur-md border border-[rgba(31,27,22,0.12)] shadow-[0_10px_28px_rgba(31,27,22,0.22)]"
           >
-            {party && <Confetti />}
+            {party && <Confetti w={box.w} h={box.h} />}
             <span className="text-[10px] uppercase tracking-[0.22em] text-[#8A7B6A]">
-              {done ? "Stay curious · all seals found" : `Seals ${n} / ${total}`}
+              {done ? "Stay curious?" : `Seals ${n} / ${total}`}
             </span>
             <PhraseSlots size={20} track />
           </motion.button>
