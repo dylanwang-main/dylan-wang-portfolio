@@ -7,10 +7,21 @@ import { fadeUp } from "../../lib/motion";
 function Photos({ hobby, open }: { hobby: Hobby; open: boolean }) {
   const [i, setI] = useState(0);
   const n = hobby.images.length;
+  // manual browsing pauses auto-advance for a while
+  const [held, setHeld] = useState(0);
   useEffect(() => {
     if (!open || n < 2) return;
-    const t = window.setInterval(() => setI((v) => (v + 1) % n), 3800);
+    const t = window.setInterval(() => setI((v) => (v + 1) % n), held ? 9000 : 3800);
     return () => window.clearInterval(t);
+  }, [open, n, held]);
+  useEffect(() => {
+    if (!open || n < 2) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") { setI((v) => (v + 1) % n); setHeld((h) => h + 1); }
+      if (e.key === "ArrowLeft") { setI((v) => (v - 1 + n) % n); setHeld((h) => h + 1); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [open, n]);
   const img = hobby.images[i];
   // no photos yet: a quiet painted gradient instead of an empty box
@@ -38,6 +49,25 @@ function Photos({ hobby, open }: { hobby: Hobby; open: boolean }) {
           style={{ transform: open ? "scale(1)" : "scale(1.12)", objectPosition: img.position ?? "50% 50%" }}
         />
       </AnimatePresence>
+      {open && n > 1 && (
+        <>
+          {(["‹", "›"] as const).map((ch, k) => (
+            <button
+              key={ch}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setI((v) => (v + (k ? 1 : -1) + n) % n);
+                setHeld((h) => h + 1);
+              }}
+              aria-label={k ? "Next photo" : "Previous photo"}
+              className={`absolute z-10 top-1/2 -translate-y-1/2 ${k ? "right-4" : "left-4"} w-11 h-11 rounded-full grid place-items-center text-[26px] leading-none text-white bg-black/40 backdrop-blur-sm cursor-pointer transition-colors hover:bg-[var(--accent-pop)]`}
+            >
+              {ch}
+            </button>
+          ))}
+        </>
+      )}
       {open && n > 1 && (
         <div className="absolute right-6 bottom-6 flex gap-1.5 z-10">
           {hobby.images.map((_, k) => (
