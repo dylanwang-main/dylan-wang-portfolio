@@ -44,6 +44,8 @@ export interface SceneData {
   backgroundImage?: string;
   /** Blur on the background photo, in px (lower keeps objects recognisable). */
   backgroundBlur?: number;
+  /** Three photos side by side as vertical panels (a triptych), blurred and darkened. */
+  backgroundPanels?: { src: string; position?: string }[];
   theme: "dark" | "light"; // "dark" = dark scene (light-on-dark nav), "light" = light scene
   layers: SceneLayer[];
 }
@@ -196,7 +198,13 @@ export const SECTION_SCENES: Record<"work" | "content" | "about" | "contact", Sc
     heading: "About",
     tagline:
       "Data science student at UC San Diego, expected class of 2030.",
-    montage: ["/dylan-wang-headshot.jpg", "/ucsd-seal.png", "/parksmart-app.jpg", "/tusd-overview.png"],
+    // UCSD on the left, climbing in the middle, creating on the right
+    backgroundPanels: [
+      { src: "/about/geisel.jpg", position: "50% 45%" },
+      { src: "/about/climbing-wall.jpg", position: "50% 50%" },
+      { src: "/about/creator-phone.jpg", position: "50% 40%" },
+    ],
+    backgroundBlur: 7,
     theme: "dark",
     layers: [
       {

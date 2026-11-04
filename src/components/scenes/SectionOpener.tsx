@@ -401,10 +401,35 @@ export default function SectionOpener({
             <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 55% 45% at 50% 38%, rgba(0,0,0,0.4), transparent 75%)" }} />
           </div>
         )}
+        {scene.backgroundPanels && (
+          <motion.div
+            className="absolute inset-0 grid grid-cols-3"
+            style={{ y: prefersReducedMotion ? 0 : bgY, scale: 1.04 }}
+          >
+            {scene.backgroundPanels.map((p, i) => (
+              <div key={p.src} className="relative overflow-hidden" style={i ? { borderLeft: "1px solid rgba(244,239,230,0.14)" } : undefined}>
+                <img
+                  src={p.src}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ objectPosition: p.position ?? "50% 50%", filter: `blur(${scene.backgroundBlur ?? 7}px)`, transform: "scale(1.08)" }}
+                />
+              </div>
+            ))}
+          </motion.div>
+        )}
+        {scene.backgroundPanels && (
+          <>
+            <div className="absolute inset-0 bg-black/55" />
+            <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 55% 45% at 50% 38%, rgba(0,0,0,0.4), transparent 75%)" }} />
+          </>
+        )}
         {scene.montage && <BlurMontage images={scene.montage} columns={scene.montageColumns} />}
         {scene.layers.map((layer, index) => {
           // a photo background replaces the line-art and glow layers
-          if (scene.backgroundImage && layer.motifId !== "vignette-grain") return null;
+          if ((scene.backgroundImage || scene.backgroundPanels) && layer.motifId !== "vignette-grain") return null;
           const layerY = index === 0 ? bgY : index === 1 ? midY : fgY;
           return (
             <LayerElement
@@ -418,7 +443,7 @@ export default function SectionOpener({
         })}
 
         {/* Colour world: chapters without a montage get a coloured glow until real artwork arrives */}
-        {!scene.montage && !scene.backgroundImage && SCENE_TINT[scene.id] && (
+        {!scene.montage && !scene.backgroundImage && !scene.backgroundPanels && SCENE_TINT[scene.id] && (
           <div
             aria-hidden="true"
             className="absolute inset-0"
