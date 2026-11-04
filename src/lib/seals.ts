@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 
 /** The phrase the wax seals spell out, one letter per seal, in page order. */
-export const SEAL_PHRASE = "DATA TELLS STORIES";
+export const SEAL_PHRASE = "STAY CURIOUS TODAY";
 export const SEAL_LETTERS = SEAL_PHRASE.replace(/ /g, "").split("");
 
 /** Every collectible seal, in the order it appears on the page. */
@@ -26,7 +26,7 @@ export const SEAL_ORDER = [
 
 /**
  * Which letter slot each seal fills, by page order. Shuffled on purpose, so reading the seals top
- * to bottom does not give the phrase away (the page reads S A E · D R L O · T S L A · I T T E S).
+ * to bottom does not give the phrase away (the page reads U Y A · S O R T A · Y T D C I S).
  */
 const SLOT_FOR_PAGE = [9, 3, 14, 0, 12, 6, 11, 2, 15, 7, 1, 13, 4, 10, 5, 8];
 
@@ -108,4 +108,4 @@ export function useFlights() {
 }
 
 /** How the finished phrase is written once every seal is found. */
-export const SEAL_DONE_TEXT = "Data Tells Stories!";
+export const SEAL_DONE_TEXT = "Stay Curious Today!";
