@@ -51,9 +51,8 @@ export default function ContactSection() {
         <h3 className="statement-title font-editorial-serif italic text-[clamp(3.2rem,7.6vw,8rem)] leading-[0.98] tracking-[-0.02em] text-[var(--text-ink)] max-w-[14ch] mx-auto text-balance">
           Let’s start a conversation.
         </h3>
-        <span className="mt-10 block text-[12px] uppercase tracking-[0.22em] text-[var(--taupe-subtle)] font-semibold">Open to</span>
-        <p className="lead mt-3 max-w-[30ch] mx-auto text-balance">
-          Chatting about anything. Data, content, ideas, or just saying hi.
+        <p className="lead mt-10 max-w-[30ch] mx-auto text-balance">
+          Open to chatting about anything, really.
         </p>
       </motion.div>
 
