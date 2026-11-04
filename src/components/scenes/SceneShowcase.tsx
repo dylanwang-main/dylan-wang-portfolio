@@ -255,29 +255,32 @@ export function ContentSide() {
 
 /* ---------- ABOUT ---------- */
 export function AboutMain({ build }: { build: V }) {
-  // fades and rises in like the rest of the page, instead of being wiped in from a hard edge
+  // fades and rises in like the rest of the page
   const reveal = useRange(build, 0.05, 0.6);
   const y = useTransform(reveal, (v) => `${(1 - v) * 40}px`);
   return (
-    <motion.div className="w-full h-full flex items-end justify-center" style={{ opacity: reveal, y }}>
+    <motion.div className="w-full h-full flex items-center justify-center" style={{ opacity: reveal, y }}>
+      {/* gallery frame: thin ink border, cream mat, then the photo. Duotone until hovered. */}
       <div
-        className="relative h-full aspect-[3/4] overflow-hidden"
+        className="group relative h-full aspect-[4/5] max-w-full p-[3.5%] bg-[#FBF8F2] pointer-events-auto"
         style={{
-          borderRadius: "999px 999px 14px 14px",
-          background: "linear-gradient(180deg,#3a2a20 0%,#6B2D2D 55%,#2a1a14 100%)",
-          border: `1px solid ${LINE}`,
-          boxShadow: "var(--win-shadow, 0 40px 120px rgba(0,0,0,0.65))",
+          border: "1px solid rgba(31,27,22,0.55)",
+          boxShadow: "0 0 0 6px #F4EFE6, 0 0 0 7px rgba(107,45,45,0.35), var(--win-shadow, 0 30px 70px rgba(31,27,22,0.28))",
         }}
       >
-        <img
-          src={ABOUT_PROFILE.photo}
-          alt={`Portrait of ${ABOUT_PROFILE.name}`}
-          loading="lazy"
-          decoding="async"
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ objectPosition: "50% 30%" }}
-        />
-        <div className="absolute inset-3 pointer-events-none" style={{ borderRadius: "999px 999px 8px 8px", border: `1px solid ${CREAM}`, opacity: 0.35 }} />
+        <div className="relative w-full h-full overflow-hidden" style={{ border: "1px solid rgba(31,27,22,0.25)" }}>
+          <img
+            src={ABOUT_PROFILE.photo}
+            alt={`Portrait of ${ABOUT_PROFILE.name}`}
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-cover transition-[filter,transform] duration-700 ease-out [filter:grayscale(1)_contrast(1.12)] group-hover:[filter:none] group-hover:scale-[1.02]"
+            style={{ objectPosition: "50% 28%" }}
+          />
+          {/* duotone: shadows go oxblood, highlights go cream */}
+          <div className="absolute inset-0 transition-opacity duration-700 group-hover:opacity-0" style={{ background: "#3a1a18", mixBlendMode: "lighten" }} />
+          <div className="absolute inset-0 transition-opacity duration-700 group-hover:opacity-0" style={{ background: "#F1E6D6", mixBlendMode: "multiply" }} />
+        </div>
       </div>
     </motion.div>
   );
