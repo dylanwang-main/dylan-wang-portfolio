@@ -256,13 +256,11 @@ export function ContentSide() {
 
 /* ---------- ABOUT ---------- */
 export function AboutMain({ build }: { build: V }) {
-  const reveal = useRange(build, 0.05, 0.85);
-  const clip = useTransform(reveal, (v) => `inset(${(1 - v) * 100}% 0% 0% 0%)`);
+  // fades and rises in like the rest of the page, instead of being wiped in from a hard edge
+  const reveal = useRange(build, 0.05, 0.6);
+  const y = useTransform(reveal, (v) => `${(1 - v) * 40}px`);
   return (
-    <motion.div
-      className="w-full h-full flex items-end justify-center"
-      style={{ clipPath: clip, WebkitClipPath: clip }}
-    >
+    <motion.div className="w-full h-full flex items-end justify-center" style={{ opacity: reveal, y }}>
       <div
         className="relative h-full aspect-[3/4] overflow-hidden"
         style={{

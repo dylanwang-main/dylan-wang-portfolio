@@ -33,34 +33,25 @@ export const sealIndex = (label: string) => {
 /** The seal that fills a given phrase slot. */
 export const labelForSlot = (slot: number) => SEAL_ORDER[SLOT_FOR_PAGE.indexOf(slot)];
 
+// Every visit starts with all seals unfound (progress lives only for the page's lifetime).
+// Clear the key older versions saved, so returning visitors start fresh too.
 const KEY = "dw-seals-v1";
-let collected: string[] = [];
 try {
-  const raw = JSON.parse(localStorage.getItem(KEY) ?? "[]");
-  if (Array.isArray(raw)) collected = raw.filter((l) => SEAL_ORDER.includes(l));
+  localStorage.removeItem(KEY);
 } catch {
-  /* private mode or blocked storage: start empty */
+  /* storage blocked: nothing to clear */
 }
+let collected: string[] = [];
 const listeners = new Set<() => void>();
 
 export function collectSeal(label: string) {
   if (sealIndex(label) < 0 || collected.includes(label)) return;
   collected = [...collected, label];
-  try {
-    localStorage.setItem(KEY, JSON.stringify(collected));
-  } catch {
-    /* keep it in memory only */
-  }
   listeners.forEach((f) => f());
 }
 
 export function resetSeals() {
   collected = [];
-  try {
-    localStorage.removeItem(KEY);
-  } catch {
-    /* ignore */
-  }
   listeners.forEach((f) => f());
 }
 
