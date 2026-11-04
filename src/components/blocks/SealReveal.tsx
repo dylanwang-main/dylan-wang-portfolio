@@ -22,14 +22,14 @@ export default function SealReveal() {
         </motion.p>
       ) : null}
       <div className="mt-8 flex justify-center">
-        <PhraseSlots size={44} />
+        <PhraseSlots size={typeof window !== "undefined" ? Math.min(44, (window.innerWidth - 300) / 20, (window.innerWidth - 40) / 20) : 44} />
       </div>
       <p className="mt-6 text-[15px] text-[var(--text-ink)]/70">
         {done
           ? "You found every wax seal on the site. Thanks for looking closely."
           : got.length === 0
-            ? `There are ${total} wax seals hidden beside my work. Click each one to collect it.`
-            : `${got.length} of ${total} wax seals found. The rest are beside my work.`}
+            ? `There are ${total} wax seals hidden around the site. Click each one to collect it.`
+            : `${got.length} of ${total} wax seals found. The rest are hidden around the site.`}
       </p>
       {done && (
         <button type="button" onClick={resetSeals} className="mt-4 text-[12px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)] hover:text-[var(--text-ink)] cursor-pointer">

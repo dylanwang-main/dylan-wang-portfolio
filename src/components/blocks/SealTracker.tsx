@@ -163,7 +163,7 @@ export default function SealTracker() {
             <span className="text-[10px] uppercase tracking-[0.22em] text-[#8A7B6A]">
               {done ? SEAL_DONE_TEXT : `Seals ${n} / ${total}`}
             </span>
-            <PhraseSlots size={20} track />
+            <PhraseSlots size={typeof window !== "undefined" && window.innerWidth < 520 ? 15 : 20} track />
           </motion.button>
         )}
       </AnimatePresence>

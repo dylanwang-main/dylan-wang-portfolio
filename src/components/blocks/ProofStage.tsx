@@ -131,7 +131,7 @@ export function TapSeal({ label, index }: { label: string; index: number }) {
   return (
     <button
       type="button"
-      aria-label={`${label}: tap to flip${slot >= 0 && !got ? " and collect" : ""}`}
+      aria-label={`${label.split(":").pop()}: tap to flip${slot >= 0 && !got ? " and collect" : ""}`}
       aria-pressed={flipped}
       onClick={(e) => {
         setFlipped((f) => !f);
@@ -191,6 +191,7 @@ export function MarginNote({
   build,
   index,
   seal = true,
+  sealId,
 }: {
   label: string;
   note?: string;
@@ -199,6 +200,8 @@ export function MarginNote({
   index: number;
   /** Wax seals are the collectible game; plain notes skip them. */
   seal?: boolean;
+  /** Key for the collectible seal, when the same tool name appears in more than one place. */
+  sealId?: string;
 }) {
   const s0 = Math.min(0.2 + index * 0.13, 0.78);
   const opacity = useTransform(build, [s0, s0 + 0.12], [0, 1]);
@@ -207,7 +210,7 @@ export function MarginNote({
   const toWindow = side === "left";
   return (
     <motion.div data-ps="note" style={{ opacity, x }} className={`seal-host flex items-center gap-3 max-w-full ${toWindow ? "ml-auto" : "mr-auto flex-row-reverse"}`}>
-      {seal && <WaxSeal label={label} index={index} build={build} s0={s0} />}
+      {seal && <WaxSeal label={sealId ?? label} index={index} build={build} s0={s0} />}
       <div className={toWindow ? "text-right" : "text-left"}>
         <span className="block font-editorial-serif italic text-[21px] leading-tight text-[var(--text-ink)] whitespace-nowrap">
           <span className="text-[var(--accent-oxblood)]">{label.charAt(0)}</span>
@@ -235,6 +238,8 @@ interface ProofStageProps {
   notes?: Record<string, string>;
   /** Show wax seals beside the notes (default). */
   seals?: boolean;
+  /** Prefix for seal keys, so a tool listed twice on the site gets two separate seals. */
+  sealPrefix?: string;
   Main: React.ComponentType<{ build: MotionValue<number> }>;
   Side?: React.ComponentType;
   /** Skill chips. Real data only (tools, school, discipline, platforms). */
@@ -262,6 +267,7 @@ export default function ProofStage({
   cards,
   notes,
   seals = true,
+  sealPrefix = "",
   mainWidth = "lg:w-[min(100%,980px)]",
   className = "mt-[clamp(2.5rem,5vw,4.5rem)]",
   heightClass = "h-[clamp(360px,60vh,620px)]",
@@ -294,7 +300,7 @@ export default function ProofStage({
   const chip = (label: string) => {
     const i = cards.indexOf(label);
     if (notes) {
-      return <MarginNote key={label} label={label} note={notes[label]} side={i % 2 === 0 ? "left" : "right"} build={build} index={i} seal={seals} />;
+      return <MarginNote key={label} label={label} note={notes[label]} side={i % 2 === 0 ? "left" : "right"} build={build} index={i} seal={seals} sealId={sealPrefix + label} />;
     }
     return <ToolCard key={label} label={label} build={build} index={i} glow={i === 1} delay={(i * 0.9) % 3} />;
   };
@@ -348,7 +354,7 @@ export default function ProofStage({
           <ul className="mt-6 space-y-2">
             {cards.map((c, i) => (
               <li key={c} className="flex items-center gap-3 font-editorial-serif italic text-[17px] text-[var(--text-ink)]">
-                {seals ? <TapSeal label={c} index={i} /> : <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-[var(--accent-oxblood)]" />}
+                {seals ? <TapSeal label={sealPrefix + c} index={i} /> : <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-[var(--accent-oxblood)]" />}
                 <span>
                 <span className="text-[var(--accent-oxblood)]">{c.charAt(0)}</span>
                 {c.slice(1)}

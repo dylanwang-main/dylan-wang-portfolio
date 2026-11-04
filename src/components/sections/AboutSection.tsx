@@ -8,13 +8,13 @@ import SealReveal from "../blocks/SealReveal";
 import HobbyCard, { type Hobby } from "../blocks/HobbyCard";
 import { fadeUp } from "../../lib/motion";
 
-// Notes around the portrait (left, right, left, ...). Plain notes: the wax seals belong to the game.
+// Notes around the portrait (left, right, left, ...), each with a collectible wax seal.
 const NOTES: Record<string, string> = {
   "UC San Diego": "B.S. Data Science, expected June 2030",
   "Content Creator": "3M+ views on short-form video",
   Python: "cleaning and analyzing data",
   "Power BI": "dashboards for 30+ schools",
-  "Mandarin Chinese": "",
+  "Mandarin Chinese": "bilingual",
 };
 const NOTE_LABELS = Object.keys(NOTES);
 
@@ -50,7 +50,7 @@ export default function AboutSection() {
         Main={AboutMain}
         cards={NOTE_LABELS}
         notes={NOTES}
-        seals={false}
+        sealPrefix="about:"
         mainWidth="lg:w-[min(100%,460px)]"
       />
 
