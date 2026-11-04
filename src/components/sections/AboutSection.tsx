@@ -20,10 +20,35 @@ const NOTES: Record<string, string> = {
 const NOTE_LABELS = Object.keys(NOTES);
 
 // Add more photos to any hobby's list and its card becomes a carousel automatically.
+const P = "/about/hobbies/";
 const HOBBIES: Hobby[] = [
-  { title: "Sports", images: [{ src: "/about/climbing-wall.jpg", alt: "Dylan bouldering at a climbing gym" }] },
-  { title: "Travel", images: [] },
-  { title: "Food", images: [] },
+  {
+    title: "Sports",
+    images: [
+      { src: P + "sports-climbing.jpg", alt: "Bouldering at a climbing gym", position: "50% 55%" },
+      { src: P + "sports-tennis.jpg", alt: "With coaches after a tennis match", position: "50% 40%" },
+      { src: P + "sports-halfdome.jpg", alt: "Sitting above Half Dome in Yosemite", position: "40% 65%" },
+      { src: P + "sports-summit.jpg", alt: "Celebrating on a summit with a friend", position: "50% 45%" },
+    ],
+  },
+  {
+    title: "Travel",
+    images: [
+      { src: P + "travel-inari.jpg", alt: "Fushimi Inari shrine gates in Kyoto", position: "40% 60%" },
+      { src: P + "travel-waterfall.jpg", alt: "Standing in front of a waterfall", position: "50% 70%" },
+      { src: P + "travel-snorkel.jpg", alt: "Snorkeling off a green coastline", position: "50% 50%" },
+      { src: P + "travel-yosemite.jpg", alt: "A waterfall in Yosemite", position: "50% 45%" },
+    ],
+  },
+  {
+    title: "Food",
+    images: [
+      { src: P + "food-ramen.jpg", alt: "A bowl of tonkotsu ramen", position: "50% 55%" },
+      { src: P + "food-okonomiyaki.jpg", alt: "Two okonomiyaki topped with fried eggs", position: "50% 50%" },
+      { src: P + "food-tuna.jpg", alt: "Fresh tuna cuts at a market", position: "50% 40%" },
+      { src: P + "food-crepe.jpg", alt: "A matcha crepe with berries", position: "50% 50%" },
+    ],
+  },
 ];
 
 export default function AboutSection() {

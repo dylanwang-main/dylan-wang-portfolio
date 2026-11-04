@@ -35,7 +35,7 @@ function Photos({ hobby, open }: { hobby: Hobby; open: boolean }) {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8 }}
           className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1400ms] ease-out"
-          style={{ transform: open ? "scale(1)" : "scale(1.12)" }}
+          style={{ transform: open ? "scale(1)" : "scale(1.12)", objectPosition: img.position ?? "50% 50%" }}
         />
       </AnimatePresence>
       {open && n > 1 && (

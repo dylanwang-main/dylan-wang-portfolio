@@ -6,7 +6,8 @@ export interface Hobby {
   title: string;
   /** One short line under the title. Optional. */
   note?: string;
-  images: { src: string; alt: string }[];
+  /** position: CSS object-position, to keep the subject in frame when the photo is cropped. */
+  images: { src: string; alt: string; position?: string }[];
 }
 
 /**
