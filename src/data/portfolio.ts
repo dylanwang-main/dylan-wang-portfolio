@@ -474,7 +474,7 @@ export const WORK_PROJECTS: ProjectData[] = [
       { value: "86%", label: "readings matched to a verified capacity" },
     ],
     statsAtBottom: true,
-    tools: ["Python", "Pandas", "scikit-learn", "FastAPI", "React", "Git", "GitHub"],
+    tools: ["Python", "Pandas", "React", "Git", "GitHub"],
     slotsTextOnly: true,
     slots: [
       {
@@ -487,7 +487,7 @@ export const WORK_PROJECTS: ProjectData[] = [
       },
       {
         label: "Model and app",
-        prompt: "Benchmarked historical averages against linear regression on a time-based holdout, then served recommendations through a FastAPI backend and a React map.",
+        prompt: "Benchmarked historical averages against linear regression on a time-based holdout, then served recommendations through a Python backend and a React map.",
       },
     ],
     imagePlaceholder: {
