@@ -26,7 +26,7 @@ export const SEAL_ORDER = [
 
 /**
  * Which letter slot each seal fills, by page order. Shuffled on purpose, so reading the seals top
- * to bottom does not give the phrase away (the page reads U Y A · S O R T A · Y T D C I S).
+ * to bottom does not give the phrase away (the page reads U Y A · S O R T · A Y I T · D C S U O).
  */
 const SLOT_FOR_PAGE = [9, 3, 14, 0, 12, 6, 11, 2, 15, 7, 1, 13, 4, 10, 5, 8];
 
