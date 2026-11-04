@@ -373,21 +373,55 @@ const LAYOUTS: Record<string, Layout> = {
     Side: AboutSide,
     chips: [
       "Data Science",
-      "Content Creator",
       "UC San Diego",
+      "Class of 2030",
+      "Content Creator",
+      "Storytelling",
+      "Python",
+      "Pandas",
+      "scikit-learn",
+      "FastAPI",
+      "React",
+      "Git",
+      "GitHub",
+      "HTML/CSS",
+      "WordPress",
+      "Power BI",
+      "Excel",
+      "Figma",
+      "Data Visualization",
+      "Dashboards",
+      "Analytics",
+      "SEO",
+      "Web Development",
+      "A/B Testing",
+      "DaVinci Resolve",
+      "Video Editing",
+      "Color Grading",
+      "Filmmaking",
+      "Short-Form Video",
+      "Day-in-the-Life Vlogs",
+      "Personal Brand",
+      "Canva",
       "Rock Climbing",
+      "Bouldering",
       "Tennis",
       "Basketball",
       "Hiking",
       "Travel",
+      "Japan",
       "Mandarin Chinese",
       "Mentoring",
       "Coaching",
-      "Video Editing",
+      "Teaching",
+      "Volunteering",
       "JV Tennis Captain",
-      "Class of 2030",
-      "Python",
-      "Power BI",
+      "Curious",
+      "Builder",
+      "Self-Starter",
+      "Growth Mindset",
+      "Entrepreneurship",
+      "Consulting",
     ],
     mainClass: "h-[44vh] md:h-[56vh] md:w-[min(46vw,640px)]",
   },
@@ -498,7 +532,7 @@ function Orbit({
         const s = 0.78 + 0.27 * depth;
         const { w, h } = sizes[i] ?? { w: 0, h: 0 };
         // keep the label on screen: near the right edge it slides left of its point on the path
-        const L = Math.min(x - DOT, W - 14 - w * s);
+        const L = Math.max(14, Math.min(x - DOT, W - 14 - w * s));
         const R = L + w * s;
         const T = yy - (h * s) / 2;
         const B = yy + (h * s) / 2;
@@ -622,15 +656,27 @@ export default function SceneShowcase({
     <div aria-hidden="true" className="absolute inset-0 overflow-hidden pointer-events-none select-none" style={{ zIndex: 22 }}>
       {/* tools around the heading: an orbit on desktop, a ticker on phones */}
       {chips.length > 12 ? (
-        // lots of labels: two concentric, counter-rotating rings (same tilt, so the paths never cross)
-        <>
-          <Orbit labels={chips.filter((_, i) => i % 2 === 0)} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} reduced={reduced} size={0.64} lap={75} />
-          <Orbit labels={chips.filter((_, i) => i % 2 === 1)} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} reduced={reduced} size={1} dir={-1} lap={110} />
-        </>
+        // lots of labels: concentric, counter-rotating rings (same tilt, so the paths never cross)
+        (() => {
+          const rings = chips.length > 24 ? 4 : 2;
+          const sizes = rings === 4 ? [0.5, 0.72, 0.94, 1.16] : [0.64, 1];
+          return sizes.map((sz, r) => (
+            <Orbit
+              key={r}
+              labels={chips.filter((_, i) => i % rings === r)}
+              build={reduced ? ONE : build}
+              exit={reduced ? ZERO : exit}
+              reduced={reduced}
+              size={sz}
+              dir={r % 2 ? -1 : 1}
+              lap={70 + r * 22}
+            />
+          ));
+        })()
       ) : (
         <Orbit labels={chips.slice(0, 12)} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} reduced={reduced} />
       )}
-      <ToolTicker labels={chips.slice(0, 16)} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} reduced={reduced} />
+      <ToolTicker labels={chips.slice(0, 24)} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} reduced={reduced} />
     </div>
   );
 }
