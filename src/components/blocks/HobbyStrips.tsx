@@ -13,6 +13,14 @@ function Photos({ hobby, open }: { hobby: Hobby; open: boolean }) {
     return () => window.clearInterval(t);
   }, [open, n]);
   const img = hobby.images[i];
+  // no photos yet: a quiet painted gradient instead of an empty box
+  if (!img)
+    return (
+      <div
+        className="absolute inset-0"
+        style={{ background: "radial-gradient(ellipse at 30% 25%, #4a2a26 0%, #241a16 55%, #161310 100%)" }}
+      />
+    );
   return (
     <>
       <AnimatePresence initial={false}>

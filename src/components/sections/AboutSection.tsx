@@ -21,17 +21,9 @@ const NOTE_LABELS = Object.keys(NOTES);
 
 // Add more photos to any hobby's list and its card becomes a carousel automatically.
 const HOBBIES: Hobby[] = [
-  {
-    title: "Sports",
-    images: [
-      { src: "/about/climbing-wall.jpg", alt: "Dylan bouldering at a climbing gym" },
-      { src: "/about/tennis.jpg", alt: "Tennis racket and ball" },
-      { src: "/about/hiking.jpg", alt: "Worn hiking boots" },
-    ],
-  },
-  { title: "Travel", images: [{ src: "/about/travel.jpg", alt: "Boarding pass to Japan" }] },
-  // stand-in until real food photos arrive
-  { title: "Food", images: [{ src: "/about/food-standin.jpg", alt: "Coffee and a notebook" }] },
+  { title: "Sports", images: [{ src: "/about/climbing-wall.jpg", alt: "Dylan bouldering at a climbing gym" }] },
+  { title: "Travel", images: [] },
+  { title: "Food", images: [] },
 ];
 
 export default function AboutSection() {
