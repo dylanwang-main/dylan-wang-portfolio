@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import PaintedPortrait from "../blocks/PaintedPortrait";
 import { motion, useTransform, motionValue, MotionValue } from "motion/react";
 import {
   WORK_PROJECTS,
@@ -260,7 +261,7 @@ export function AboutMain({ build }: { build: V }) {
   const y = useTransform(reveal, (v) => `${(1 - v) * 40}px`);
   return (
     <motion.div className="w-full h-full flex items-center justify-center" style={{ opacity: reveal, y }}>
-      {/* gallery frame: thin ink border, cream mat, then the photo. Duotone until hovered. */}
+      {/* gallery frame: thin ink border, cream mat, then the photo */}
       <div
         className="group relative h-full aspect-[4/5] max-w-full p-[3.5%] bg-[#FBF8F2] pointer-events-auto"
         style={{
@@ -269,17 +270,8 @@ export function AboutMain({ build }: { build: V }) {
         }}
       >
         <div className="relative w-full h-full overflow-hidden" style={{ border: "1px solid rgba(31,27,22,0.25)" }}>
-          <img
-            src={ABOUT_PROFILE.photo}
-            alt={`Portrait of ${ABOUT_PROFILE.name}`}
-            loading="lazy"
-            decoding="async"
-            className="absolute inset-0 w-full h-full object-cover transition-[filter,transform] duration-700 ease-out [filter:grayscale(1)_contrast(1.12)] group-hover:[filter:none] group-hover:scale-[1.02]"
-            style={{ objectPosition: "50% 28%" }}
-          />
-          {/* duotone: shadows go oxblood, highlights go cream */}
-          <div className="absolute inset-0 transition-opacity duration-700 group-hover:opacity-0" style={{ background: "#3a1a18", mixBlendMode: "lighten" }} />
-          <div className="absolute inset-0 transition-opacity duration-700 group-hover:opacity-0" style={{ background: "#F1E6D6", mixBlendMode: "multiply" }} />
+          {/* black and white; hover to paint the colour back in with watercolour blooms */}
+          <PaintedPortrait src={ABOUT_PROFILE.photo} alt={`Portrait of ${ABOUT_PROFILE.name}`} position="50% 28%" />
         </div>
       </div>
     </motion.div>

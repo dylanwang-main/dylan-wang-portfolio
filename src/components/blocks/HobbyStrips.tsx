@@ -68,6 +68,22 @@ function Photos({ hobby, open }: { hobby: Hobby; open: boolean }) {
           ))}
         </>
       )}
+      {/* caption, bottom right (above the dots when there are several photos) */}
+      {open && img.caption && (
+        <AnimatePresence mode="wait">
+          <motion.span
+            key={img.src}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+            className={`absolute right-6 z-10 font-editorial-serif italic text-[15px] text-[#F4EFE6] ${n > 1 ? "bottom-11" : "bottom-6"}`}
+            style={{ textShadow: "0 1px 10px rgba(0,0,0,0.8)" }}
+          >
+            {img.caption}
+          </motion.span>
+        </AnimatePresence>
+      )}
       {open && n > 1 && (
         <div className="absolute right-6 bottom-6 flex gap-1.5 z-10">
           {hobby.images.map((_, k) => (
