@@ -5,7 +5,8 @@ import ProofStage from "../blocks/ProofStage";
 import { AboutMain } from "../scenes/SceneShowcase";
 import SubBlock from "../blocks/SubBlock";
 import SealReveal from "../blocks/SealReveal";
-import HobbyCard, { type Hobby } from "../blocks/HobbyCard";
+import type { Hobby } from "../blocks/HobbyCard";
+import HobbyStrips from "../blocks/HobbyStrips";
 import { fadeUp } from "../../lib/motion";
 
 // Notes around the portrait (left, right, left, ...), each with a collectible wax seal.
@@ -57,11 +58,7 @@ export default function AboutSection() {
       {/* OUTSIDE OF WORK */}
       <div className="mt-[clamp(2rem,4vw,3.5rem)]">
         <SubBlock label="Outside of work" headline="Hobbies.">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-7">
-            {HOBBIES.map((h, i) => (
-              <HobbyCard key={h.title} hobby={h} index={i} />
-            ))}
-          </div>
+          <HobbyStrips hobbies={HOBBIES} />
         </SubBlock>
 
       </div>
