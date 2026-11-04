@@ -61,3 +61,40 @@ const subscribe = (f: () => void) => {
 export function useSeals() {
   return useSyncExternalStore(subscribe, () => collected, () => collected);
 }
+
+/** The letter a seal carries (its slot in the phrase), or its own initial if it is not collectible. */
+export const sealGlyph = (label: string) => {
+  const i = sealIndex(label);
+  return i >= 0 ? SEAL_LETTERS[i] : label.charAt(0);
+};
+
+/* ---------- flights: a collected seal flies from where it was clicked to its slot ---------- */
+export interface Flight {
+  id: number;
+  label: string;
+  from: { x: number; y: number; size: number };
+}
+let flights: Flight[] = [];
+let nextId = 1;
+const flightListeners = new Set<() => void>();
+const emitFlights = () => flightListeners.forEach((f) => f());
+
+/** Start a seal's flight to its slot. It is added to the collection when it lands. */
+export function launchSeal(label: string, rect: DOMRect) {
+  if (sealIndex(label) < 0 || collected.includes(label) || flights.some((f) => f.label === label)) return;
+  flights = [...flights, { id: nextId++, label, from: { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2, size: rect.width } }];
+  emitFlights();
+}
+export function landSeal(id: number) {
+  const f = flights.find((x) => x.id === id);
+  flights = flights.filter((x) => x.id !== id);
+  emitFlights();
+  if (f) collectSeal(f.label);
+}
+const subFlights = (f: () => void) => {
+  flightListeners.add(f);
+  return () => flightListeners.delete(f);
+};
+export function useFlights() {
+  return useSyncExternalStore(subFlights, () => flights, () => flights);
+}

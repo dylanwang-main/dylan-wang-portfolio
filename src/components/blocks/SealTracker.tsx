@@ -1,32 +1,48 @@
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { SEAL_LETTERS, SEAL_ORDER, SEAL_PHRASE, useSeals } from "../../lib/seals";
+import { SEAL_LETTERS, SEAL_ORDER, SEAL_PHRASE, landSeal, useFlights, useSeals, type Flight } from "../../lib/seals";
+import { SealFace } from "./ProofStage";
 
-/** Letter slots for the phrase: collected seals show their letter, the rest a short rule. */
-export function PhraseSlots({ size = "sm" }: { size?: "sm" | "lg" }) {
+/**
+ * The phrase as a row of seal slots: collected seals sit in their slot, the rest are a faint
+ * dotted ring with the letter ghosted inside. Each slot carries data-seal-slot so a flying seal
+ * knows where to land.
+ */
+export function PhraseSlots({ size = 22, track = false }: { size?: number; track?: boolean }) {
   const got = useSeals();
   let k = 0;
-  const big = size === "lg";
   return (
-    <span className={`inline-flex items-end ${big ? "gap-[0.16em]" : "gap-[3px]"}`} aria-hidden="true">
+    <span className="inline-flex items-center" style={{ gap: size * 0.18 }} aria-hidden="true">
       {SEAL_PHRASE.split("").map((ch, i) => {
-        if (ch === " ") return <span key={i} className={big ? "w-[0.45em]" : "w-2"} />;
+        if (ch === " ") return <span key={i} style={{ width: size * 0.45 }} />;
         const slot = k++;
-        const on = got.includes(SEAL_ORDER[slot]);
+        const label = SEAL_ORDER[slot];
+        const on = got.includes(label);
         return (
-          <span key={i} className={`relative inline-flex justify-center ${big ? "w-[0.6em]" : "w-[9px]"}`}>
-            <AnimatePresence initial={false}>
-              {on && (
-                <motion.span
-                  initial={{ opacity: 0, y: big ? -18 : -6, scale: 1.6 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ duration: 0.45, ease: [0.2, 0.8, 0.2, 1] }}
-                  className="text-[var(--accent-oxblood)]"
-                >
-                  {SEAL_LETTERS[slot]}
-                </motion.span>
-              )}
-            </AnimatePresence>
-            {!on && <span className={`block ${big ? "h-[2px] w-full mb-[0.15em]" : "h-px w-full mb-[3px]"} bg-current opacity-35`} />}
+          <span
+            key={i}
+            {...(track ? { "data-seal-slot": slot } : {})}
+            className="relative inline-block shrink-0"
+            style={{ width: size, height: size }}
+          >
+            {on ? (
+              <motion.span
+                initial={{ scale: 1.5 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 520, damping: 14 }}
+                className="absolute inset-0"
+                style={{ filter: "drop-shadow(0 2px 3px rgba(63,22,22,0.35))" }}
+              >
+                <SealFace seed={label} glyph={SEAL_LETTERS[slot]} />
+              </motion.span>
+            ) : (
+              <span
+                className="absolute inset-[8%] rounded-full grid place-items-center font-editorial-serif italic text-[#8A7B6A]/60"
+                style={{ border: "1px dashed rgba(138,123,106,0.55)", fontSize: size * 0.48 }}
+              >
+                {SEAL_LETTERS[slot]}
+              </span>
+            )}
           </span>
         );
       })}
@@ -34,36 +50,119 @@ export function PhraseSlots({ size = "sm" }: { size?: "sm" | "lg" }) {
   );
 }
 
+/** A seal copy flying from where it was clicked to its slot, along an arc, shrinking as it goes. */
+function FlyingSeal({ f }: { f: Flight }) {
+  const slot = SEAL_ORDER.indexOf(f.label);
+  const [to, setTo] = useState<{ x: number; y: number; size: number } | null>(null);
+  useEffect(() => {
+    // wait a frame so the tracker (and its slot) has mounted
+    const id = requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        const el = document.querySelector(`[data-seal-slot="${slot}"]`);
+        const r = el?.getBoundingClientRect();
+        if (!r) return landSeal(f.id);
+        setTo({ x: r.left + r.width / 2, y: r.top + r.height / 2, size: r.width });
+      })
+    );
+    return () => cancelAnimationFrame(id);
+  }, [f.id, slot]);
+  if (!to) return null;
+  const { x: x0, y: y0, size: s0 } = f.from;
+  // control point: up and toward the target, so it loops over rather than sliding straight
+  const mx = (x0 + to.x) / 2;
+  const my = Math.min(y0, to.y) - Math.max(140, Math.abs(to.x - x0) * 0.25);
+  return (
+    <motion.div
+      className="fixed left-0 top-0 z-[70] pointer-events-none"
+      style={{ width: s0, height: s0, marginLeft: -s0 / 2, marginTop: -s0 / 2, filter: "drop-shadow(0 10px 16px rgba(63,22,22,0.4))" }}
+      initial={{ x: x0, y: y0, scale: 1.25, rotate: 0 }}
+      animate={{ x: [x0, mx, to.x], y: [y0, my, to.y], scale: [1.25, 1.1, to.size / s0], rotate: [0, 200, 360] }}
+      transition={{ duration: 0.9, ease: [0.45, 0, 0.2, 1], times: [0, 0.45, 1] }}
+      onAnimationComplete={() => landSeal(f.id)}
+    >
+      <SealFace seed={f.label} glyph={SEAL_LETTERS[slot]} />
+    </motion.div>
+  );
+}
+
+/** A small burst of confetti from the tracker when the last seal lands. */
+function Confetti() {
+  const bits = useMemo(
+    () =>
+      Array.from({ length: 46 }, (_, i) => {
+        const a = Math.PI * (0.6 + Math.random() * 0.8); // mostly up and to the left
+        const v = 120 + Math.random() * 220;
+        return {
+          i,
+          dx: Math.cos(a) * v,
+          dy: -Math.abs(Math.sin(a) * v) - 40,
+          rot: (Math.random() - 0.5) * 720,
+          color: ["#6B2D2D", "#1E3A9E", "#D9B26F", "#F4EFE6", "#E88080"][i % 5],
+          w: 5 + Math.random() * 5,
+          h: 3 + Math.random() * 4,
+        };
+      }),
+    []
+  );
+  return (
+    <span className="absolute right-1/2 top-1/2 pointer-events-none" aria-hidden="true">
+      {bits.map((b) => (
+        <motion.span
+          key={b.i}
+          className="absolute block rounded-[1px]"
+          style={{ width: b.w, height: b.h, background: b.color }}
+          initial={{ x: 0, y: 0, opacity: 1, rotate: 0 }}
+          animate={{ x: b.dx, y: [0, b.dy, b.dy + 260], opacity: [1, 1, 0], rotate: b.rot }}
+          transition={{ duration: 1.8, ease: "easeOut", times: [0, 0.35, 1] }}
+        />
+      ))}
+    </span>
+  );
+}
+
 /**
- * Quiet progress tag, bottom right. Hidden until the first seal is collected, so visitors who
- * never notice the game never see it.
+ * Quiet tracker, bottom right: "Seals n / 11" over a row of seal slots. Hidden until the first
+ * seal is clicked, so visitors who never notice the game never see it.
  */
 export default function SealTracker() {
   const got = useSeals();
+  const flights = useFlights();
   const n = got.length;
   const total = SEAL_ORDER.length;
   const done = n === total;
+  const [party, setParty] = useState(false);
+  useEffect(() => {
+    if (!done) return;
+    setParty(true);
+    const t = window.setTimeout(() => setParty(false), 2200);
+    return () => window.clearTimeout(t);
+  }, [done]);
+  const show = n > 0 || flights.length > 0;
   return (
-    <AnimatePresence>
-      {n > 0 && (
-        <motion.button
-          type="button"
-          onClick={() => document.getElementById("seal-reveal")?.scrollIntoView({ behavior: "smooth", block: "center" })}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 12 }}
-          transition={{ duration: 0.4 }}
-          aria-label={`${n} of ${total} wax seals collected. Go to the hidden phrase.`}
-          className="fixed z-[60] right-4 bottom-4 md:right-7 md:bottom-6 flex flex-col items-end gap-1.5 rounded-xl px-3.5 py-2.5 cursor-pointer text-[#1F1B16] bg-[#F4EFE6]/92 backdrop-blur-md border border-[rgba(31,27,22,0.12)] shadow-[0_10px_28px_rgba(31,27,22,0.22)]"
-        >
-          <span className="text-[10px] uppercase tracking-[0.22em] text-[#8A7B6A]">
-            {done ? "All seals found" : `Seals ${n} / ${total}`}
-          </span>
-          <span className="font-editorial-serif italic text-[15px] leading-none">
-            <PhraseSlots />
-          </span>
-        </motion.button>
-      )}
-    </AnimatePresence>
+    <>
+      <AnimatePresence>
+        {show && (
+          <motion.button
+            type="button"
+            onClick={() => document.getElementById("seal-reveal")?.scrollIntoView({ behavior: "smooth", block: "center" })}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 12 }}
+            transition={{ duration: 0.3 }}
+            aria-label={`${n} of ${total} wax seals collected. Go to the hidden phrase.`}
+            className="fixed z-[60] right-3 bottom-3 md:right-7 md:bottom-6 flex flex-col items-end gap-2 rounded-xl px-3 py-2.5 cursor-pointer text-[#1F1B16] bg-[#F4EFE6]/92 backdrop-blur-md border border-[rgba(31,27,22,0.12)] shadow-[0_10px_28px_rgba(31,27,22,0.22)]"
+          >
+            {party && <Confetti />}
+            <span className="text-[10px] uppercase tracking-[0.22em] text-[#8A7B6A]">
+              {done ? "Stay curious · all seals found" : `Seals ${n} / ${total}`}
+            </span>
+            <PhraseSlots size={20} track />
+          </motion.button>
+        )}
+      </AnimatePresence>
+      {flights.map((f) => (
+        <FlyingSeal key={f.id} f={f} />
+      ))}
+    </>
   );
 }

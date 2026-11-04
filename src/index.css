@@ -192,6 +192,12 @@ body {
 .seal.is-flipped .seal-inner { transform: rotateY(180deg); }
 .seal-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .seal-back { transform: rotateY(180deg); }
+.seal-body { position: absolute; inset: 0; }
+/* click: a quick pulse that jumps toward the viewer */
+@keyframes seal-pop { 0% { transform: scale(1); } 35% { transform: scale(1.38) translateY(-6%); } 65% { transform: scale(0.9); } 100% { transform: scale(1); } }
+.seal-pop { animation: seal-pop 0.42s cubic-bezier(0.2, 0.8, 0.2, 1); }
+/* once its copy has flown to the tracker, the original stays as a faint impression */
+.seal.is-collected .seal-body { opacity: 0.45; }
 @media (prefers-reduced-motion: reduce) { .seal-inner { transition: none; } }
 
 /* Phone tool ticker under each section heading: two copies of the row, so -50% loops seamlessly */

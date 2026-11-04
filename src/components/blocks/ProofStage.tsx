@@ -1,7 +1,7 @@
 import { useId, useRef, useState } from "react";
 import { motion, useScroll, useTransform, MotionValue } from "motion/react";
 import { EASE } from "../../lib/motion";
-import { collectSeal, sealIndex, useSeals } from "../../lib/seals";
+import { launchSeal, sealGlyph, sealIndex, useSeals } from "../../lib/seals";
 
 
 /** One skill chip. Pops in (slight overshoot) in turn as the window builds. */
@@ -61,7 +61,7 @@ function waxPath(seed: string) {
 }
 
 /** One face of a wax seal: melted edge, pressed inner ring, embossed glyph. */
-export function SealFace({ seed, glyph, serif = true, ring = false }: { seed: string; glyph: string; serif?: boolean; ring?: boolean }) {
+export function SealFace({ seed, glyph, serif = true }: { seed: string; glyph: string; serif?: boolean }) {
   // unique per instance: the desktop and phone layouts both render seals, and a gradient defined
   // inside a hidden (display:none) copy would leave the visible copy unfilled
   const id = `wax-${useId().replace(/:/g, "")}`;
@@ -79,8 +79,6 @@ export function SealFace({ seed, glyph, serif = true, ring = false }: { seed: st
         </radialGradient>
       </defs>
       <path d={waxPath(seed)} fill={`url(#${id}-g)`} />
-      {/* collected: a thin gold ring pressed into the wax */}
-      {ring && <circle r="0.9" fill="none" stroke="#D9B26F" strokeWidth="0.06" opacity="0.95" />}
       {/* pressed ring: dark inner edge, light outer lip */}
       <circle r="0.72" fill={`url(#${id}-in)`} />
       <circle r="0.72" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="0.05" />
@@ -110,60 +108,74 @@ export function SealFace({ seed, glyph, serif = true, ring = false }: { seed: st
 }
 
 /**
- * Wax seal for a tool: stamped in as the note appears, flips on hover to show its Roman numeral.
+ * Click / tap on a seal: it pops (a quick pulse toward the viewer), then a copy flies to its slot
+ * in the tracker. Already-collected seals just pop.
  */
+function useSealClick(label: string) {
+  const [pop, setPop] = useState(0);
+  const onClick = (e: React.MouseEvent<HTMLElement>) => {
+    const el = e.currentTarget;
+    setPop((n) => n + 1);
+    window.setTimeout(() => launchSeal(label, el.getBoundingClientRect()), 320);
+  };
+  return { pop, onClick };
+}
+
 /** Small seal for phone lists: tap to flip between the initial and the Roman numeral. */
 export function TapSeal({ label, index }: { label: string; index: number }) {
   const [flipped, setFlipped] = useState(false);
   const got = useSeals().includes(label);
   const slot = sealIndex(label);
   const num = ROMAN[slot >= 0 ? slot : index] ?? "❧";
+  const { pop, onClick } = useSealClick(label);
   return (
     <button
       type="button"
       aria-label={`${label}: tap to flip${slot >= 0 && !got ? " and collect" : ""}`}
       aria-pressed={flipped}
-      onClick={() => {
+      onClick={(e) => {
         setFlipped((f) => !f);
-        collectSeal(label);
+        onClick(e);
       }}
-      className={`seal w-9 h-9 shrink-0 cursor-pointer ${flipped ? "is-flipped" : ""}`}
+      className={`seal w-9 h-9 shrink-0 cursor-pointer ${flipped ? "is-flipped" : ""} ${got ? "is-collected" : ""}`}
       style={{ filter: "drop-shadow(0 2px 3px rgba(63,22,22,0.3))" }}
     >
+      <span key={pop} className={`seal-body block ${pop ? "seal-pop" : ""}`}>
       <span className="seal-hit" aria-hidden="true" />
       <span className="seal-inner block">
-        <span className="seal-face block" style={{ rotate: "-6deg" }}><SealFace seed={label} glyph={label.charAt(0)} ring={got} /></span>
-        <span className="seal-face seal-back block"><SealFace seed={label + "b"} glyph={num} serif={false} ring={got} /></span>
+        <span className="seal-face block" style={{ rotate: "-6deg" }}><SealFace seed={label} glyph={sealGlyph(label)} /></span>
+        <span className="seal-face seal-back block"><SealFace seed={label + "b"} glyph={num} serif={false} /></span>
+      </span>
       </span>
     </button>
   );
 }
 
+/** Wax seal beside a note: stamped in as the note appears, flips on hover to show its numeral. */
 function WaxSeal({ label, index, build, s0 }: { label: string; index: number; build: MotionValue<number>; s0: number }) {
   const scale = useTransform(build, [s0 + 0.02, s0 + 0.12, s0 + 0.18], [1.7, 0.9, 1]);
   const rotate = useTransform(build, [s0 + 0.02, s0 + 0.18], [-28, -6]);
   const opacity = useTransform(build, [s0 + 0.02, s0 + 0.08], [0, 1]);
-  const [flipped, setFlipped] = useState(false);
   const got = useSeals().includes(label);
   const slot = sealIndex(label);
   const num = ROMAN[slot >= 0 ? slot : index] ?? "❧";
+  const { pop, onClick } = useSealClick(label);
   return (
     <motion.div
-      // click or tap collects it (and flips it); mouse users also get the hover flip
-      onClick={() => {
-        setFlipped((f) => !f);
-        collectSeal(label);
-      }}
+      // click or tap: pop, then fly to the tracker; mouse users also get the hover flip
+      onClick={onClick}
       title={slot >= 0 && !got ? "Click to collect" : undefined}
-      className={`seal w-12 h-12 shrink-0 cursor-pointer ${flipped ? "is-flipped" : ""}`}
+      className={`seal w-12 h-12 shrink-0 cursor-pointer ${got ? "is-collected" : ""}`}
       style={{ scale, opacity, filter: "drop-shadow(0 3px 5px rgba(63,22,22,0.35))" }}
     >
+      <span key={pop} className={`seal-body block ${pop ? "seal-pop" : ""}`}>
       <span className="seal-hit" aria-hidden="true" />
       <div className="seal-inner">
         {/* only the front is tilted (the stamp lands at an angle); the back stays upright */}
-        <motion.div className="seal-face" style={{ rotate }}><SealFace seed={label} glyph={label.charAt(0)} ring={got} /></motion.div>
-        <div className="seal-face seal-back"><SealFace seed={label + "b"} glyph={num} serif={false} ring={got} /></div>
+        <motion.div className="seal-face" style={{ rotate }}><SealFace seed={label} glyph={sealGlyph(label)} /></motion.div>
+        <div className="seal-face seal-back"><SealFace seed={label + "b"} glyph={num} serif={false} /></div>
       </div>
+      </span>
     </motion.div>
   );
 }

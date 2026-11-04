@@ -20,16 +20,15 @@ export default function SealReveal() {
         >
           {SEAL_PHRASE.charAt(0) + SEAL_PHRASE.slice(1).toLowerCase()}.
         </motion.p>
-      ) : (
-        <p className="mt-6 font-editorial-serif italic text-[clamp(2rem,4.4vw,3.8rem)] leading-none text-[var(--text-ink)]">
-          <PhraseSlots size="lg" />
-        </p>
-      )}
+      ) : null}
+      <div className="mt-8 flex justify-center">
+        <PhraseSlots size={44} />
+      </div>
       <p className="mt-6 text-[15px] text-[var(--text-ink)]/70">
         {done
           ? "You found every wax seal on the site. Thanks for looking closely."
           : got.length === 0
-            ? `There are ${total} wax seals hidden beside my work. Click each one to collect its letter.`
+            ? `There are ${total} wax seals hidden beside my work. Click each one to collect it.`
             : `${got.length} of ${total} wax seals found. The rest are beside my work.`}
       </p>
       {done && (
