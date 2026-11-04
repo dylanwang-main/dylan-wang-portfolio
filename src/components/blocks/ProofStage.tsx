@@ -190,12 +190,15 @@ export function MarginNote({
   side,
   build,
   index,
+  seal = true,
 }: {
   label: string;
   note?: string;
   side: "left" | "right";
   build: MotionValue<number>;
   index: number;
+  /** Wax seals are the collectible game; plain notes skip them. */
+  seal?: boolean;
 }) {
   const s0 = Math.min(0.2 + index * 0.13, 0.78);
   const opacity = useTransform(build, [s0, s0 + 0.12], [0, 1]);
@@ -204,7 +207,7 @@ export function MarginNote({
   const toWindow = side === "left";
   return (
     <motion.div data-ps="note" style={{ opacity, x }} className={`seal-host flex items-center gap-3 max-w-full ${toWindow ? "ml-auto" : "mr-auto flex-row-reverse"}`}>
-      <WaxSeal label={label} index={index} build={build} s0={s0} />
+      {seal && <WaxSeal label={label} index={index} build={build} s0={s0} />}
       <div className={toWindow ? "text-right" : "text-left"}>
         <span className="block font-editorial-serif italic text-[21px] leading-tight text-[var(--text-ink)] whitespace-nowrap">
           <span className="text-[var(--accent-oxblood)]">{label.charAt(0)}</span>
@@ -230,6 +233,8 @@ export function MarginNote({
 interface ProofStageProps {
   /** One-line "what it was used for", keyed by tool. When given, tools render as marginalia notes. */
   notes?: Record<string, string>;
+  /** Show wax seals beside the notes (default). */
+  seals?: boolean;
   Main: React.ComponentType<{ build: MotionValue<number> }>;
   Side?: React.ComponentType;
   /** Skill chips. Real data only (tools, school, discipline, platforms). */
@@ -256,6 +261,7 @@ export default function ProofStage({
   Side,
   cards,
   notes,
+  seals = true,
   mainWidth = "lg:w-[min(100%,980px)]",
   className = "mt-[clamp(2.5rem,5vw,4.5rem)]",
   heightClass = "h-[clamp(360px,60vh,620px)]",
@@ -288,7 +294,7 @@ export default function ProofStage({
   const chip = (label: string) => {
     const i = cards.indexOf(label);
     if (notes) {
-      return <MarginNote key={label} label={label} note={notes[label]} side={i % 2 === 0 ? "left" : "right"} build={build} index={i} />;
+      return <MarginNote key={label} label={label} note={notes[label]} side={i % 2 === 0 ? "left" : "right"} build={build} index={i} seal={seals} />;
     }
     return <ToolCard key={label} label={label} build={build} index={i} glow={i === 1} delay={(i * 0.9) % 3} />;
   };
@@ -342,7 +348,7 @@ export default function ProofStage({
           <ul className="mt-6 space-y-2">
             {cards.map((c, i) => (
               <li key={c} className="flex items-center gap-3 font-editorial-serif italic text-[17px] text-[var(--text-ink)]">
-                <TapSeal label={c} index={i} />
+                {seals ? <TapSeal label={c} index={i} /> : <span className="w-1.5 h-1.5 rounded-full shrink-0 bg-[var(--accent-oxblood)]" />}
                 <span>
                 <span className="text-[var(--accent-oxblood)]">{c.charAt(0)}</span>
                 {c.slice(1)}

@@ -2,14 +2,21 @@ import { PAGE_COLUMN } from "../../lib/layout";
 import { motion } from "motion/react";
 import { ABOUT_PROFILE } from "../../data/portfolio";
 import ProofStage from "../blocks/ProofStage";
-import { AboutMain, AboutSide } from "../scenes/SceneShowcase";
+import { AboutMain } from "../scenes/SceneShowcase";
 import SubBlock from "../blocks/SubBlock";
 import SealReveal from "../blocks/SealReveal";
 import HobbyCard, { type Hobby } from "../blocks/HobbyCard";
 import { fadeUp } from "../../lib/motion";
 
-// The school and degree live on the education card, so the chips carry what it does not.
-const CARDS = ["Content Creator", "Python", "Power BI", "Mandarin Chinese"];
+// Notes around the portrait (left, right, left, ...). Plain notes: the wax seals belong to the game.
+const NOTES: Record<string, string> = {
+  "UC San Diego": "B.S. Data Science, expected June 2030",
+  "Content Creator": "3M+ views on short-form video",
+  Python: "cleaning and analyzing data",
+  "Power BI": "dashboards for 30+ schools",
+  "Mandarin Chinese": "",
+};
+const NOTE_LABELS = Object.keys(NOTES);
 
 // Add more photos to any hobby's list and its card becomes a carousel automatically.
 const HOBBIES: Hobby[] = [
@@ -38,16 +45,14 @@ export default function AboutSection() {
         </div>
       </motion.div>
 
-      {/* PROOF: portrait window + floating facts */}
+      {/* PORTRAIT with margin notes, the same marginalia style as the project pages */}
       <ProofStage
         Main={AboutMain}
-        Side={AboutSide}
-        cards={CARDS}
-        mainWidth="lg:w-[min(100%,480px)]"
-        gridCols="grid-cols-[minmax(130px,190px)_minmax(0,480px)_minmax(150px,230px)] justify-center"
-        sideHeight=""
+        cards={NOTE_LABELS}
+        notes={NOTES}
+        seals={false}
+        mainWidth="lg:w-[min(100%,460px)]"
       />
-
 
       {/* OUTSIDE OF WORK */}
       <div className="mt-[clamp(2rem,4vw,3.5rem)]">
