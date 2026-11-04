@@ -53,7 +53,7 @@ export default function ContactSection() {
         </h3>
         <span className="mt-10 block text-[12px] uppercase tracking-[0.22em] text-[var(--taupe-subtle)] font-semibold">Open to</span>
         <p className="lead mt-3 max-w-[30ch] mx-auto text-balance">
-          UCSD data and tech orgs, recruiters, brand partners, and future consulting clients.
+          Chatting about anything. Data, content, ideas, or just saying hi.
         </p>
       </motion.div>
 
