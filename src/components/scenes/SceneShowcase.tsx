@@ -371,7 +371,24 @@ const LAYOUTS: Record<string, Layout> = {
   about: {
     Main: AboutMain,
     Side: AboutSide,
-    chips: ["Data Science", "Content Creator", "UC San Diego", "Rock Climbing", "Tennis", "Basketball", "Hiking", "Travel"],
+    chips: [
+      "Data Science",
+      "Content Creator",
+      "UC San Diego",
+      "Rock Climbing",
+      "Tennis",
+      "Basketball",
+      "Hiking",
+      "Travel",
+      "Mandarin Chinese",
+      "Mentoring",
+      "Coaching",
+      "Video Editing",
+      "JV Tennis Captain",
+      "Class of 2030",
+      "Python",
+      "Power BI",
+    ],
     mainClass: "h-[44vh] md:h-[56vh] md:w-[min(46vw,640px)]",
   },
   contact: {
@@ -396,13 +413,34 @@ function orbitGeom(W: number, H: number) {
  * label fades out while it would cross the heading or the tagline, so text never overlaps.
  * Positions are written straight to the DOM each frame, and the loop pauses when off screen.
  */
-function Orbit({ labels, build, exit, reduced }: { labels: string[]; build: V; exit: V; reduced: boolean }) {
+function Orbit({
+  labels,
+  build,
+  exit,
+  reduced,
+  size = 1,
+  dir = 1,
+  tiltDeg = -9,
+  lap = 70,
+}: {
+  labels: string[];
+  build: V;
+  exit: V;
+  reduced: boolean;
+  /** Ring size relative to the default orbit. */
+  size?: number;
+  /** 1 = clockwise, -1 = counter-clockwise. */
+  dir?: number;
+  tiltDeg?: number;
+  /** Seconds per lap. */
+  lap?: number;
+}) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGEllipseElement>(null);
   const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
   const prog = useRange(build, 0.3, 0.65);
   const y = useTransform(() => `${-exit.get() * CHIP_EXIT_VH}vh`);
-  const TILT = (-9 * Math.PI) / 180;
+  const TILT = (tiltDeg * Math.PI) / 180;
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -436,7 +474,10 @@ function Orbit({ labels, build, exit, reduced }: { labels: string[]; build: V; e
           .filter((r) => r.width > 2)
           .map((r) => ({ l: r.left - box.left - PAD, r: r.right - box.left + PAD, t: r.top - box.top - PAD, b: r.bottom - box.top + PAD }))
       );
-      const { cx, cy, rx, ry } = orbitGeom(W, H);
+      const g = orbitGeom(W, H);
+      const { cx, cy } = g;
+      const rx = g.rx * size;
+      const ry = g.ry * size;
       const p = pathRef.current;
       if (p) {
         p.setAttribute("cx", cx.toFixed(1));
@@ -448,7 +489,7 @@ function Orbit({ labels, build, exit, reduced }: { labels: string[]; build: V; e
       labels.forEach((_, i) => {
         const el = itemRefs.current[i];
         if (!el) return;
-        const a = (i / labels.length) * Math.PI * 2 + t * ((Math.PI * 2) / 70); // one lap per 70s
+        const a = (i / labels.length) * Math.PI * 2 + dir * t * ((Math.PI * 2) / lap);
         const ex = Math.cos(a) * rx;
         const ey = Math.sin(a) * ry;
         const x = cx + ex * Math.cos(TILT) - ey * Math.sin(TILT);
@@ -456,14 +497,15 @@ function Orbit({ labels, build, exit, reduced }: { labels: string[]; build: V; e
         const depth = (Math.sin(a) + 1) / 2; // 0 = far side (top), 1 = near side (bottom)
         const s = 0.78 + 0.27 * depth;
         const { w, h } = sizes[i] ?? { w: 0, h: 0 };
-        const L = x - DOT;
+        // keep the label on screen: near the right edge it slides left of its point on the path
+        const L = Math.min(x - DOT, W - 14 - w * s);
         const R = L + w * s;
         const T = yy - (h * s) / 2;
         const B = yy + (h * s) / 2;
         const hit = avoid.some((z) => L < z.r && R > z.l && T < z.b && B > z.t);
         // behind text: fade into the background, never fully away
         fade[i] += ((hit ? 0.22 : 1) - fade[i]) * ease;
-        el.style.transform = `translate3d(${(x - DOT).toFixed(1)}px, ${yy.toFixed(1)}px, 0) translateY(-50%) scale(${s.toFixed(3)})`;
+        el.style.transform = `translate3d(${L.toFixed(1)}px, ${yy.toFixed(1)}px, 0) translateY(-50%) scale(${s.toFixed(3)})`;
         el.style.opacity = ((0.28 + 0.72 * depth) * fade[i]).toFixed(3);
         el.style.filter = depth < 0.35 ? `blur(${((0.35 - depth) * 3).toFixed(2)}px)` : "none";
       });
@@ -491,7 +533,7 @@ function Orbit({ labels, build, exit, reduced }: { labels: string[]; build: V; e
       io.disconnect();
       ro.disconnect();
     };
-  }, [labels, reduced, TILT]);
+  }, [labels, reduced, TILT, size, dir, lap]);
 
   return (
     <motion.div ref={wrapRef} className="absolute inset-0 hidden lg:block" style={{ opacity: prog, y }}>
@@ -579,8 +621,16 @@ export default function SceneShowcase({
   return (
     <div aria-hidden="true" className="absolute inset-0 overflow-hidden pointer-events-none select-none" style={{ zIndex: 22 }}>
       {/* tools around the heading: an orbit on desktop, a ticker on phones */}
-      <Orbit labels={chips.slice(0, 12)} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} reduced={reduced} />
-      <ToolTicker labels={chips.slice(0, 12)} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} reduced={reduced} />
+      {chips.length > 12 ? (
+        // lots of labels: two concentric, counter-rotating rings (same tilt, so the paths never cross)
+        <>
+          <Orbit labels={chips.filter((_, i) => i % 2 === 0)} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} reduced={reduced} size={0.64} lap={75} />
+          <Orbit labels={chips.filter((_, i) => i % 2 === 1)} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} reduced={reduced} size={1} dir={-1} lap={110} />
+        </>
+      ) : (
+        <Orbit labels={chips.slice(0, 12)} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} reduced={reduced} />
+      )}
+      <ToolTicker labels={chips.slice(0, 16)} build={reduced ? ONE : build} exit={reduced ? ZERO : exit} reduced={reduced} />
     </div>
   );
 }

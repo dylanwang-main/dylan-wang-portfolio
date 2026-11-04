@@ -403,11 +403,23 @@ export default function SectionOpener({
         )}
         {scene.backgroundPanels && (
           <motion.div
-            className="absolute inset-0 grid grid-cols-3"
+            className="absolute inset-0"
             style={{ y: prefersReducedMotion ? 0 : bgY, scale: 1.04 }}
           >
-            {scene.backgroundPanels.map((p, i) => (
-              <div key={p.src} className="relative overflow-hidden" style={i ? { borderLeft: "1px solid rgba(244,239,230,0.14)" } : undefined}>
+            {scene.backgroundPanels.map((p, i, all) => {
+              // panels overlap and fade into each other, so there are no hard seams
+              const n = all.length;
+              const w = 100 / n + 16;
+              const left = (i * (100 - w)) / (n - 1);
+              const fadeL = i === 0 ? "#000 0%" : "transparent 0%, #000 30%";
+              const fadeR = i === n - 1 ? "#000 100%" : "#000 70%, transparent 100%";
+              const mask = `linear-gradient(to right, ${fadeL}, ${fadeR})`;
+              return (
+              <div
+                key={p.src}
+                className="absolute top-0 bottom-0 overflow-hidden"
+                style={{ left: `${left}%`, width: `${w}%`, WebkitMaskImage: mask, maskImage: mask }}
+              >
                 <img
                   src={p.src}
                   alt=""
@@ -417,7 +429,8 @@ export default function SectionOpener({
                   style={{ objectPosition: p.position ?? "50% 50%", filter: `blur(${scene.backgroundBlur ?? 7}px)`, transform: "scale(1.08)" }}
                 />
               </div>
-            ))}
+              );
+            })}
           </motion.div>
         )}
         {scene.backgroundPanels && (
