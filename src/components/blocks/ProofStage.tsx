@@ -164,7 +164,7 @@ function WaxSeal({ label, index, build, s0 }: { label: string; index: number; bu
     <motion.div
       // click or tap: pop, then fly to the tracker; mouse users also get the hover flip
       onClick={onClick}
-      title={slot >= 0 && !got ? "Click to collect" : undefined}
+      title={slot >= 0 && !got ? (typeof window !== "undefined" && window.matchMedia("(hover: none)").matches ? "Tap to collect" : "Click to collect") : undefined}
       className={`seal w-12 h-12 shrink-0 cursor-pointer ${got ? "is-collected" : ""}`}
       style={{ scale, opacity, filter: "drop-shadow(0 3px 5px rgba(63,22,22,0.35))" }}
     >

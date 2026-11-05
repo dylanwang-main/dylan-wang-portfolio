@@ -28,7 +28,7 @@ export default function SealReveal() {
         {done
           ? "You found every wax seal on the site. Thanks for looking closely."
           : got.length === 0
-            ? `There are ${total} wax seals hidden around the site. Click each one to collect it.`
+            ? `There are ${total} wax seals hidden around the site. ${typeof window !== "undefined" && window.matchMedia("(hover: none)").matches ? "Tap" : "Click"} each one to collect it.`
             : `${got.length} of ${total} wax seals found. The rest are hidden around the site.`}
       </p>
       {done && (
