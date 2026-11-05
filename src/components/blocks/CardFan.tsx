@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { useLatched } from "../../lib/motion";
 import { motion, useScroll, useTransform, MotionValue } from "motion/react";
 import PlaceholderImage from "./PlaceholderImage";
 
@@ -26,7 +27,8 @@ function FanItem({ card, i, p }: { card: FanCard; i: number; p: MotionValue<numb
 /** Cards that start stacked like a deck and fan out as you scroll (Shopify "Pulse" stack). */
 export default function CardFan({ cards }: { cards: FanCard[] }) {
   const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress: p } = useScroll({ target: ref, offset: ["start 0.85", "start 0.2"] });
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.85", "start 0.2"] });
+  const p = useLatched(scrollYProgress);
   return (
     <>
       <div ref={ref} className="relative hidden md:block h-[clamp(360px,52vh,540px)]">

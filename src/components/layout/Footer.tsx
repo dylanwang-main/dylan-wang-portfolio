@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { motion, MotionValue, useScroll, useTransform } from "motion/react";
 import { NAVIGATION_ITEMS } from "../../data/portfolio";
 import { seg } from "../../lib/math";
+import { useLatched } from "../../lib/motion";
 import { useReducedMotion } from "../../lib/useReducedMotion";
 import PaperEdge from "./PaperEdge";
 import { scrollToId, scrollToTop } from "../../lib/scroll";
@@ -13,7 +14,8 @@ const EASE_OUT = (t: number) => 1 - Math.pow(1 - t, 3);
 function Wordmark({ text }: { text: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
-  const { scrollYProgress: p } = useScroll({ target: ref, offset: ["start end", "end end"] });
+  const { scrollYProgress: rawP } = useScroll({ target: ref, offset: ["start end", "end end"] });
+  const p = useLatched(rawP);
   const letters = Array.from(text);
   return (
     <div
@@ -50,7 +52,8 @@ function Letter({ ch, i, n, p, still }: { ch: string; i: number; n: number; p: M
 function ClosingRule() {
   const ref = useRef<HTMLSpanElement>(null);
   const reduced = useReducedMotion();
-  const { scrollYProgress: p } = useScroll({ target: ref, offset: ["start end", "end end"] });
+  const { scrollYProgress: rawP } = useScroll({ target: ref, offset: ["start end", "end end"] });
+  const p = useLatched(rawP);
   const scaleX = useTransform(p, [0, 0.9], [0, 1], { clamp: true });
   const glint = useTransform(scaleX, (v) => `${v * 100}%`);
   const glintOpacity = useTransform(scaleX, [0, 0.1, 0.9, 1], [0, 1, 1, 0]);

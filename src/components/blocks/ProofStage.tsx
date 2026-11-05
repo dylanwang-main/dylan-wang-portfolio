@@ -1,6 +1,6 @@
 import { useId, useRef, useState } from "react";
 import { motion, useScroll, useTransform, MotionValue } from "motion/react";
-import { EASE } from "../../lib/motion";
+import { EASE, useLatched } from "../../lib/motion";
 import { launchSeal, sealGlyph, sealIndex, useSeals } from "../../lib/seals";
 
 
@@ -283,7 +283,7 @@ export default function ProofStage({
 }: ProofStageProps) {
   const stageRef = useRef<HTMLDivElement>(null);
 
-  const { scrollYProgress: ownBuild } = useScroll({
+  const { scrollYProgress: rawBuild } = useScroll({
     target: stageRef,
     offset: ["start 0.92", "start 0.3"],
   });
@@ -291,7 +291,9 @@ export default function ProofStage({
     target: stageRef,
     offset: ["start end", "end start"],
   });
-  const driven = useTransform(progress ?? ownBuild, [0.08, 0.7], [0, 1], { clamp: true });
+  const ownBuild = useLatched(rawBuild);
+  const drivenRaw = useTransform(progress ?? ownBuild, [0.08, 0.7], [0, 1], { clamp: true });
+  const driven = useLatched(drivenRaw);
   const build = progress ? driven : ownBuild;
   const depth = progress ?? ownDepth;
   const windowY = useTransform(build, [0, 1], [90, 0]);

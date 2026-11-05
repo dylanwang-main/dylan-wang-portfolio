@@ -12,7 +12,7 @@ import {
   WorkSide,
   SiteMain,
 } from "../scenes/SceneShowcase";
-import { fadeUp } from "../../lib/motion";
+import { fadeUp, useLatched } from "../../lib/motion";
 import { useReducedMotion } from "../../lib/useReducedMotion";
 
 interface FeatureBlockProps {
@@ -71,7 +71,8 @@ function SlotMarginalia({
   notes: Record<string, string>;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.95", "start 0.35"] });
+  const { scrollYProgress: rawBuild } = useScroll({ target: ref, offset: ["start 0.95", "start 0.35"] });
+  const scrollYProgress = useLatched(rawBuild);
   // the tile's own padding: the image starts this far in from the tile's top and bottom
   const PAD = "clamp(0.75rem, 2.5vw, 1.75rem)";
   const column = (side: "left" | "right") =>

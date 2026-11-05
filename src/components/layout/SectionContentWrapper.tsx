@@ -2,6 +2,7 @@ import { forwardRef } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
 import PaperEdge from "./PaperEdge";
 import PaperDecor from "./PaperDecor";
+import { useLatched } from "../../lib/motion";
 import { prefersReducedMotion } from "../../lib/useReducedMotion";
 
 interface SectionContentWrapperProps {
@@ -24,11 +25,12 @@ const SectionContentWrapper = forwardRef<
   { children, className = "", id, seed = 101 },
   ref
 ) {
-  const { scrollYProgress: p } = useScroll({
+  const { scrollYProgress: rawP } = useScroll({
     target: ref as React.RefObject<HTMLDivElement>,
     offset: ["start end", "start start"],
   });
 
+  const p = useLatched(rawP);
   const reduced = prefersReducedMotion();
 
   // Content rides in slightly slower than the page itself (depth), then settles.
