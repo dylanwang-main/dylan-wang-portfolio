@@ -9,6 +9,10 @@ export interface Hotspot {
   y: number;
   label: string;
   detail: string;
+  /** Where the note opens, so it never covers what it describes. "up" (default), "down", or "right" (beside the dot). */
+  dir?: "up" | "down" | "right";
+  /** Distance from the dot for "right" notes, in px (clears a sidebar, for example). */
+  gap?: number;
 }
 
 const CREAM = "#F4EFE6";
@@ -49,6 +53,9 @@ function Spot({ spot, index, open, onToggle }: { spot: Hotspot; index: number; o
   // Notes always open up and to the right of the dot. Dots near the right edge mirror to up-left
   // with the same spacing, so the note never runs off the page.
   const flip = spot.x > 70;
+  const dir = spot.dir ?? "up";
+  const gap = dir === "right" ? spot.gap ?? NOTE_OFFSET : NOTE_OFFSET;
+  const vertical = dir === "up" ? { bottom: NOTE_OFFSET } : dir === "down" ? { top: NOTE_OFFSET } : { top: -36 };
   return (
     <div className="absolute" style={{ left: `${spot.x}%`, top: `${spot.y}%`, zIndex: open ? 30 : 10 }}>
       <motion.button
@@ -77,8 +84,8 @@ function Spot({ spot, index, open, onToggle }: { spot: Hotspot; index: number; o
           // pointer-events-none: the note can never cover or block a dot
           className="absolute hidden sm:block w-[240px] rounded-lg p-3.5 text-left pointer-events-none"
           style={{
-            bottom: NOTE_OFFSET,
-            ...(flip ? { right: NOTE_OFFSET } : { left: NOTE_OFFSET }),
+            ...vertical,
+            ...(flip ? { right: gap } : { left: gap }),
             background: "#FBF8F2",
             boxShadow: "0 14px 40px rgba(0,0,0,0.4)",
           }}

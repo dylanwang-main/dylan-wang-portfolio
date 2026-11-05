@@ -63,7 +63,8 @@ body {
   font-style: italic;
   font-family: var(--font-serif);
   font-size: 2em;
-  padding-right: 0.05em;
+  /* pull the rest of the word in: the 2em italic capital carries a wide right side bearing */
+  margin-right: -0.1em;
   color: var(--swash-color, var(--accent-oxblood));
 }
 
@@ -71,7 +72,7 @@ body {
   font-style: italic;
   font-family: var(--font-serif);
   font-size: 2em;
-  padding-right: 0.05em;
+  margin-right: -0.1em;
   color: var(--swash-color, var(--accent-oxblood));
 }
 

@@ -415,7 +415,7 @@ const LAYOUTS: Record<string, Layout> = {
   },
   contact: {
     Main: ContactMain,
-    chips: ["LinkedIn", "Instagram", "Snapchat", "Facebook", "GitHub", "Discord", "Email", "Texting"],
+    chips: ["Email", "LinkedIn", "GitHub", "Instagram", "Resume"],
     mainClass: "h-[40vh] md:h-[44vh] md:w-[min(52vw,860px)]",
   },
 };

@@ -20,6 +20,9 @@ export default function ReelCards({ build }: { build: MotionValue<number> }) {
       {order.map((r, i) => (
         <ReelCard key={r.url} reel={r} rank={reels.indexOf(r) + 1} pose={fan[i] ?? fan[1]} build={build} delay={i} />
       ))}
+      <p className="absolute left-0 right-0 -bottom-9 text-center font-editorial-serif italic text-[15px] text-[var(--taupe-subtle)]">
+        “× median” compares each reel to my typical post, about 4K views.
+      </p>
     </div>
   );
 }

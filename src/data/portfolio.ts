@@ -56,7 +56,7 @@ const WORK_SHOTS = ["/tusd-overview.png", "/n10-homepage.jpg", "/parksmart-app.j
 export const HERO_SCENE: SceneData = {
   id: "hero",
   heading: "Dylan Wang",
-  tagline: "Data science student at UC San Diego and content creator.",
+  tagline: "Data science student at UC San Diego and content creator.",
   backgroundImage: "/work-flatlay.jpg",
   backgroundBlur: 3,
   theme: "dark",
@@ -248,7 +248,7 @@ export const SECTION_SCENES: Record<"work" | "content" | "about" | "contact", Sc
     kicker: "Contact",
     heading: "Contact",
     tagline:
-      "Direct correspondence for student organizations, recruitment, and partnerships.",
+      "A note, a question, or just hello.",
     montage: [...WORK_SHOTS, "/dylan-wang-headshot.jpg"],
     theme: "dark",
     layers: [
@@ -341,7 +341,7 @@ export interface ProjectData {
   /** Label in the browser bar above the screenshot (defaults to the title). */
   screenshotTitle?: string;
   /** Optional browser walkthrough with pulsing hotspots (x, y in % of the page). */
-  hotspots?: { x: number; y: number; label: string; detail: string }[];
+  hotspots?: { x: number; y: number; label: string; detail: string; dir?: "up" | "down" | "right"; gap?: number }[];
   imagePlaceholder: {
     label: string;
     aspectRatio: string;
@@ -420,7 +420,7 @@ export const WORK_PROJECTS: ProjectData[] = [
     tools: ["WordPress", "HTML", "CSS"],
     screenshot: "/n10-homepage.jpg",
     hotspots: [
-      { x: 37, y: 8, label: "Navigation", detail: "Dropdowns for Classes, Competitive Programs and Resources group the site into clear sections." },
+      { x: 37, y: 8, dir: "down", label: "Navigation", detail: "Dropdowns for Classes, Competitive Programs and Resources group the site into clear sections." },
       { x: 50, y: 63, label: "Hero message", detail: "A first-time visitor knows in one line that classes and teams are here for them, right before the buttons." },
       { x: 50, y: 74, label: "Paths to enroll", detail: "Register Now sits front and center, so a ready visitor can sign up without hunting for the next step." },
       { x: 2.7, y: 95, label: "Accessibility", detail: "Keeps the site usable for every visitor, so no family drops off before they can enroll." },
@@ -463,8 +463,8 @@ export const WORK_PROJECTS: ProjectData[] = [
     screenshotAspect: "1910/970",
     screenshotTitle: "ParkSmart · UCSD parking planner",
     hotspots: [
-      { x: 12, y: 40, label: "Trip inputs", detail: "Pick a destination, arrival time and permit. Lots your permit can't use are filtered out before anything is ranked." },
-      { x: 12, y: 74, label: "First choice", detail: "Expected availability, walking time and a plain reason it beat the backup, so the pick is easy to trust." },
+      { x: 12, y: 40, dir: "right", gap: 150, label: "Trip inputs", detail: "Pick a destination, arrival time and permit. Lots your permit can't use are filtered out before anything is ranked." },
+      { x: 12, y: 74, dir: "right", gap: 150, label: "First choice", detail: "Expected availability, walking time and a plain reason it beat the backup, so the pick is easy to trust." },
       { x: 61.7, y: 41, label: "Campus map", detail: "First choice and backup are pinned beside your destination on a satellite map of campus." },
     ],
     stats: [

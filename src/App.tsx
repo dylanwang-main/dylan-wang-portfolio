@@ -9,6 +9,7 @@ import FeatureBlock from "./components/blocks/FeatureBlock";
 import AboutSection from "./components/sections/AboutSection";
 import ContactSection from "./components/sections/ContactSection";
 import Footer from "./components/layout/Footer";
+import SkipIntro from "./components/layout/SkipIntro";
 import SectionContentWrapper from "./components/layout/SectionContentWrapper";
 import { WORK_PROJECTS, CONTENT_PROJECT, HERO_SCENE, SECTION_SCENES } from "./data/portfolio";
 
@@ -20,6 +21,7 @@ export default function App() {
       <div className="min-h-screen w-full bg-[#161310] text-[var(--text-ink)] selection:bg-[var(--accent-oxblood)] selection:text-[var(--bg-cream)]">
         <Navigation />
         <SealTracker />
+        <SkipIntro />
 
         <div className="w-full">
           <main className="w-full">
