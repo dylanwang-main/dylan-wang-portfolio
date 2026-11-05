@@ -363,7 +363,7 @@ const LAYOUTS: Record<string, Layout> = {
   about: {
     Main: AboutMain,
     Side: AboutSide,
-    // trimmed to 22 so two rings stay evenly spaced; the tagline already says "UC San Diego, class of 2030"
+    // trimmed to 20 so two rings stay evenly spaced; the tagline already says "UC San Diego, class of 2030"
     chips: [
       "Data Science",
       "UC San Diego",
@@ -385,8 +385,6 @@ const LAYOUTS: Record<string, Layout> = {
       "Tennis",
       "Travel",
       "Mandarin Chinese",
-      "Coaching",
-      "Consulting",
     ],
     mainClass: "h-[44vh] md:h-[56vh] md:w-[min(46vw,640px)]",
   },

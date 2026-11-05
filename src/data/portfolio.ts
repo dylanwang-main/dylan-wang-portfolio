@@ -416,7 +416,7 @@ export const WORK_PROJECTS: ProjectData[] = [
     ],
     links: [{ label: "Visit live site", url: "https://www.n10dancestudios.com/" }],
     statsAtBottom: true,
-    statsNote: "About 1 in 16 people who saw the site in Google search clicked through (Google Search Console, Jul 2025 to Oct 2026).",
+    statsNote: "About 1 in 16 people who saw the site in Google search clicked through (Google Search Console, since launch).",
     tools: ["WordPress", "HTML", "CSS"],
     screenshot: "/n10-homepage.jpg",
     hotspots: [
@@ -428,7 +428,7 @@ export const WORK_PROJECTS: ProjectData[] = [
     slots: [
       {
         label: "Outcome",
-        prompt: "5.8K+ organic clicks and 90K+ impressions at a 6.4% CTR (Google Search Console, Jul 2025 to Oct 2026).",
+        prompt: "5.8K+ organic clicks and 90K+ impressions at a 6.4% CTR (Google Search Console, since launch).",
         image: "/n10-search-console.png",
         popups: ["Keyword targeting", "Site structure", "Content updates", "Mobile optimization"],
         popupNotes: {
@@ -507,10 +507,10 @@ export const CONTENT_PROJECT: ProjectData = {
     "Short-form content on Instagram: ideation, editing, testing formats, and trend-based experiments, then using performance data to double down on what reaches people.",
   meta: "Instagram · Growth analytics · Jan 2025 to present",
   stats: [
-    { value: "3M+", label: "organic views" },
-    { value: "42", label: "short-form posts" },
-    { value: "~48K", label: "average views per post" },
-    { value: "~2.1K", label: "average likes per post" },
+    { value: "3M+", label: "organic views, whole account" },
+    { value: "42", label: "top-performing posts" },
+    { value: "~48K", label: "average views per top post" },
+    { value: "~2.1K", label: "average likes per top post" },
   ],
   statsAtBottom: true,
   links: [{ label: "View on Instagram", url: "https://www.instagram.com/dylanwang.main/" }],
@@ -524,11 +524,11 @@ export const CONTENT_PROJECT: ProjectData = {
     ["/content/dms/dm-1.png", "/content/dms/dm-3.png"],
     ["/content/dms/dm-2.png", "/content/dms/dm-6.png", "/content/dms/dm-4.png", "/content/dms/dm-5.png"],
   ],
-  tools: ["DaVinci Resolve", "Buffer", "Canva"],
+  tools: ["DaVinci Resolve", "Buffer", "Miro"],
   toolNotes: {
     "DaVinci Resolve": "cuts, pacing and color",
     Buffer: "scheduling and posting rhythm",
-    Canva: "covers and on-screen text",
+    Miro: "planning and idea boards",
   },
   slots: [
     {
