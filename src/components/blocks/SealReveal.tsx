@@ -26,10 +26,10 @@ export default function SealReveal() {
       </div>
       <p className="mt-6 text-[15px] text-[var(--text-ink)]/70">
         {done
-          ? "You found every wax seal on the site. Thanks for looking closely."
+          ? "You found every wax seal on the site, thanks for looking closely."
           : got.length === 0
-            ? `There are ${total} wax seals hidden around the site. ${typeof window !== "undefined" && window.matchMedia("(hover: none)").matches ? "Tap" : "Click"} each one to collect it.`
-            : `${got.length} of ${total} wax seals found. The rest are hidden around the site.`}
+            ? `${total} wax seals are hidden around the site, so ${typeof window !== "undefined" && window.matchMedia("(hover: none)").matches ? "tap" : "click"} each one you find to collect it.`
+            : `${got.length} of ${total} wax seals found, and the rest are still hidden around the site.`}
       </p>
       {done && (
         <button type="button" onClick={resetSeals} className="mt-4 text-[12px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)] hover:text-[var(--text-ink)] cursor-pointer">

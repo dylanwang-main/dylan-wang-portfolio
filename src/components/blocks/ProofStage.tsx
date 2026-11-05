@@ -1,4 +1,4 @@
-import { useId, useRef, useState } from "react";
+import { useId, useRef, useState, useSyncExternalStore } from "react";
 import { motion, useScroll, useTransform, MotionValue } from "motion/react";
 import { EASE, useLatched } from "../../lib/motion";
 import { launchSeal, sealGlyph, sealIndex, useSeals } from "../../lib/seals";
@@ -60,13 +60,81 @@ function waxPath(seed: string) {
   return d + "Z";
 }
 
+/* ---------- glyph centering ----------
+ * Letters are measured with their real ink bounds (canvas) and placed so the ink, not the font box,
+ * sits on the centre of the seal. Italic caps, narrow letters and Roman numerals all land dead centre. */
+const GLYPH_FONT = "'Cormorant Garamond', Garamond, Georgia, serif";
+interface GlyphBox {
+  chars: { c: string; x: number }[]; // x: left origin of each character, centred, in 1/100 em
+  cy: number; // baseline shift that centres the ink vertically
+  w: number;
+  h: number;
+}
+const glyphCache = new Map<string, GlyphBox>();
+let measureCtx: CanvasRenderingContext2D | null = null;
+let fontVersion = 0;
+const fontSubs = new Set<() => void>();
+if (typeof document !== "undefined" && document.fonts) {
+  const bump = () => {
+    fontVersion++;
+    glyphCache.clear();
+    fontSubs.forEach((f) => f());
+  };
+  document.fonts.ready.then(bump);
+  document.fonts.addEventListener?.("loadingdone", bump);
+}
+const subscribeFonts = (f: () => void) => {
+  fontSubs.add(f);
+  return () => fontSubs.delete(f);
+};
+
+function measureGlyph(glyph: string, italic: boolean): GlyphBox | null {
+  if (typeof document === "undefined") return null;
+  const key = `${glyph}|${italic}`;
+  const hit = glyphCache.get(key);
+  if (hit) return hit;
+  measureCtx ??= document.createElement("canvas").getContext("2d");
+  const ctx = measureCtx;
+  if (!ctx) return null;
+  const S = 100;
+  const track = glyph.length > 1 ? 6 : 0; // a little air between letters of a monogram or numeral
+  ctx.font = `${italic ? "italic " : ""}${S}px ${GLYPH_FONT}`;
+  ctx.textAlign = "left";
+  ctx.textBaseline = "alphabetic";
+  let x = 0;
+  let left = Infinity;
+  let right = -Infinity;
+  let asc = 0;
+  let desc = 0;
+  const chars: { c: string; x: number }[] = [];
+  for (const c of glyph) {
+    const m = ctx.measureText(c);
+    chars.push({ c, x });
+    left = Math.min(left, x - m.actualBoundingBoxLeft);
+    right = Math.max(right, x + m.actualBoundingBoxRight);
+    asc = Math.max(asc, m.actualBoundingBoxAscent);
+    desc = Math.max(desc, m.actualBoundingBoxDescent);
+    x += m.width + track;
+  }
+  const mid = (left + right) / 2;
+  const box = { chars: chars.map((ch) => ({ c: ch.c, x: ch.x - mid })), cy: (desc - asc) / 2, w: right - left, h: asc + desc };
+  glyphCache.set(key, box);
+  return box;
+}
+
 /** One face of a wax seal: melted edge, pressed inner ring, embossed glyph. */
-export function SealFace({ seed, glyph, serif = true }: { seed: string; glyph: string; serif?: boolean }) {
+export function SealFace({ seed, glyph, serif = true, shadow = false }: { seed: string; glyph: string; serif?: boolean; shadow?: boolean }) {
   // unique per instance: the desktop and phone layouts both render seals, and a gradient defined
   // inside a hidden (display:none) copy would leave the visible copy unfilled
   const id = `wax-${useId().replace(/:/g, "")}`;
+  useSyncExternalStore(subscribeFonts, () => fontVersion, () => 0); // re-centre once the serif has loaded
+  const baseSize = glyph.length > 2 ? 0.62 : 0.95;
+  const box = measureGlyph(glyph, serif);
+  // never let a wide monogram crowd the pressed ring: the ink must fit inside about one unit
+  const fs = box ? Math.min(baseSize, 100 / box.w, 100 / box.h) : baseSize;
+  const k = fs / 100;
   return (
-    <svg viewBox="-1.15 -1.15 2.3 2.3" className="w-full h-full">
+    <svg viewBox="-1.15 -1.15 2.3 2.3" className="w-full h-full" style={{ overflow: "visible" }}>
       <defs>
         <radialGradient id={`${id}-g`} cx="35%" cy="30%" r="80%">
           <stop offset="0%" stopColor="#9b3b3b" />
@@ -77,8 +145,13 @@ export function SealFace({ seed, glyph, serif = true }: { seed: string; glyph: s
           <stop offset="0%" stopColor="#5a2222" />
           <stop offset="100%" stopColor="#7a3030" />
         </radialGradient>
+        {shadow && (
+          <filter id={`${id}-sh`} x="-30%" y="-30%" width="160%" height="170%">
+            <feDropShadow dx="0" dy="0.07" stdDeviation="0.07" floodColor="#3f1616" floodOpacity="0.38" />
+          </filter>
+        )}
       </defs>
-      <path d={waxPath(seed)} fill={`url(#${id}-g)`} />
+      <path d={waxPath(seed)} fill={`url(#${id}-g)`} filter={shadow ? `url(#${id}-sh)` : undefined} />
       {/* pressed ring: dark inner edge, light outer lip */}
       <circle r="0.72" fill={`url(#${id}-in)`} />
       <circle r="0.72" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="0.05" />
@@ -89,19 +162,19 @@ export function SealFace({ seed, glyph, serif = true }: { seed: string; glyph: s
         ["rgba(255,225,215,0.35)", -0.025],
         ["#c9817a", 0],
       ].map(([fill, o], i) => (
-        <text
-          key={i}
-          x={o as number}
-          y={(o as number) + 0.02}
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontSize={glyph.length > 2 ? 0.62 : 0.95}
-          fontStyle={serif ? "italic" : "normal"}
-          fontFamily="'Cormorant Garamond', Garamond, Georgia, serif"
-          fill={fill as string}
-        >
-          {glyph}
-        </text>
+        <g key={i} fill={fill as string} fontSize={fs} fontStyle={serif ? "italic" : "normal"} fontFamily={GLYPH_FONT}>
+          {box ? (
+            box.chars.map((ch, j) => (
+              <text key={j} x={ch.x * k + (o as number)} y={-box.cy * k + (o as number)} textAnchor="start">
+                {ch.c}
+              </text>
+            ))
+          ) : (
+            <text x={o as number} y={(o as number) + 0.02} textAnchor="middle" dominantBaseline="central">
+              {glyph}
+            </text>
+          )}
+        </g>
       ))}
     </svg>
   );
@@ -110,15 +183,46 @@ export function SealFace({ seed, glyph, serif = true }: { seed: string; glyph: s
 /**
  * Click / tap on a seal: it pops (a quick pulse toward the viewer), then a copy flies to its slot
  * in the tracker. Already-collected seals just pop.
+ *
+ * Touch fires on pointer-up (not on the later "click"), with a forgiving tolerance for finger drift,
+ * so quick or slightly sliding taps still count. The pop is a Web Animation on the same element
+ * (no remount), so rapid taps simply restart it.
  */
-function useSealClick(label: string) {
-  const [pop, setPop] = useState(0);
-  const onClick = (e: React.MouseEvent<HTMLElement>) => {
-    const el = e.currentTarget;
-    setPop((n) => n + 1);
-    window.setTimeout(() => launchSeal(label, el.getBoundingClientRect()), 320);
+function useSealClick(label: string, onFire?: () => void) {
+  const bodyRef = useRef<HTMLSpanElement>(null);
+  const down = useRef<{ x: number; y: number; t: number } | null>(null);
+  const lastPointer = useRef(0);
+  const fire = (el: HTMLElement) => {
+    onFire?.();
+    bodyRef.current?.animate(
+      [
+        { transform: "scale(1)" },
+        { transform: "scale(1.3) translateY(-5%)", offset: 0.35 },
+        { transform: "scale(0.93)", offset: 0.7 },
+        { transform: "scale(1)" },
+      ],
+      { duration: 380, easing: "cubic-bezier(0.2, 0.8, 0.2, 1)" }
+    );
+    window.setTimeout(() => launchSeal(label, el.getBoundingClientRect()), 160);
   };
-  return { pop, onClick };
+  const handlers = {
+    onPointerDown: (e: React.PointerEvent<HTMLElement>) => {
+      down.current = { x: e.clientX, y: e.clientY, t: performance.now() };
+    },
+    onPointerUp: (e: React.PointerEvent<HTMLElement>) => {
+      const d = down.current;
+      down.current = null;
+      if (!d || e.pointerType === "mouse") return;
+      if (Math.hypot(e.clientX - d.x, e.clientY - d.y) > 18 || performance.now() - d.t > 700) return;
+      lastPointer.current = performance.now();
+      fire(e.currentTarget);
+    },
+    onClick: (e: React.MouseEvent<HTMLElement>) => {
+      if (performance.now() - lastPointer.current < 800) return; // already handled by the touch path
+      fire(e.currentTarget);
+    },
+  };
+  return { bodyRef, handlers };
 }
 
 /** Small seal for phone lists: tap to flip between the initial and the Roman numeral. */
@@ -127,24 +231,20 @@ export function TapSeal({ label, index }: { label: string; index: number }) {
   const got = useSeals().includes(label);
   const slot = sealIndex(label);
   const num = ROMAN[slot >= 0 ? slot : index] ?? "❧";
-  const { pop, onClick } = useSealClick(label);
+  const { bodyRef, handlers } = useSealClick(label, () => setFlipped((f) => !f));
   return (
     <button
       type="button"
       aria-label={`${label.split(":").pop()}: tap to flip${slot >= 0 && !got ? " and collect" : ""}`}
       aria-pressed={flipped}
-      onClick={(e) => {
-        setFlipped((f) => !f);
-        onClick(e);
-      }}
+      {...handlers}
       className={`seal w-9 h-9 shrink-0 cursor-pointer ${flipped ? "is-flipped" : ""} ${got ? "is-collected" : ""}`}
-      style={{ filter: "drop-shadow(0 2px 3px rgba(63,22,22,0.3))" }}
     >
-      <span key={pop} className={`seal-body block ${pop ? "seal-pop" : ""}`}>
+      <span ref={bodyRef} className="seal-body block">
       <span className="seal-hit" aria-hidden="true" />
       <span className="seal-inner block">
-        <span className="seal-face block" style={{ rotate: "-6deg" }}><SealFace seed={label} glyph={sealGlyph(label)} /></span>
-        <span className="seal-face seal-back block"><SealFace seed={label + "b"} glyph={num} serif={false} /></span>
+        <span className="seal-face block" style={{ rotate: "-6deg" }}><SealFace seed={label} glyph={sealGlyph(label)} shadow /></span>
+        <span className="seal-face seal-back block"><SealFace seed={label + "b"} glyph={num} serif={false} shadow /></span>
       </span>
       </span>
     </button>
@@ -159,21 +259,21 @@ function WaxSeal({ label, index, build, s0 }: { label: string; index: number; bu
   const got = useSeals().includes(label);
   const slot = sealIndex(label);
   const num = ROMAN[slot >= 0 ? slot : index] ?? "❧";
-  const { pop, onClick } = useSealClick(label);
+  const { bodyRef, handlers } = useSealClick(label);
   return (
     <motion.div
       // click or tap: pop, then fly to the tracker; mouse users also get the hover flip
-      onClick={onClick}
+      {...handlers}
       title={slot >= 0 && !got ? (typeof window !== "undefined" && window.matchMedia("(hover: none)").matches ? "Tap to collect" : "Click to collect") : undefined}
       className={`seal w-12 h-12 shrink-0 cursor-pointer ${got ? "is-collected" : ""}`}
-      style={{ scale, opacity, filter: "drop-shadow(0 3px 5px rgba(63,22,22,0.35))" }}
+      style={{ scale, opacity }}
     >
-      <span key={pop} className={`seal-body block ${pop ? "seal-pop" : ""}`}>
+      <span ref={bodyRef} className="seal-body block">
       <span className="seal-hit" aria-hidden="true" />
       <div className="seal-inner">
         {/* only the front is tilted (the stamp lands at an angle); the back stays upright */}
-        <motion.div className="seal-face" style={{ rotate }}><SealFace seed={label} glyph={sealGlyph(label)} /></motion.div>
-        <div className="seal-face seal-back"><SealFace seed={label + "b"} glyph={num} serif={false} /></div>
+        <motion.div className="seal-face" style={{ rotate }}><SealFace seed={label} glyph={sealGlyph(label)} shadow /></motion.div>
+        <div className="seal-face seal-back"><SealFace seed={label + "b"} glyph={num} serif={false} shadow /></div>
       </div>
       </span>
     </motion.div>

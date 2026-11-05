@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, animate, motion, useMotionValue, useTransform } from "motion/react";
 import { SEAL_DONE_TEXT, SEAL_LETTERS, SEAL_ORDER, SEAL_PHRASE, labelForSlot, landSeal, sealIndex, useFlights, useSeals, type Flight } from "../../lib/seals";
 import { SealFace } from "./ProofStage";
 
@@ -31,9 +31,8 @@ export function PhraseSlots({ size = 22, track = false }: { size?: number; track
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 520, damping: 14 }}
                 className="absolute inset-0"
-                style={{ filter: "drop-shadow(0 2px 3px rgba(63,22,22,0.35))" }}
               >
-                <SealFace seed={label} glyph={SEAL_LETTERS[slot]} />
+                <SealFace seed={label} glyph={SEAL_LETTERS[slot]} shadow />
               </motion.span>
             ) : (
               // empty slot: just the dashed impression, no letter, so the phrase stays a surprise
@@ -63,20 +62,31 @@ function FlyingSeal({ f }: { f: Flight }) {
     return () => cancelAnimationFrame(id);
   }, [f.id, slot]);
   if (!to) return null;
+  return <FlightMover f={f} to={to} slot={slot} />;
+}
+
+/** The flight itself: one 0..1 progress value drives a smooth arc (quadratic curve), so there is no
+ *  speed jump mid-flight, and only compositor-friendly transforms change (no filters on the mover). */
+function FlightMover({ f, to, slot }: { f: Flight; to: { x: number; y: number; size: number }; slot: number }) {
   const { x: x0, y: y0, size: s0 } = f.from;
   // control point: up and toward the target, so it loops over rather than sliding straight
   const mx = (x0 + to.x) / 2;
   const my = Math.min(y0, to.y) - Math.max(140, Math.abs(to.x - x0) * 0.25);
+  const t = useMotionValue(0);
+  const x = useTransform(t, (v) => (1 - v) * (1 - v) * x0 + 2 * (1 - v) * v * mx + v * v * to.x);
+  const y = useTransform(t, (v) => (1 - v) * (1 - v) * y0 + 2 * (1 - v) * v * my + v * v * to.y);
+  const scale = useTransform(t, [0, 0.45, 1], [1.25, 1.1, to.size / s0]);
+  const rotate = useTransform(t, [0, 1], [0, 360]);
+  useEffect(() => {
+    const controls = animate(t, 1, { duration: 0.8, ease: [0.45, 0, 0.2, 1], onComplete: () => landSeal(f.id) });
+    return () => controls.stop();
+  }, [t, f.id]);
   return (
     <motion.div
       className="fixed left-0 top-0 z-[70] pointer-events-none"
-      style={{ width: s0, height: s0, marginLeft: -s0 / 2, marginTop: -s0 / 2, filter: "drop-shadow(0 10px 16px rgba(63,22,22,0.4))" }}
-      initial={{ x: x0, y: y0, scale: 1.25, rotate: 0 }}
-      animate={{ x: [x0, mx, to.x], y: [y0, my, to.y], scale: [1.25, 1.1, to.size / s0], rotate: [0, 200, 360] }}
-      transition={{ duration: 0.9, ease: [0.45, 0, 0.2, 1], times: [0, 0.45, 1] }}
-      onAnimationComplete={() => landSeal(f.id)}
+      style={{ width: s0, height: s0, marginLeft: -s0 / 2, marginTop: -s0 / 2, x, y, scale, rotate, willChange: "transform" }}
     >
-      <SealFace seed={f.label} glyph={SEAL_LETTERS[slot]} />
+      <SealFace seed={f.label} glyph={SEAL_LETTERS[slot]} shadow />
     </motion.div>
   );
 }

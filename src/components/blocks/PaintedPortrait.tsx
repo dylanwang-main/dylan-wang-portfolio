@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "../../lib/useReducedMotion";
 
+/** Photos already flooded with colour this visit (stays until the page is refreshed). */
+const flooded = new Set<string>();
+
 interface Blob {
   x: number;
   y: number;
@@ -12,18 +15,20 @@ interface Blob {
 /**
  * A black-and-white photo you paint colour back into. Moving the pointer over it (or tapping, on touch screens) drops watercolour
  * blooms that blossom outward with soft, uneven edges, revealing the colour photo underneath.
- * Leaving the photo lets the paint slowly dry away back to black and white.
+ * Leaving the photo lets the paint slowly dry away back to black and white. A single tap (or click)
+ * floods the whole photo with colour from the touch point, and it stays coloured until the page reloads.
  */
 export default function PaintedPortrait({ src, alt, position = "50% 50%" }: { src: string; alt: string; position?: string }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const reduced = useReducedMotion();
   const [touched, setTouched] = useState(false);
+  const [full, setFull] = useState(() => flooded.has(src));
 
   useEffect(() => {
     const wrap = wrapRef.current;
     const canvas = canvasRef.current;
-    if (!wrap || !canvas || reduced) return;
+    if (!wrap || !canvas || reduced || flooded.has(src)) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
@@ -107,7 +112,7 @@ export default function PaintedPortrait({ src, alt, position = "50% 50%" }: { sr
       ctx.globalCompositeOperation = "source-over";
       ctx.globalAlpha = 1;
       ctx.drawImage(mask, 0, 0);
-      for (const b of blobs) drawBlob(ctx, b, Math.min(1, (now - b.born) / GROW));
+      for (const b of blobs) if (now >= b.born) drawBlob(ctx, b, Math.min(1, (now - b.born) / GROW));
       ctx.globalCompositeOperation = "source-in";
       ctx.globalAlpha = fade;
       drawCover();
@@ -128,6 +133,7 @@ export default function PaintedPortrait({ src, alt, position = "50% 50%" }: { sr
     };
 
     let dryTimer = 0;
+    let flooding = false; // once flooded the colour is permanent: it never dries
     // keep the paint wet while the visitor is still interacting; dry it away after a pause
     const wake = () => {
       window.clearTimeout(dryTimer);
@@ -138,6 +144,7 @@ export default function PaintedPortrait({ src, alt, position = "50% 50%" }: { sr
     };
     const dryLater = (ms: number) => {
       window.clearTimeout(dryTimer);
+      if (flooding) return;
       dryTimer = window.setTimeout(() => {
         fading = true;
         kick();
@@ -151,7 +158,36 @@ export default function PaintedPortrait({ src, alt, position = "50% 50%" }: { sr
       kick();
     };
 
+    // one tap: colour spreads outward from the touch point across the whole photo, then stays
+    const flood = (cx: number, cy: number) => {
+      if (flooding) return;
+      flooding = true;
+      window.clearTimeout(dryTimer);
+      fading = false;
+      fade = 1;
+      const base = Math.min(W, H) * 0.2;
+      const step = base * 1.3;
+      const spread = 1500; // ms for the colour to reach the farthest corner
+      const maxD = Math.hypot(Math.max(cx, W - cx), Math.max(cy, H - cy)) || 1;
+      const now = performance.now();
+      blobs.push({ x: cx, y: cy, r: base * 1.9, born: now, seed: (Math.random() * 1e9) | 1 });
+      for (let gy = -step / 2; gy < H + step; gy += step) {
+        for (let gx = -step / 2; gx < W + step; gx += step) {
+          const x = gx + (Math.random() - 0.5) * step * 0.5;
+          const y = gy + (Math.random() - 0.5) * step * 0.5;
+          const d = Math.hypot(x - cx, y - cy);
+          blobs.push({ x, y, r: base * (1.5 + Math.random() * 0.5), born: now + (d / maxD) * spread + Math.random() * 140, seed: (Math.random() * 1e9) | 1 });
+        }
+      }
+      kick();
+      window.setTimeout(() => {
+        flooded.add(src);
+        setFull(true);
+      }, spread + GROW + 300);
+    };
+
     const onMove = (e: PointerEvent) => {
+      if (flooding) return;
       const r = wrap.getBoundingClientRect();
       const x = e.clientX - r.left;
       const y = e.clientY - r.top;
@@ -179,12 +215,11 @@ export default function PaintedPortrait({ src, alt, position = "50% 50%" }: { sr
     const onUp = (e: PointerEvent) => {
       const d = down;
       down = null;
-      if (!d || e.pointerType === "mouse") return; // a mouse already paints on hover
-      if (Math.hypot(e.clientX - d.x, e.clientY - d.y) > 12 || performance.now() - d.t > 500) return;
+      if (!d) return;
+      if (Math.hypot(e.clientX - d.x, e.clientY - d.y) > 14 || performance.now() - d.t > 600) return;
       const r = wrap.getBoundingClientRect();
-      bloomAt(e.clientX - r.left, e.clientY - r.top);
       setTouched(true);
-      onLeave(e);
+      flood(e.clientX - r.left, e.clientY - r.top);
     };
     const onCancel = (e: PointerEvent) => {
       down = null;
@@ -205,6 +240,7 @@ export default function PaintedPortrait({ src, alt, position = "50% 50%" }: { sr
         io.disconnect();
         if (!window.matchMedia("(hover: none)").matches) return;
         hintTimer = window.setTimeout(() => {
+          if (flooding) return;
           bloomAt(W * 0.36, H * 0.4, 1.6);
           window.setTimeout(() => bloomAt(W * 0.64, H * 0.52, 1.6), 450);
           dryLater(3200);
@@ -234,19 +270,29 @@ export default function PaintedPortrait({ src, alt, position = "50% 50%" }: { sr
   }, [src, position, reduced]);
 
   return (
-    <div ref={wrapRef} className="group absolute inset-0 overflow-hidden" style={{ touchAction: "pan-y" }}>
+    <div
+      ref={wrapRef}
+      className="group absolute inset-0 overflow-hidden"
+      style={{ touchAction: "pan-y" }}
+      onClick={() => {
+        if (reduced) {
+          flooded.add(src);
+          setFull(true);
+        }
+      }}
+    >
       <img
         src={src}
         alt={alt}
         loading="lazy"
         decoding="async"
-        className={`absolute inset-0 w-full h-full object-cover transition-[filter] duration-700 ${reduced ? "[filter:grayscale(1)] group-hover:[filter:none]" : "[filter:grayscale(1)_contrast(1.08)]"}`}
+        className={`absolute inset-0 w-full h-full object-cover transition-[filter] duration-700 ${full ? "[filter:none]" : reduced ? "[filter:grayscale(1)] group-hover:[filter:none]" : "[filter:grayscale(1)_contrast(1.08)]"}`}
         style={{ objectPosition: position }}
       />
-      {!reduced && <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 w-full h-full pointer-events-none" />}
-      {!reduced && !touched && (
+      {!reduced && !full && <canvas ref={canvasRef} aria-hidden="true" className="absolute inset-0 w-full h-full pointer-events-none" />}
+      {!reduced && !touched && !full && (
         <span aria-hidden="true" className="paint-hint pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-black/45 px-3.5 py-1.5 text-[12px] tracking-[0.12em] uppercase text-[#F4EFE6] backdrop-blur-sm">
-          Tap to paint
+          Tap to add color
         </span>
       )}
     </div>

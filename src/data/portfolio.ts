@@ -377,14 +377,14 @@ export const WORK_PROJECTS: ProjectData[] = [
     screenshotTitle: "CTE Dashboard · School Overview",
     hotspots: [
       { x: 23, y: 17, label: "Completer breakdowns", detail: "Splits completers by race/ethnicity, school and course, so gaps between groups show at a glance." },
-      { x: 67, y: 50, label: "Headline numbers", detail: "Completers, non-completers and completion rate update instantly with every filter." },
-      { x: 67, y: 80, label: "Student group filters", detail: "English Learner, Foster Youth, Free or Reduced Lunch and Homeless filters show how each group is doing." },
+      { x: 67.5, y: 54, label: "Headline numbers", detail: "Completers, non-completers and completion rate update instantly with every filter." },
+      { x: 67.5, y: 76, label: "Student group filters", detail: "English Learner, Foster Youth, Free or Reduced Lunch and Homeless filters show how each group is doing." },
       { x: 94, y: 19, label: "Student search", detail: "Type any student ID to jump to that student's full course history on the detail page." },
     ],
     slots: [
       {
         label: "Student detail view",
-        prompt: "Search one student ID to see every CTE course, term and grade, and whether they completed their pathway. All student data shown is fake sample data.",
+        prompt: "Search one student ID to see every CTE course, term, grade and pathway status (all student data shown is fake sample data).",
         image: "/tusd-student-detail.png",
         popups: ["Power BI", "Python", "Excel"],
         popupNotes: {
@@ -420,9 +420,9 @@ export const WORK_PROJECTS: ProjectData[] = [
     tools: ["WordPress", "HTML", "CSS"],
     screenshot: "/n10-homepage.jpg",
     hotspots: [
-      { x: 37, y: 8, dir: "down", label: "Navigation", detail: "Dropdowns for Classes, Competitive Programs and Resources group the site into clear sections." },
+      { x: 36.7, y: 7.4, dir: "down", label: "Navigation", detail: "Dropdowns for Classes, Competitive Programs and Resources group the site into clear sections." },
       { x: 50, y: 63, label: "Hero message", detail: "A first-time visitor knows in one line that classes and teams are here for them, right before the buttons." },
-      { x: 50, y: 74, label: "Paths to enroll", detail: "Register Now sits front and center, so a ready visitor can sign up without hunting for the next step." },
+      { x: 38.2, y: 74, label: "Paths to enroll", detail: "Register Now sits front and center, so a ready visitor can sign up without hunting for the next step." },
       { x: 2.7, y: 95, label: "Accessibility", detail: "Keeps the site usable for every visitor, so no family drops off before they can enroll." },
     ],
     slots: [
@@ -463,7 +463,7 @@ export const WORK_PROJECTS: ProjectData[] = [
     screenshotAspect: "1910/970",
     screenshotTitle: "ParkSmart · UCSD parking planner",
     hotspots: [
-      { x: 12, y: 40, dir: "right", gap: 150, label: "Trip inputs", detail: "Pick a destination, arrival time and permit. Lots your permit can't use are filtered out before anything is ranked." },
+      { x: 12, y: 40, dir: "right", gap: 150, label: "Trip inputs", detail: "Pick a destination, arrival time and permit, and lots your permit can't use are filtered out before anything is ranked." },
       { x: 12, y: 74, dir: "right", gap: 150, label: "First choice", detail: "Expected availability, walking time and a plain reason it beat the backup, so the pick is easy to trust." },
       { x: 61.7, y: 41, label: "Campus map", detail: "First choice and backup are pinned beside your destination on a satellite map of campus." },
     ],
@@ -479,15 +479,15 @@ export const WORK_PROJECTS: ProjectData[] = [
     slots: [
       {
         label: "The problem",
-        prompt: "Parking at UCSD is guesswork. ParkSmart turns past parking surveys into a clear first choice and a backup, so you know where to go before you leave.",
+        prompt: "Parking at UCSD is guesswork, so ParkSmart turns past surveys into a first-choice lot and a backup before you leave.",
       },
       {
         label: "Data pipeline",
-        prompt: "Cleaned UCSD's public QPASS parking surveys, standardized lot labels and matched each reading to a capacity, flagging uncertain cases instead of guessing.",
+        prompt: "Cleaned UCSD's public QPASS parking surveys, standardized lot labels, and matched each reading to a capacity (flagging unsure ones).",
       },
       {
         label: "Model and app",
-        prompt: "Benchmarked historical averages against linear regression on a time-based holdout, then served recommendations through a Python backend and a React map.",
+        prompt: "Benchmarked historical averages against linear regression on a time-based holdout, then served picks through a Python backend and React map.",
       },
     ],
     imagePlaceholder: {

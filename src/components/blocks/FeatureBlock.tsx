@@ -255,7 +255,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
               // the reels speak for themselves: no tool notes around them
               cards={project.reels ? [] : project.tools}
               notes={project.reels ? undefined : project.toolNotes}
-              heightClass={project.reels ? "h-[clamp(440px,72vh,720px)]" : undefined}
+              heightClass={project.reels ? "h-auto" : undefined}
             />
           )}
 
@@ -364,7 +364,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
               </div>
             ))}
           </div>
-          <p className="mt-6 text-center text-[12px] italic text-[var(--taupe-subtle)]">Real messages from viewers. Names and photos removed for their privacy.</p>
+          <p className="mt-6 text-center text-[12px] italic text-[var(--taupe-subtle)]">Real messages from viewers, with names and photos removed for their privacy.</p>
         </div>
       )}
 

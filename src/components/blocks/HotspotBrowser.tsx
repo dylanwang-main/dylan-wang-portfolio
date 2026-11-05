@@ -64,7 +64,7 @@ function Spot({ spot, index, open, onToggle }: { spot: Hotspot; index: number; o
         aria-label={spot.label}
         onClick={onToggle}
         onMouseEnter={() => !open && onToggle()}
-        className="relative -translate-x-1/2 -translate-y-1/2 w-7 h-7 rounded-full flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E88080]"
+        className="relative -translate-x-1/2 -translate-y-1/2 w-5 h-5 sm:w-7 sm:h-7 rounded-full flex items-center justify-center cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E88080] before:absolute before:-inset-3 before:content-[''] sm:before:hidden"
         initial={{ scale: 0, opacity: 0 }}
         whileInView={{ scale: 1, opacity: 1 }}
         viewport={{ once: true, amount: 0.8 }}
@@ -73,7 +73,7 @@ function Spot({ spot, index, open, onToggle }: { spot: Hotspot; index: number; o
         {/* Oxblood (the site's accent red) with a white rim, so it reads on light and dark screenshots */}
         <span className="hotspot-ring absolute inset-0 rounded-full border-2 border-[var(--accent-oxblood)]" />
         <span className="hotspot-ring absolute inset-0 rounded-full border-2 border-[var(--accent-oxblood)]" style={{ animationDelay: "1.1s" }} />
-        <span className="relative block w-3.5 h-3.5 rounded-full bg-[var(--accent-oxblood)] shadow-[0_0_0_2.5px_#fff,0_2px_10px_rgba(0,0,0,0.45)]" />
+        <span className="relative block w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 rounded-full bg-[var(--accent-oxblood)] shadow-[0_0_0_2px_#fff,0_2px_8px_rgba(0,0,0,0.45)] sm:shadow-[0_0_0_2.5px_#fff,0_2px_10px_rgba(0,0,0,0.45)]" />
       </motion.button>
       {open && (
         <motion.div

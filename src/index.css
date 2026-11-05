@@ -193,15 +193,17 @@ body {
 }
 
 /* Wax seal flip: front shows the tool's initial, back its Roman numeral */
-.seal { perspective: 400px; position: relative; pointer-events: none; }
+.seal { perspective: 400px; position: relative; pointer-events: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 /* round hit area just inside the wax edge: only hovering the seal itself flips it */
-.seal-hit { position: absolute; inset: 8%; border-radius: 50%; pointer-events: auto; cursor: pointer; z-index: 1; }
-.seal-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.seal-hit { position: absolute; inset: 8%; touch-action: manipulation; border-radius: 50%; pointer-events: auto; cursor: pointer; z-index: 1; }
+.seal-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; will-change: transform; transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1); }
 @media (hover: hover) { .seal-hit:hover ~ .seal-inner { transform: rotateY(180deg); } }
 .seal.is-flipped .seal-inner { transform: rotateY(180deg); }
 .seal-face { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .seal-back { transform: rotateY(180deg); }
-.seal-body { position: absolute; inset: 0; }
+.seal-body { position: absolute; inset: 0; will-change: transform; }
+/* fingers are bigger than cursors: on touch screens the tap area reaches past the wax edge */
+@media (pointer: coarse) { .seal-hit { inset: -10%; } }
 /* click: a quick pulse that jumps toward the viewer */
 @keyframes seal-pop { 0% { transform: scale(1); } 35% { transform: scale(1.38) translateY(-6%); } 65% { transform: scale(0.9); } 100% { transform: scale(1); } }
 .seal-pop { animation: seal-pop 0.42s cubic-bezier(0.2, 0.8, 0.2, 1); }
