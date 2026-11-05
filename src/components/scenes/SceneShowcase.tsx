@@ -363,52 +363,29 @@ const LAYOUTS: Record<string, Layout> = {
   about: {
     Main: AboutMain,
     Side: AboutSide,
+    // trimmed to 22 so two rings stay evenly spaced; the tagline already says "UC San Diego, class of 2030"
     chips: [
       "Data Science",
       "UC San Diego",
-      "Class of 2030",
       "Content Creator",
       "Storytelling",
       "Python",
-      "Pandas",
       "React",
-      "Git",
-      "GitHub",
-      "HTML/CSS",
-      "WordPress",
       "Power BI",
       "Excel",
       "Figma",
-      "Data Visualization",
       "Dashboards",
-      "Analytics",
       "SEO",
       "Web Development",
-      "A/B Testing",
       "DaVinci Resolve",
       "Video Editing",
-      "Color Grading",
-      "Filmmaking",
       "Short-Form Video",
-      "Day-in-the-Life Vlogs",
       "Personal Brand",
-      "Canva",
       "Rock Climbing",
-      "Bouldering",
       "Tennis",
-      "Basketball",
-      "Hiking",
       "Travel",
-      "Japan",
       "Mandarin Chinese",
       "Coaching",
-      "Teaching",
-      "Volunteering",
-      "Curious",
-      "Builder",
-      "Self-Starter",
-      "Growth Mindset",
-      "Entrepreneurship",
       "Consulting",
     ],
     mainClass: "h-[44vh] md:h-[56vh] md:w-[min(46vw,640px)]",
@@ -444,6 +421,7 @@ function Orbit({
   dir = 1,
   tiltDeg = -9,
   lap = 70,
+  phase = 0,
 }: {
   labels: string[];
   build: V;
@@ -456,6 +434,8 @@ function Orbit({
   tiltDeg?: number;
   /** Seconds per lap. */
   lap?: number;
+  /** Start angle offset in radians, so neighbouring rings do not line their labels up. */
+  phase?: number;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGEllipseElement>(null);
@@ -511,7 +491,7 @@ function Orbit({
       labels.forEach((_, i) => {
         const el = itemRefs.current[i];
         if (!el) return;
-        const a = (i / labels.length) * Math.PI * 2 + dir * t * ((Math.PI * 2) / lap);
+        const a = (i / labels.length) * Math.PI * 2 + phase + dir * t * ((Math.PI * 2) / lap);
         const ex = Math.cos(a) * rx;
         const ey = Math.sin(a) * ry;
         const x = cx + ex * Math.cos(TILT) - ey * Math.sin(TILT);
@@ -555,7 +535,7 @@ function Orbit({
       io.disconnect();
       ro.disconnect();
     };
-  }, [labels, reduced, TILT, size, dir, lap]);
+  }, [labels, reduced, TILT, size, dir, lap, phase]);
 
   return (
     <motion.div ref={wrapRef} className="absolute inset-0 hidden lg:block" style={{ opacity: prog, y }}>
@@ -647,7 +627,8 @@ export default function SceneShowcase({
         // lots of labels: concentric, counter-rotating rings (same tilt, so the paths never cross)
         (() => {
           const rings = chips.length > 24 ? 4 : 2;
-          const sizes = rings === 4 ? [0.5, 0.72, 0.94, 1.16] : [0.64, 1];
+          // rings stay inside the page: a label hangs to the right of its dot, so the outer ring must leave room for it
+          const sizes = rings === 4 ? [0.4, 0.58, 0.76, 0.94] : [0.55, 0.86];
           return sizes.map((sz, r) => (
             <Orbit
               key={r}
@@ -658,6 +639,7 @@ export default function SceneShowcase({
               size={sz}
               dir={r % 2 ? -1 : 1}
               lap={70 + r * 22}
+              phase={(r * Math.PI) / Math.max(1, chips.filter((_, i) => i % rings === r).length)}
             />
           ));
         })()
