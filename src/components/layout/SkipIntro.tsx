@@ -23,7 +23,7 @@ export default function SkipIntro() {
     <button
       type="button"
       onClick={() => scrollToId("work")}
-      className="pop-host fixed bottom-6 right-6 sm:right-8 z-[60] cursor-pointer text-[13px] font-medium tracking-wide text-[#F4EFE6]/80 hover:text-[#F4EFE6] focus:outline-none focus-visible:ring-1 focus-visible:ring-[#E88080]"
+      className="pop-host fixed bottom-3 right-3 sm:right-5 p-3 z-[60] cursor-pointer text-[13px] font-medium tracking-wide text-[#F4EFE6]/80 hover:text-[#F4EFE6] focus:outline-none focus-visible:ring-1 focus-visible:ring-[#E88080]"
     >
       <span className="pop-line" data-on="dark">Skip intro</span>{" "}
       <span aria-hidden="true" className="pop-arrow">↓</span>

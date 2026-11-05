@@ -474,7 +474,7 @@ export default function Navigation() {
       {/* ======================================================== */}
       {!isDesktop && (
         <header
-          className={`fixed top-0 left-0 right-0 z-50 px-4 py-2.5 select-none flex items-center justify-between border-b transition-colors duration-[250ms] ease-out backdrop-blur-md ${
+          className={`fixed top-0 left-0 right-0 z-50 px-4 py-1 select-none flex items-center justify-between border-b transition-colors duration-[250ms] ease-out backdrop-blur-md ${
             isDarkSection
               ? "bg-[#161310]/95 border-[rgba(244,239,230,0.12)] text-[#FFFFFF]"
               : "bg-[#F4EFE6]/95 border-[rgba(31,27,22,0.15)] text-[#161310]"
@@ -482,7 +482,7 @@ export default function Navigation() {
         >
           <button
             onClick={() => scrollToSection("hero")}
-            className="flex items-center gap-1 focus:outline-none cursor-pointer"
+            className="flex items-center gap-1 -m-2 p-2 focus:outline-none cursor-pointer"
           >
             <span
               className={`font-editorial-serif text-lg font-bold transition-colors duration-[250ms] ease-out ${
@@ -500,7 +500,7 @@ export default function Navigation() {
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className={`px-1.5 py-0.5 text-xs transition-colors duration-[250ms] ease-out focus:outline-none cursor-pointer ${
+                  className={`px-1.5 py-2 text-xs transition-colors duration-[250ms] ease-out focus:outline-none cursor-pointer ${
                     isActive
                       ? isDarkSection
                         ? "font-bold text-[#E88080]"
@@ -523,7 +523,7 @@ export default function Navigation() {
             href={RESUME_LINK.url}
             target="_blank"
             rel="noopener"
-            className={`text-[10px] transition-colors duration-[250ms] ease-out ${
+            className={`-my-3 -mr-2 px-2 py-3 text-[11px] transition-colors duration-[250ms] ease-out ${
               isDarkSection ? "text-[#D5C9B8]" : "text-[#3D332A]"
             }`}
           >

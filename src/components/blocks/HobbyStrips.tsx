@@ -95,7 +95,7 @@ function Photos({ hobby, open }: { hobby: Hobby; open: boolean }) {
                 setI(k);
               }}
               aria-label={`Photo ${k + 1} of ${n}`}
-              className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${k === i ? "w-5 bg-[#F4EFE6]" : "w-1.5 bg-[#F4EFE6]/45"}`}
+              className={`relative h-1.5 rounded-full transition-all duration-300 cursor-pointer before:absolute before:-inset-x-0.5 before:-inset-y-3 before:content-[''] ${k === i ? "w-5 bg-[#F4EFE6]" : "w-1.5 bg-[#F4EFE6]/45"}`}
             />
           ))}
         </div>

@@ -89,7 +89,7 @@ export default function Footer() {
               <button
                 key={item.id}
                 onClick={() => scrollToId(item.id)}
-                className="hover:text-[#E88080] transition-colors focus:outline-none cursor-pointer"
+                className="py-2.5 md:py-0 hover:text-[#E88080] transition-colors focus:outline-none cursor-pointer"
               >
                 <span className="font-editorial-serif italic mr-1.5">{item.numeral}</span>
                 {item.label}
@@ -97,7 +97,7 @@ export default function Footer() {
             ))}
             <button
               onClick={scrollToTop}
-              className="hover:text-[#E88080] transition-colors focus:outline-none cursor-pointer"
+              className="py-2.5 md:py-0 hover:text-[#E88080] transition-colors focus:outline-none cursor-pointer"
             >
               Top ↑
             </button>
