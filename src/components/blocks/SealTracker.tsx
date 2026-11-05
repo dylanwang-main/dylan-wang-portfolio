@@ -160,7 +160,7 @@ export default function SealTracker() {
             className="fixed z-[60] right-3 bottom-3 md:right-7 md:bottom-6 flex flex-col items-end gap-2 rounded-xl px-3 py-2.5 cursor-pointer text-[#1F1B16] bg-[#F4EFE6]/92 backdrop-blur-md border border-[rgba(31,27,22,0.12)] shadow-[0_10px_28px_rgba(31,27,22,0.22)]"
           >
             {party && <Confetti w={box.w} h={box.h} />}
-            <span className="text-[10px] uppercase tracking-[0.22em] text-[#8A7B6A]">
+            <span className="text-[12px] md:text-[10px] uppercase tracking-[0.22em] text-[#8A7B6A]">
               {done ? SEAL_DONE_TEXT : `Seals ${n} / ${total}`}
             </span>
             <PhraseSlots size={typeof window !== "undefined" && window.innerWidth < 520 ? 15 : 20} track />

@@ -281,7 +281,7 @@ export function AboutMain({ build }: { build: V }) {
 export function AboutSide() {
   return (
     <div className="w-full rounded-xl p-5 flex flex-col items-center text-center" style={{ background: CREAM, boxShadow: "var(--win-shadow, 0 30px 90px rgba(0,0,0,0.6))" }}>
-      <span className="self-start text-[10px] tracking-[0.22em] uppercase" style={{ color: "#8A7B6A" }}>Education</span>
+      <span className="self-start text-[12px] md:text-[10px] tracking-[0.22em] uppercase" style={{ color: "#8A7B6A" }}>Education</span>
       <img
         src="/ucsd-seal.png"
         alt={`${ABOUT_PROFILE.institution} seal`}
@@ -292,7 +292,7 @@ export function AboutSide() {
         className="mt-4 w-24 h-24 select-none"
       />
       <span className="mt-4 font-editorial-serif text-[1.1rem] leading-tight" style={{ color: "#1F1B16" }}>{EDUCATION[0].title}</span>
-      <span className="mt-1.5 text-[10px] tracking-[0.18em] uppercase" style={{ color: "#8A7B6A" }}>{EDUCATION[0].dates}</span>
+      <span className="mt-1.5 text-[12px] md:text-[10px] tracking-[0.18em] uppercase" style={{ color: "#8A7B6A" }}>{EDUCATION[0].dates}</span>
     </div>
   );
 }

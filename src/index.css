@@ -149,17 +149,24 @@ body {
   transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.28s ease, background-color 0.28s ease,
     color 0.28s ease, border-color 0.28s ease;
 }
-.pop-btn:hover {
-  transform: translateY(-2px);
-  background-color: var(--accent-pop);
-  border-color: var(--accent-pop);
-  color: #fff;
-  box-shadow: 0 10px 26px -8px rgba(30, 58, 158, 0.7);
+/* hover styles only where a real hover exists, so a tap on a phone never leaves a button stuck blue */
+@media (hover: hover) {
+  .pop-btn:hover {
+    transform: translateY(-2px);
+    background-color: var(--accent-pop);
+    border-color: var(--accent-pop);
+    color: #fff;
+    box-shadow: 0 10px 26px -8px rgba(30, 58, 158, 0.7);
+  }
+  .pop-btn:hover .pop-arrow,
+  .pop-host:hover .pop-arrow { transform: translate(2px, -2px); }
 }
 .pop-btn:active { transform: translateY(0) scale(0.97); }
+/* on touch, the pressed state is the feedback */
+@media (hover: none) {
+  .pop-btn:active { background-color: var(--accent-pop); border-color: var(--accent-pop); color: #fff; }
+}
 .pop-arrow { display: inline-block; transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1); }
-.pop-btn:hover .pop-arrow,
-.pop-host:hover .pop-arrow { transform: translate(2px, -2px); }
 
 /* Text links (nav, resume): a cobalt underline draws in from the left */
 .pop-line { position: relative; }
@@ -177,7 +184,8 @@ body {
   transition: transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .pop-line[data-on="dark"]::after { background: var(--accent-pop-line); }
-.pop-host:hover .pop-line::after { transform: scaleX(1); }
+@media (hover: hover) { .pop-host:hover .pop-line::after { transform: scaleX(1); } }
+.pop-host:active .pop-line::after { transform: scaleX(1); }
 
 @media (prefers-reduced-motion: reduce) {
   .pop-btn, .pop-btn:hover, .pop-btn:active, .pop-arrow { transform: none !important; }
@@ -204,3 +212,7 @@ body {
 /* Phone tool ticker under each section heading: two copies of the row, so -50% loops seamlessly */
 @keyframes tool-ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .tool-ticker { animation: tool-ticker 38s linear infinite; will-change: transform; }
+
+/* "Tap to paint" hint: only on touch screens */
+.paint-hint { display: none; }
+@media (hover: none) { .paint-hint { display: inline-block; } }

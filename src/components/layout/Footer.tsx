@@ -109,7 +109,7 @@ export default function Footer() {
 
         <Wordmark text="Dylan Wang" />
 
-        <div className="relative mt-8 pt-5 flex flex-col sm:flex-row justify-between gap-2 text-[11px] tracking-[0.18em] uppercase text-[#8A7B6A]">
+        <div className="relative mt-8 pt-5 flex flex-col sm:flex-row justify-between gap-2 text-[12px] md:text-[11px] tracking-[0.18em] uppercase text-[#8A7B6A]">
           <ClosingRule />
           <span>© {new Date().getFullYear()} Dylan Wang</span>
           <span>UC San Diego · Data Science</span>

@@ -52,7 +52,7 @@ export default function HobbyCard({ hobby, index }: { hobby: Hobby; index: numbe
       <div className="absolute inset-0 pointer-events-none" style={{ background: "linear-gradient(to top, rgba(14,11,9,0.82) 0%, rgba(14,11,9,0.25) 38%, transparent 62%)" }} />
 
       <figcaption className="absolute left-6 right-6 bottom-5 md:left-8 md:bottom-7 text-[#F4EFE6]">
-        <span className="block text-[11px] uppercase tracking-[0.24em] text-[#F4EFE6]/65">0{index + 1}</span>
+        <span className="block text-[12px] md:text-[11px] uppercase tracking-[0.24em] text-[#F4EFE6]/65">0{index + 1}</span>
         <span className="block mt-1 font-editorial-serif italic text-[clamp(2rem,3.4vw,3.2rem)] leading-none">
           <span className="text-[#E88080]">{hobby.title.charAt(0)}</span>
           {hobby.title.slice(1)}

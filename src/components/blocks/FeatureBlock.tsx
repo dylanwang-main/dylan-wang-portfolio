@@ -260,7 +260,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
           )}
 
           {hasDemo && !pinned && !project.reels && (
-            <p className="mt-6 text-[11px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)]">
+            <p className="mt-6 text-[12px] md:text-[11px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)]">
               Placeholder preview · {project.imagePlaceholder.label}
             </p>
           )}
@@ -268,7 +268,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
       </div>
 
       {hasDemo && pinned && !project.reels && (
-        <p className="text-[11px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)]">
+        <p className="text-[12px] md:text-[11px] uppercase tracking-[0.2em] text-[var(--taupe-subtle)]">
           Placeholder preview · {project.imagePlaceholder.label}
         </p>
       )}
@@ -324,7 +324,7 @@ export default function FeatureBlock({ project, index }: FeatureBlockProps) {
           <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
             {project.pillars.map((pl, i) => (
               <motion.div key={pl.title} {...fadeUp({ amount: 0.4, duration: 0.8, delay: i * 0.1 })} className="border-t border-[var(--border-hairline)] pt-5">
-                <span className={`text-[11px] uppercase tracking-[0.2em] ${pl.when === "Now" ? "text-[var(--accent-oxblood)] font-semibold" : "text-[var(--taupe-subtle)]"}`}>
+                <span className={`text-[12px] md:text-[11px] uppercase tracking-[0.2em] ${pl.when === "Now" ? "text-[var(--accent-oxblood)] font-semibold" : "text-[var(--taupe-subtle)]"}`}>
                   {String(i + 1).padStart(2, "0")} · {pl.when}
                 </span>
                 <h4 className="mt-3 font-editorial-serif italic text-[clamp(1.8rem,2.6vw,2.4rem)] leading-tight text-[var(--text-ink)]">

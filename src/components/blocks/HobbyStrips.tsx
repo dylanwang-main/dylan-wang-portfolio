@@ -161,7 +161,7 @@ export default function HobbyStrips({ hobbies }: { hobbies: Hobby[] }) {
                 <span className="text-[#E88080]">{h.title.charAt(0)}</span>
                 {h.title.slice(1)}
               </span>
-              <span className="md:hidden text-[11px] tracking-[0.24em] text-[#F4EFE6]/60">0{i + 1}</span>
+              <span className="md:hidden text-[12px] md:text-[11px] tracking-[0.24em] text-[#F4EFE6]/60">0{i + 1}</span>
             </div>
 
             {/* open: big title and line, bottom left */}
@@ -169,7 +169,7 @@ export default function HobbyStrips({ hobbies }: { hobbies: Hobby[] }) {
               className="absolute left-6 right-20 bottom-6 md:left-9 md:bottom-9 text-[#F4EFE6] pointer-events-none transition-all duration-700"
               style={{ opacity: open ? 1 : 0, transform: open ? "translateY(0)" : "translateY(14px)", transitionDelay: open ? "0.25s" : "0s" }}
             >
-              <span className="block text-[11px] uppercase tracking-[0.24em] text-[#F4EFE6]/65">0{i + 1} / 0{hobbies.length}</span>
+              <span className="block text-[12px] md:text-[11px] uppercase tracking-[0.24em] text-[#F4EFE6]/65">0{i + 1} / 0{hobbies.length}</span>
               <span className="block mt-2 font-editorial-serif italic text-[clamp(2.4rem,4.6vw,4.4rem)] leading-none whitespace-nowrap">
                 <span className="text-[#E88080]">{h.title.charAt(0)}</span>
                 {h.title.slice(1)}

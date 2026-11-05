@@ -231,10 +231,10 @@ export default function SectionOpener({
           }`}
         >
           {/* Sections already show their name as the big heading, so only the hero keeps a kicker */}
-          <span className="font-editorial-sans tracking-widest uppercase text-[11px]">
+          <span className="font-editorial-sans tracking-widest uppercase text-[12px] md:text-[11px]">
             {scene.numeral ? null : S ? <SuckText ctx={S} text={scene.kicker ?? ""} seed={1} /> : scene.kicker}
           </span>
-          <span className="font-editorial-sans tracking-widest uppercase text-[11px]">
+          <span className="font-editorial-sans tracking-widest uppercase text-[12px] md:text-[11px]">
             {S ? <SuckText ctx={S} text={scene.subtitle ?? ""} seed={50} /> : scene.subtitle}
           </span>
         </motion.div>
@@ -323,7 +323,7 @@ export default function SectionOpener({
                 : "text-[var(--taupe-subtle)] hover:text-[var(--text-ink)]"
             }`}
           >
-            <span className="text-[10px] uppercase tracking-widest">
+            <span className="text-[12px] md:text-[10px] uppercase tracking-widest">
               {S ? (
                 <SuckText ctx={S} text="Scroll to begin" seed={400} />
               ) : (
